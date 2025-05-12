@@ -1,0 +1,145 @@
+"""
+Supabase Middleware for StockMaster Pro
+
+This middleware verifies Supabase JWT tokens and sets the current user in the request context.
+"""
+
+import logging
+from flask import request, g, session, current_app, jsonify, redirect
+import sys
+import os
+
+# Add the parent directory to sys.path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from backend.auth.supabase_auth import get_token_from_request, verify_supabase_token
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def supabase_auth_middleware():
+    """
+    Middleware function to verify Supabase JWT tokens and set the current user in the request context.
+    """
+    def middleware():
+        # Public routes that don't require authentication
+        public_routes = [
+            '/',
+            '/auth/login',
+            '/auth/register',
+            '/auth/logout',
+            '/auth/callback',
+            '/auth/reset-password',
+            '/auth/forgot-password',
+            '/favicon.ico',
+            '/static/',  # Add the static directory as a public route
+            '/test/supabase',  # Add the test route as a public route
+            '/switch_lang',  # Add the language switch route as a public route
+        ]
+
+        # Routes that should be accessible with a valid token
+        protected_routes = [
+            '/dashboard',
+            '/pos',
+            '/inventory',
+            '/clients',
+            '/settings',
+            '/admin',
+            '/suppliers'
+        ]
+
+        # Skip for static files and public routes
+        # Check if the path exactly matches or starts with any of the public routes
+        is_public = False
+        for route in public_routes:
+            if request.path == route or (route.endswith('/') and request.path.startswith(route)):
+                is_public = True
+                break
+
+        # Also check for static files
+        if is_public or request.path.startswith('/static/'):
+            logger.debug(f"Skipping auth middleware for public route: {request.path}")
+            return None
+
+        # Get token from request
+        token = get_token_from_request()
+        if not token:
+            # No token, continue without setting user
+            g.supabase_user = None
+
+            # Check if this is an API route that should require authentication
+            if request.path.startswith('/api/') and not request.path.startswith('/api/public/'):
+                logger.warning(f"API request without authentication token: {request.path}")
+                return jsonify({'error': 'Authentication required'}), 401
+
+            # For web routes that require authentication, redirect to login
+            # But only for specific protected routes to prevent redirect loops
+            if not request.is_xhr and not request.headers.get('Accept') == 'application/json':
+                # Only redirect for protected routes
+                if any(request.path.startswith(route) for route in protected_routes):
+                    logger.info(f"Unauthenticated access to {request.path}, redirecting to login")
+                    # Store the original URL in session for redirect after login
+                    session['next_url'] = request.path
+                    return redirect('/auth/login')
+
+            return None
+
+        # Verify token
+        is_valid, payload = verify_supabase_token(token)
+        if not is_valid or not payload:
+            # Invalid token, continue without setting user
+            g.supabase_user = None
+
+            # For API routes, return 401 Unauthorized
+            if request.path.startswith('/api/'):
+                logger.warning(f"API request with invalid token: {request.path}")
+                return jsonify({'error': 'Invalid authentication token'}), 401
+
+            # For web routes, redirect to login
+            # But only for specific protected routes to prevent redirect loops
+            if not request.is_xhr and not request.headers.get('Accept') == 'application/json':
+                # Only redirect for protected routes
+                if any(request.path.startswith(route) for route in protected_routes):
+                    logger.info(f"Invalid token for {request.path}, redirecting to login")
+                    # Store the original URL in session for redirect after login
+                    session['next_url'] = request.path
+                    return redirect('/auth/login')
+
+            return None
+
+        # Extract user data from payload
+        user_data = {
+            'id': payload.get('sub'),
+            'email': payload.get('email'),
+            'app_metadata': payload.get('app_metadata', {}),
+            'user_metadata': payload.get('user_metadata', {}),
+            'aud': payload.get('aud'),
+            'role': payload.get('role', 'authenticated'),
+            'is_admin': payload.get('app_metadata', {}).get('is_admin', False)
+        }
+
+        # Store in g for this request
+        g.supabase_user = user_data
+
+        # Add user_id to all logs for this request
+        logger.info(f"Authenticated request from user {user_data['id']} to {request.path}")
+
+        return None
+
+    return middleware
+
+def apply_supabase_middleware(app):
+    """
+    Apply Supabase middleware to the Flask app.
+
+    Args:
+        app: The Flask app
+    """
+    app.before_request(supabase_auth_middleware())
+
+    # Add user to template context
+    @app.context_processor
+    def inject_user():
+        user = getattr(g, 'supabase_user', None)
+        return {'current_user': user}

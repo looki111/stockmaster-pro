@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}{% if lang == 'ar' %}تجديد الاشتراك | ستوك ماستر برو{% else %}Renew Subscription | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}تجديد الاشتراك{% else %}Renew Subscription{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div class="p-6 bg-blue-600 text-white">
+            <h2 class="text-2xl font-bold">
+                {% if lang == 'ar' %}تجديد اشتراكك{% else %}Renew Your Subscription{% endif %}
+            </h2>
+            <p class="mt-2 text-blue-100">
+                {% if lang == 'ar' %}
+                استمر في الاستفادة من جميع ميزات ستوك ماستر برو
+                {% else %}
+                Continue enjoying all the features of StockMaster Pro
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="p-6">
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-4">
+                    {% if lang == 'ar' %}تفاصيل الاشتراك الحالي{% else %}Current Subscription Details{% endif %}
+                </h3>
+                <div class="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                {% if lang == 'ar' %}خطة الاشتراك{% else %}Subscription Plan{% endif %}:
+                            </p>
+                            <p class="font-medium">{{ subscription.plan.name }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                {% if lang == 'ar' %}الحالة{% else %}Status{% endif %}:
+                            </p>
+                            <p class="font-medium">
+                                {% if subscription.status == 'active' %}
+                                    {% if lang == 'ar' %}نشط{% else %}Active{% endif %}
+                                {% elif subscription.status == 'expiring_soon' %}
+                                    {% if lang == 'ar' %}ينتهي قريبًا{% else %}Expiring Soon{% endif %}
+                                {% elif subscription.status == 'expired' %}
+                                    {% if lang == 'ar' %}منتهي{% else %}Expired{% endif %}
+                                {% else %}
+                                    {% if lang == 'ar' %}غير نشط{% else %}Inactive{% endif %}
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                {% if lang == 'ar' %}تاريخ الانتهاء{% else %}Expiry Date{% endif %}:
+                            </p>
+                            <p class="font-medium">{{ subscription.end_date.strftime('%Y-%m-%d') }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                {% if lang == 'ar' %}دورة الفوترة{% else %}Billing Cycle{% endif %}:
+                            </p>
+                            <p class="font-medium">
+                                {% if subscription.billing_cycle == 'monthly' %}
+                                    {% if lang == 'ar' %}شهري{% else %}Monthly{% endif %}
+                                {% else %}
+                                    {% if lang == 'ar' %}سنوي{% else %}Yearly{% endif %}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <form method="POST" class="space-y-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">
+                        {% if lang == 'ar' %}اختر خطة التجديد{% else %}Choose Renewal Plan{% endif %}
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Keep Current Plan -->
+                        <div class="relative border border-gray-300 dark:border-gray-600 rounded-lg p-4 hover:border-blue-500 dark:hover:border-blue-500 transition-colors">
+                            <input type="radio" id="keep_current" name="plan_action" value="keep_current" checked
+                                class="absolute top-4 right-4 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600">
+                            <label for="keep_current" class="block cursor-pointer">
+                                <div class="font-medium">
+                                    {% if lang == 'ar' %}الاستمرار بالخطة الحالية{% else %}Continue with Current Plan{% endif %}
+                                </div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    {{ subscription.plan.name }} - 
+                                    {% if subscription.billing_cycle == 'monthly' %}
+                                        {{ subscription.plan.price_monthly }} {% if lang == 'ar' %}ريال / شهر{% else %}SAR / month{% endif %}
+                                    {% else %}
+                                        {{ subscription.plan.price_yearly }} {% if lang == 'ar' %}ريال / سنة{% else %}SAR / year{% endif %}
+                                    {% endif %}
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <!-- Change Billing Cycle -->
+                        <div class="relative border border-gray-300 dark:border-gray-600 rounded-lg p-4 hover:border-blue-500 dark:hover:border-blue-500 transition-colors">
+                            <input type="radio" id="change_cycle" name="plan_action" value="change_cycle"
+                                class="absolute top-4 right-4 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600">
+                            <label for="change_cycle" class="block cursor-pointer">
+                                <div class="font-medium">
+                                    {% if lang == 'ar' %}تغيير دورة الفوترة{% else %}Change Billing Cycle{% endif %}
+                                </div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    {% if subscription.billing_cycle == 'monthly' %}
+                                        {% if lang == 'ar' %}
+                                        التحويل إلى الفوترة السنوية ({{ subscription.plan.price_yearly }} ريال / سنة) وتوفير {{ (subscription.plan.price_monthly * 12 - subscription.plan.price_yearly)|round|int }} ريال
+                                        {% else %}
+                                        Switch to yearly billing ({{ subscription.plan.price_yearly }} SAR / year) and save {{ (subscription.plan.price_monthly * 12 - subscription.plan.price_yearly)|round|int }} SAR
+                                        {% endif %}
+                                    {% else %}
+                                        {% if lang == 'ar' %}
+                                        التحويل إلى الفوترة الشهرية ({{ subscription.plan.price_monthly }} ريال / شهر)
+                                        {% else %}
+                                        Switch to monthly billing ({{ subscription.plan.price_monthly }} SAR / month)
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">
+                        {% if lang == 'ar' %}خيارات الدفع{% else %}Payment Options{% endif %}
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Credit Card Payment -->
+                        <div class="relative border border-gray-300 dark:border-gray-600 rounded-lg p-4 hover:border-blue-500 dark:hover:border-blue-500 transition-colors">
+                            <input type="radio" id="credit_card" name="payment_method" value="credit_card" checked
+                                class="absolute top-4 right-4 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600">
+                            <label for="credit_card" class="block cursor-pointer">
+                                <div class="font-medium flex items-center">
+                                    <i class="ri-bank-card-line mr-2 text-blue-500"></i>
+                                    {% if lang == 'ar' %}بطاقة ائتمان{% else %}Credit Card{% endif %}
+                                </div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    {% if lang == 'ar' %}
+                                    الدفع الآمن باستخدام بطاقة الائتمان أو الخصم
+                                    {% else %}
+                                    Secure payment using credit or debit card
+                                    {% endif %}
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <!-- Bank Transfer -->
+                        <div class="relative border border-gray-300 dark:border-gray-600 rounded-lg p-4 hover:border-blue-500 dark:hover:border-blue-500 transition-colors">
+                            <input type="radio" id="bank_transfer" name="payment_method" value="bank_transfer"
+                                class="absolute top-4 right-4 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600">
+                            <label for="bank_transfer" class="block cursor-pointer">
+                                <div class="font-medium flex items-center">
+                                    <i class="ri-bank-line mr-2 text-blue-500"></i>
+                                    {% if lang == 'ar' %}تحويل بنكي{% else %}Bank Transfer{% endif %}
+                                </div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                    {% if lang == 'ar' %}
+                                    سيتم تزويدك بتفاصيل الحساب البنكي لإجراء التحويل
+                                    {% else %}
+                                    You will be provided with bank account details to make the transfer
+                                    {% endif %}
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-lg font-medium">
+                            {% if lang == 'ar' %}المجموع{% else %}Total{% endif %}:
+                        </span>
+                        <span class="text-xl font-bold">
+                            {% if subscription.billing_cycle == 'monthly' %}
+                                {{ subscription.plan.price_monthly }} {% if lang == 'ar' %}ريال{% else %}SAR{% endif %}
+                            {% else %}
+                                {{ subscription.plan.price_yearly }} {% if lang == 'ar' %}ريال{% else %}SAR{% endif %}
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <button type="submit" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition">
+                        {% if lang == 'ar' %}تجديد الاشتراك{% else %}Renew Subscription{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

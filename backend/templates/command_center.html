@@ -1,0 +1,258 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'الرئيسية' if lang == 'ar' else 'Home' }} - StockMaster Pro{% endblock %}
+
+{% block header %}{{ 'الرئيسية' if lang == 'ar' else 'Home' }}{% endblock %}
+{% block breadcrumb %}{{ 'الرئيسية' if lang == 'ar' else 'Home' }}{% endblock %}
+
+{% block content %}
+<!-- Quick Stats Section -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Sales Overview Card -->
+    <div class="glass-card rounded-xl p-6 card-shadow hover-scale transition-transform transform-gpu">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    {{ 'المبيعات اليوم' if lang == 'ar' else 'Today\'s Sales' }}
+                </p>
+                <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-2">
+                    ${{ "%.2f"|format(today_sales) }}
+                </p>
+            </div>
+            <div class="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg">
+                <i class="ri-money-dollar-circle-line text-2xl text-white"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            <div class="flex items-center text-sm">
+                <i class="ri-arrow-up-line text-green-500"></i>
+                <span class="text-green-500 ml-1">12%</span>
+                <span class="text-gray-500 dark:text-gray-400 ml-2">
+                    {{ 'من الأمس' if lang == 'ar' else 'from yesterday' }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Orders Card -->
+    <div class="glass-card rounded-xl p-6 card-shadow hover-scale transition-transform transform-gpu">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    {{ 'الطلبات النشطة' if lang == 'ar' else 'Active Orders' }}
+                </p>
+                <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-2">
+                    {{ active_orders|length }}
+                </p>
+            </div>
+            <div class="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full shadow-lg">
+                <i class="ri-shopping-cart-line text-2xl text-white"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="{{ url_for('dashboard.sales') }}" class="text-sm text-primary-600 dark:text-primary-400 hover:underline">
+                {{ 'عرض التفاصيل' if lang == 'ar' else 'View Details' }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Inventory Alerts Card -->
+    <div class="glass-card rounded-xl p-6 card-shadow hover-scale transition-transform transform-gpu">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    {{ 'تنبيهات المخزون' if lang == 'ar' else 'Inventory Alerts' }}
+                </p>
+                <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-2">
+                    {{ low_stock_items|length }}
+                </p>
+            </div>
+            <div class="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-full shadow-lg">
+                <i class="ri-alert-line text-2xl text-white"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="{{ url_for('dashboard.dashboard') }}" class="text-sm text-primary-600 dark:text-primary-400 hover:underline">
+                {{ 'إدارة المخزون' if lang == 'ar' else 'Manage Inventory' }}
+            </a>
+        </div>
+    </div>
+
+    <!-- Customer Insights Card -->
+    <div class="glass-card rounded-xl p-6 card-shadow hover-scale transition-transform transform-gpu">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
+                    {{ 'العملاء النشطين' if lang == 'ar' else 'Active Customers' }}
+                </p>
+                <p class="text-2xl font-semibold text-gray-900 dark:text-white mt-2">
+                    {{ active_customers|length }}
+                </p>
+            </div>
+            <div class="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-full shadow-lg">
+                <i class="ri-user-line text-2xl text-white"></i>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="{{ url_for('clients.clients_list') }}" class="text-sm text-primary-600 dark:text-primary-400 hover:underline">
+                {{ 'إدارة العملاء' if lang == 'ar' else 'Manage Customers' }}
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Main Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Recent Orders Section -->
+    <div class="lg:col-span-2">
+        <div class="glass-card rounded-xl p-6 card-shadow">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {{ 'الطلبات الأخيرة' if lang == 'ar' else 'Recent Orders' }}
+                </h2>
+                <div class="flex space-x-2">
+                    <button class="p-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">
+                        <i class="ri-refresh-line"></i>
+                    </button>
+                    <button class="p-2 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">
+                        <i class="ri-more-2-fill"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-800">
+                        <tr>
+                            <th class="px-6 py-3 text-{{ 'right' if lang == 'ar' else 'left' }} text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {{ 'رقم الطلب' if lang == 'ar' else 'Order ID' }}
+                            </th>
+                            <th class="px-6 py-3 text-{{ 'right' if lang == 'ar' else 'left' }} text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {{ 'العميل' if lang == 'ar' else 'Customer' }}
+                            </th>
+                            <th class="px-6 py-3 text-{{ 'right' if lang == 'ar' else 'left' }} text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {{ 'المبلغ' if lang == 'ar' else 'Amount' }}
+                            </th>
+                            <th class="px-6 py-3 text-{{ 'right' if lang == 'ar' else 'left' }} text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {{ 'الحالة' if lang == 'ar' else 'Status' }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for order in recent_orders %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                #{{ order.id }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                {{ order.customer_name }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                ${{ "%.2f"|format(order.total) }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    {{ 'bg-green-100 text-green-800' if order.status == 'completed'
+                                       else 'bg-yellow-100 text-yellow-800' if order.status == 'pending'
+                                       else 'bg-red-100 text-red-800' }}">
+                                    {{ order.status|title }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions & Notifications -->
+    <div class="space-y-6">
+        <!-- Quick Actions -->
+        <div class="glass-card rounded-xl p-6 card-shadow">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {{ 'إجراءات سريعة' if lang == 'ar' else 'Quick Actions' }}
+            </h2>
+            <div class="grid grid-cols-2 gap-4">
+                <button class="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg text-white hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    <i class="ri-add-line text-xl mb-2"></i>
+                    <span class="block text-sm">{{ 'طلب جديد' if lang == 'ar' else 'New Order' }}</span>
+                </button>
+                <button class="p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-lg text-white hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    <i class="ri-user-add-line text-xl mb-2"></i>
+                    <span class="block text-sm">{{ 'عميل جديد' if lang == 'ar' else 'New Customer' }}</span>
+                </button>
+                <button class="p-4 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg text-white hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    <i class="ri-file-list-line text-xl mb-2"></i>
+                    <span class="block text-sm">{{ 'تقرير جديد' if lang == 'ar' else 'New Report' }}</span>
+                </button>
+                <button class="p-4 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg text-white hover:shadow-lg transition-all transform hover:-translate-y-1">
+                    <i class="ri-settings-line text-xl mb-2"></i>
+                    <span class="block text-sm">{{ 'الإعدادات' if lang == 'ar' else 'Settings' }}</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="glass-card rounded-xl p-6 card-shadow">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {{ 'الإشعارات' if lang == 'ar' else 'Notifications' }}
+            </h2>
+            <div class="space-y-4">
+                {% for notification in notifications %}
+                <div class="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                    <div class="flex-shrink-0">
+                        <div class="p-2 rounded-full
+                            {{ 'bg-red-100 text-red-600' if notification.type == 'alert'
+                               else 'bg-blue-100 text-blue-600' if notification.type == 'info'
+                               else 'bg-green-100 text-green-600' }}">
+                            <i class="ri-{{ 'alert-line' if notification.type == 'alert'
+                                         else 'information-line' if notification.type == 'info'
+                                         else 'check-line' }}"></i>
+                        </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">
+                            {{ notification.title }}
+                        </p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            {{ notification.message }}
+                        </p>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <span class="text-xs text-gray-500 dark:text-gray-400">
+                            {{ notification.time }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Initialize AOS animations
+    AOS.init({
+        duration: 800,
+        easing: 'ease-in-out',
+        once: true
+    });
+
+    // Auto-refresh dashboard data every 5 minutes
+    setInterval(function() {
+        location.reload();
+    }, 300000);
+
+    // Initialize tooltips
+    const tooltips = document.querySelectorAll('[data-tooltip]');
+    tooltips.forEach(tooltip => {
+        new Tooltip(tooltip, {
+            placement: 'top',
+            trigger: 'hover'
+        });
+    });
+</script>
+{% endblock %}

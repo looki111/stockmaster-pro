@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+                {% if lang == 'ar' %}تعديل العميل{% else %}Edit Client{% endif %}
+            </h1>
+            <a href="{{ url_for('clients.clients_list') }}" 
+               class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                {% if lang == 'ar' %}العودة إلى العملاء{% else %}Back to Clients{% endif %}
+            </a>
+        </div>
+
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 backdrop-blur-lg bg-opacity-80 dark:bg-opacity-80 border border-gray-200 dark:border-gray-700">
+            <form method="POST" class="space-y-6">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {% if lang == 'ar' %}الاسم{% else %}Name{% endif %} *
+                    </label>
+                    <input type="text" 
+                           id="name" 
+                           name="name" 
+                           value="{{ client.name }}"
+                           required
+                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {% if lang == 'ar' %}البريد الإلكتروني{% else %}Email{% endif %}
+                    </label>
+                    <input type="email" 
+                           id="email" 
+                           name="email"
+                           value="{{ client.email }}"
+                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {% if lang == 'ar' %}رقم الهاتف{% else %}Phone{% endif %}
+                    </label>
+                    <input type="tel" 
+                           id="phone" 
+                           name="phone"
+                           value="{{ client.phone }}"
+                           class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {% if lang == 'ar' %}العنوان{% else %}Address{% endif %}
+                    </label>
+                    <textarea id="address" 
+                              name="address"
+                              rows="3"
+                              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">{{ client.address }}</textarea>
+                </div>
+
+                <div>
+                    <label for="notes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {% if lang == 'ar' %}ملاحظات{% else %}Notes{% endif %}
+                    </label>
+                    <textarea id="notes" 
+                              name="notes"
+                              rows="3"
+                              class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">{{ client.notes }}</textarea>
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <button type="button" class="cancel-btn px-6 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700" data-cancel-url="{{ url_for('clients.clients_list') }}">
+                        {% if lang == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                    </button>
+                    <button type="submit"
+                            class="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
+                        {% if lang == 'ar' %}حفظ التغييرات{% else %}Save Changes{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.cancel-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        window.location.href = this.getAttribute('data-cancel-url');
+    });
+});
+</script>
+{% endblock %} 

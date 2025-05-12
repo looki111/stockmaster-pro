@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html class="theme-light" lang="{{ lang }}" dir="{{ 'rtl' if lang == 'ar' else 'ltr' }}">
+<head>
+  <meta name="theme-color" content="#ffffff">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if lang == 'ar' %}ستوك ماستر - نظام إدارة المخزون{% else %}StockMaster Pro - Inventory Management System{% endif %}</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --primary-dark: #3A7BC8;
+            --secondary-color: #FFA726;
+            --text-color: #333333;
+            --bg-color: #F8FAFC;
+            --card-bg: #FFFFFF;
+        }
+
+        .dark {
+            --primary-color: #4A90E2;
+            --primary-dark: #3A7BC8;
+            --secondary-color: #FFA726;
+            --text-color: #E5E7EB;
+            --bg-color: #111827;
+            --card-bg: #1F2937;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #4A90E2 0%, #5E35B1 100%);
+        }
+
+        .feature-card {
+            background-color: var(--card-bg);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fade-in-delay-1 {
+            animation: fadeIn 0.8s ease-out 0.2s forwards;
+            opacity: 0;
+        }
+
+        .animate-fade-in-delay-2 {
+            animation: fadeIn 0.8s ease-out 0.4s forwards;
+            opacity: 0;
+        }
+
+        .animate-fade-in-delay-3 {
+            animation: fadeIn 0.8s ease-out 0.6s forwards;
+            opacity: 0;
+        }
+
+        .animate-fade-in-delay-4 {
+            animation: fadeIn 0.8s ease-out 0.8s forwards;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header/Navigation -->
+    <header class="bg-white dark:bg-gray-800 shadow-sm">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="StockMaster Pro" class="h-10 w-auto">
+                <span class="ml-3 text-xl font-bold text-gray-900 dark:text-white">StockMaster Pro</span>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('switch_lang') }}" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition">
+                    <i class="ri-translate-2"></i>
+                    <span>{{ 'English' if lang == 'ar' else 'العربية' }}</span>
+                </a>
+                <button id="themeToggle" class="text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 transition">
+                    <i class="ri-moon-line dark:hidden"></i>
+                    <i class="ri-sun-line hidden dark:block"></i>
+                </button>
+                <a href="{{ url_for('supabase_auth.login') }}" class="px-4 py-2 rounded-lg bg-transparent border border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900 transition">
+                    {% if lang == 'ar' %}تسجيل الدخول{% else %}Login{% endif %}
+                </a>
+                <a href="{{ url_for('supabase_auth.register') }}" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">
+                    {% if lang == 'ar' %}إنشاء حساب{% else %}Register{% endif %}
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient text-white py-20">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row items-center">
+                <div class="md:w-1/2 text-center md:text-left mb-10 md:mb-0 animate-fade-in">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-6">
+                        {% if lang == 'ar' %}
+                        إدارة مخزون مقهاك <br>بطريقة <span class="text-yellow-300">ذكية</span>
+                        {% else %}
+                        Manage Your Cafe Inventory <br>The <span class="text-yellow-300">Smart</span> Way
+                        {% endif %}
+                    </h1>
+                    <p class="text-xl mb-8 text-blue-100">
+                        {% if lang == 'ar' %}
+                        نظام متكامل لإدارة مخزون المقاهي والمحلات بسهولة وفعالية
+                        {% else %}
+                        A complete system for managing cafe inventory easily and efficiently
+                        {% endif %}
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center md:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
+                        <a href="{{ url_for('supabase_auth.register') }}" class="px-8 py-3 rounded-lg bg-white text-blue-600 font-bold hover:bg-blue-50 transition shadow-lg">
+                            {% if lang == 'ar' %}ابدأ الآن مجاناً{% else %}Start Free Trial{% endif %}
+                        </a>
+                        <a href="#features" class="px-8 py-3 rounded-lg bg-transparent border-2 border-white text-white font-bold hover:bg-white hover:text-blue-600 transition">
+                            {% if lang == 'ar' %}تعرف على المميزات{% else %}Learn More{% endif %}
+                        </a>
+                    </div>
+                </div>
+                <div class="md:w-1/2 flex justify-center animate-float">
+                    <img src="{{ url_for('static', filename='img/hero-image.png') }}" alt="StockMaster Pro Dashboard" class="w-full max-w-lg rounded-lg shadow-2xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 bg-gray-50 dark:bg-gray-900">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">
+                    {% if lang == 'ar' %}مميزات النظام{% else %}System Features{% endif %}
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    {% if lang == 'ar' %}
+                    كل ما تحتاجه لإدارة مقهاك بكفاءة في مكان واحد
+                    {% else %}
+                    Everything you need to efficiently manage your cafe in one place
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Feature 1 -->
+                <div class="feature-card rounded-xl shadow-lg p-6 text-center animate-fade-in-delay-1">
+                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="ri-store-3-line text-3xl text-blue-600 dark:text-blue-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-blue-600 dark:text-blue-400">
+                        {% if lang == 'ar' %}إدارة المنتجات{% else %}Product Management{% endif %}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        {% if lang == 'ar' %}
+                        إضافة، تعديل، وحذف المنتجات بسهولة مع تتبع الكميات والأسعار
+                        {% else %}
+                        Add, edit, and delete products easily with quantity and price tracking
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="feature-card rounded-xl shadow-lg p-6 text-center animate-fade-in-delay-2">
+                    <div class="w-16 h-16 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="ri-user-settings-line text-3xl text-purple-600 dark:text-purple-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-purple-600 dark:text-purple-400">
+                        {% if lang == 'ar' %}صلاحيات المستخدمين{% else %}User Permissions{% endif %}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        {% if lang == 'ar' %}
+                        نظام أدوار متكامل (مدير وموظف) لضمان أمان البيانات
+                        {% else %}
+                        Comprehensive role system (manager and employee) to ensure data security
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="feature-card rounded-xl shadow-lg p-6 text-center animate-fade-in-delay-3">
+                    <div class="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="ri-bar-chart-box-line text-3xl text-green-600 dark:text-green-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-green-600 dark:text-green-400">
+                        {% if lang == 'ar' %}تقارير فورية{% else %}Instant Reports{% endif %}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        {% if lang == 'ar' %}
+                        توليد تقارير عن المخزون والمبيعات بضغطة زر
+                        {% else %}
+                        Generate inventory and sales reports with a single click
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="feature-card rounded-xl shadow-lg p-6 text-center animate-fade-in-delay-4">
+                    <div class="w-16 h-16 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="ri-layout-4-line text-3xl text-orange-600 dark:text-orange-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-4 text-orange-600 dark:text-orange-400">
+                        {% if lang == 'ar' %}واجهة عصرية{% else %}Modern Interface{% endif %}
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        {% if lang == 'ar' %}
+                        تصميم متجاوب وسهل الاستخدام يدعم اللغة العربية بالكامل
+                        {% else %}
+                        Responsive and user-friendly design with full Arabic language support
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl font-bold mb-4">
+                    {% if lang == 'ar' %}آراء العملاء{% else %}Customer Testimonials{% endif %}
+                </h2>
+                <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+                    {% if lang == 'ar' %}
+                    ماذا يقول عملاؤنا عن تجربتهم مع ستوك ماستر
+                    {% else %}
+                    What our customers say about their experience with StockMaster Pro
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Testimonial 1 -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-fade-in">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                            <span class="text-blue-600 dark:text-blue-400 font-bold">م</span>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="font-bold">
+                                {% if lang == 'ar' %}محمد علي{% else %}Mohammed Ali{% endif %}
+                            </h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                {% if lang == 'ar' %}مالك كافيه{% else %}Cafe Owner{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        {% if lang == 'ar' %}
+                        "ساعدني ستوك ماستر على تنظيم مخزون مقهاي بشكل كامل. أصبح تتبع المواد الخام والمنتجات أمراً سهلاً للغاية."
+                        {% else %}
+                        "StockMaster Pro helped me completely organize my cafe's inventory. Tracking raw materials and products has become extremely easy."
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- Testimonial 2 -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-fade-in" style="animation-delay: 0.2s;">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                            <span class="text-purple-600 dark:text-purple-400 font-bold">س</span>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="font-bold">
+                                {% if lang == 'ar' %}سارة أحمد{% else %}Sarah Ahmed{% endif %}
+                            </h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                {% if lang == 'ar' %}مديرة مطعم{% else %}Restaurant Manager{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        {% if lang == 'ar' %}
+                        "التقارير التي يوفرها النظام ساعدتني على اتخاذ قرارات أفضل للمطعم. أنصح به بشدة لكل صاحب مشروع."
+                        {% else %}
+                        "The reports provided by the system helped me make better decisions for the restaurant. I highly recommend it to every business owner."
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- Testimonial 3 -->
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 animate-fade-in" style="animation-delay: 0.4s;">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                            <span class="text-green-600 dark:text-green-400 font-bold">ع</span>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="font-bold">
+                                {% if lang == 'ar' %}عبدالله محمد{% else %}Abdullah Mohammed{% endif %}
+                            </h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400">
+                                {% if lang == 'ar' %}صاحب سلسلة مقاهي{% else %}Cafe Chain Owner{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        {% if lang == 'ar' %}
+                        "واجهة النظام سهلة الاستخدام والدعم الفني ممتاز. وفر علي الكثير من الوقت والجهد في إدارة فروع المقاهي."
+                        {% else %}
+                        "The system interface is user-friendly and technical support is excellent. It saved me a lot of time and effort in managing cafe branches."
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-16 bg-blue-600 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold mb-6">
+                {% if lang == 'ar' %}جاهز للبدء؟{% else %}Ready to Get Started?{% endif %}
+            </h2>
+            <p class="text-xl mb-8 max-w-3xl mx-auto">
+                {% if lang == 'ar' %}
+                انضم إلى آلاف أصحاب المقاهي والمطاعم الذين يستخدمون ستوك ماستر لإدارة أعمالهم بكفاءة
+                {% else %}
+                Join thousands of cafe and restaurant owners who use StockMaster Pro to efficiently manage their businesses
+                {% endif %}
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <a href="{{ url_for('supabase_auth.register') }}" class="px-8 py-3 rounded-lg bg-white text-blue-600 font-bold hover:bg-blue-50 transition shadow-lg">
+                    {% if lang == 'ar' %}إنشاء حساب مجاني{% else %}Create Free Account{% endif %}
+                </a>
+                <a href="{{ url_for('supabase_auth.login') }}" class="px-8 py-3 rounded-lg bg-transparent border-2 border-white text-white font-bold hover:bg-white hover:text-blue-600 transition">
+                    {% if lang == 'ar' %}تسجيل الدخول{% else %}Login{% endif %}
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-12 bg-gray-100 dark:bg-gray-800">
+        <div class="container mx-auto px-4">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-6 md:mb-0">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="StockMaster Pro" class="h-10 w-auto mb-4">
+                    <p class="text-gray-600 dark:text-gray-400">
+                        {% if lang == 'ar' %}
+                        نظام إدارة المخزون الأمثل للمقاهي والمطاعم
+                        {% else %}
+                        The optimal inventory management system for cafes and restaurants
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="flex flex-col items-center md:items-end">
+                    <div class="flex space-x-4 mb-4">
+                        <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                            <i class="ri-facebook-fill text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                            <i class="ri-twitter-fill text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400">
+                            <i class="ri-instagram-fill text-xl"></i>
+                        </a>
+                    </div>
+                    <p class="text-gray-600 dark:text-gray-400">
+                        &copy; 2025 StockMaster Pro. {% if lang == 'ar' %}جميع الحقوق محفوظة{% else %}All rights reserved{% endif %}.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+  // Theme system is now handled by theme-manager.js
+  // No additional code needed here as it's automatically initialized
+</script>
+</body>
+</html>

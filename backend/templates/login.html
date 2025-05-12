@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html class="theme-light" lang="{{ lang|default('en') }}" dir="{{ 'rtl' if lang == 'ar' else 'ltr' }}">
+<head>
+  <meta name="theme-color" content="#ffffff">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockMaster Pro | {{ 'تسجيل الدخول' if lang == 'ar' else 'Login' }}</title>
+
+  <!-- Supabase configuration -->
+  <meta name="supabase-url" content="{{ config.get('SUPABASE_URL', '') }}">
+  <meta name="supabase-key" content="{{ config.get('SUPABASE_KEY', '') }}">
+
+  <!-- Google Fonts - Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- RTL Support - Arabic Font -->
+  {% if lang == 'ar' %}
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  {% endif %}
+
+  <!-- Remix Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+  <!-- StockMaster Pro CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-design-system.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-components.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-utilities.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-auth.css') }}">
+
+  <!-- Load Supabase SDK first, without defer attribute to ensure it loads before other scripts -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card animate-fadeIn">
+      <div class="auth-header">
+        <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="StockMaster Pro" class="auth-logo">
+        <h1 class="auth-title">{{ 'مرحباً بك مجدداً' if lang == 'ar' else 'Welcome Back' }}</h1>
+        <p class="auth-subtitle">{{ 'قم بتسجيل الدخول للوصول إلى لوحة التحكم' if lang == 'ar' else 'Sign in to access your dashboard' }}</p>
+      </div>
+
+      <div class="auth-body">
+        {% if error %}
+        <div class="auth-error">
+          <i class="ri-error-warning-line"></i>
+          {{ error }}
+        </div>
+        {% endif %}
+
+        <div id="login-error" class="auth-error" style="display: none;">
+          <i class="ri-error-warning-line"></i>
+          <span id="error-message"></span>
+        </div>
+
+        <form id="login-form" class="auth-form">
+          <div class="auth-form-group">
+            <label for="email" class="auth-form-label">{{ 'البريد الإلكتروني' if lang == 'ar' else 'Email' }}</label>
+            <input type="email" id="email" name="email" class="auth-form-input"
+                   placeholder="{{ 'أدخل البريد الإلكتروني' if lang == 'ar' else 'Enter your email' }}" required>
+          </div>
+
+          <div class="auth-form-group">
+            <label for="password" class="auth-form-label">{{ 'كلمة المرور' if lang == 'ar' else 'Password' }}</label>
+            <div class="auth-password-wrapper">
+              <input type="password" id="password" name="password" class="auth-form-input"
+                     placeholder="••••••••" required>
+              <button type="button" class="auth-password-toggle" id="password-toggle">
+                <i class="ri-eye-line"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center mb-4">
+            <div class="auth-form-checkbox">
+              <input type="checkbox" id="remember" name="remember">
+              <label for="remember">{{ 'تذكرني' if lang == 'ar' else 'Remember me' }}</label>
+            </div>
+
+            <div class="auth-forgot-password">
+              <a href="{{ url_for('supabase_auth.forgot_password') }}">{{ 'هل نسيت كلمة المرور؟' if lang == 'ar' else 'Forgot password?' }}</a>
+            </div>
+          </div>
+
+          <button type="submit" id="login-button" class="auth-submit-button">
+            {{ 'تسجيل الدخول' if lang == 'ar' else 'Sign In' }}
+          </button>
+        </form>
+
+        <!-- Debug information container -->
+        <div id="debug-container" style="display: none; margin-top: 15px; padding: 10px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; font-size: 12px; font-family: monospace; overflow-x: auto; white-space: pre-wrap;"></div>
+
+        <div class="auth-divider">
+          <span>{{ 'أو' if lang == 'ar' else 'OR' }}</span>
+        </div>
+
+        <div class="auth-social-buttons">
+          <button type="button" id="google-login-button" class="auth-social-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm-2.917 16.083c-2.258 0-4.083-1.825-4.083-4.083s1.825-4.083 4.083-4.083c1.103 0 2.024.402 2.735 1.067l-1.107 1.068c-.304-.292-.834-.63-1.628-.63-1.394 0-2.531 1.155-2.531 2.579 0 1.424 1.138 2.579 2.531 2.579 1.616 0 2.224-1.162 2.316-1.762h-2.316v-1.4h3.855c.036.204.064.408.064.677.001 2.332-1.563 3.988-3.919 3.988zm9.917-3.5h-1.75v1.75h-1.167v-1.75h-1.75v-1.166h1.75v-1.75h1.167v1.75h1.75v1.166z"/></svg>
+            <span>{{ 'تسجيل الدخول بـ جوجل' if lang == 'ar' else 'Sign in with Google' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="auth-footer">
+        <p class="auth-footer-text">
+          {{ 'ليس لديك حساب؟' if lang == 'ar' else 'Don\'t have an account?' }}
+          <a href="{{ url_for('supabase_auth.register') }}" class="auth-footer-link">
+            {{ 'إنشاء حساب' if lang == 'ar' else 'Sign Up' }}
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase JavaScript in correct order -->
+  <script src="{{ url_for('static', filename='js/supabase-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/supabase-auth.js') }}"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Password toggle functionality
+      const passwordToggle = document.getElementById('password-toggle');
+      const passwordInput = document.getElementById('password');
+
+      if (passwordToggle && passwordInput) {
+        passwordToggle.addEventListener('click', function() {
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+
+          const icon = passwordToggle.querySelector('i');
+          if (type === 'password') {
+            icon.classList.remove('ri-eye-off-line');
+            icon.classList.add('ri-eye-line');
+          } else {
+            icon.classList.remove('ri-eye-line');
+            icon.classList.add('ri-eye-off-line');
+          }
+        });
+      }
+
+      // Login form handling
+      const loginForm = document.getElementById('login-form');
+      const errorDisplay = document.getElementById('login-error');
+      const errorMessage = document.getElementById('error-message');
+      const loginButton = document.getElementById('login-button');
+
+      // Added debug container for token issues
+      const debugContainer = document.getElementById('debug-container');
+      errorDisplay.style.display = 'none';
+      debugContainer.style.display = 'none';
+
+      // Function to handle login errors with better feedback
+      function handleLoginError(error, additionalInfo = '', status = '') {
+        console.error('Login error:', error);
+
+        // Create a more helpful error message
+        let errorText = '';
+        let shouldShowDebug = false;
+
+        // Check localStorage for saved errors
+        let savedError = null;
+        try {
+          const savedErrorJson = localStorage.getItem('auth_error');
+          if (savedErrorJson) {
+            savedError = JSON.parse(savedErrorJson);
+            console.log('Found saved error:', savedError);
+          }
+        } catch (e) {
+          console.error('Error parsing saved error:', e);
+        }
+
+        if (error.message && error.message.includes('Invalid token')) {
+          errorText = 'Authentication failed: Invalid token. This could be due to server configuration issues.';
+          shouldShowDebug = true;
+        } else if (status === 500 || (savedError && savedError.status === 500)) {
+          errorText = 'Server error: The authentication service encountered an internal error.';
+          shouldShowDebug = true;
+        } else if (error.message && (error.message.includes('credentials') || error.message.includes('password'))) {
+          errorText = 'Invalid email or password. Please check your credentials and try again.';
+        } else if (error.message && error.message.includes('network')) {
+          errorText = 'Network error. Please check your internet connection and try again.';
+        } else {
+          errorText = error.message || 'An unexpected error occurred. Please try again.';
+          shouldShowDebug = error.message && error.message.includes('token');
+        }
+
+        // Show error
+        errorMessage.textContent = errorText;
+        errorDisplay.style.display = 'flex';
+
+        // Show debug info if needed
+        if (shouldShowDebug || window.location.search.includes('debug=1')) {
+          debugContainer.style.display = 'block';
+
+          // Create detailed debug info
+          let debugInfo = `
+            <strong>Technical Info (for administrators):</strong><br>
+            Error: ${error.message || 'Unknown error'}<br>
+            ${additionalInfo ? 'Additional details: ' + additionalInfo + '<br>' : ''}
+            Browser: ${navigator.userAgent}<br>
+            Time: ${new Date().toISOString()}<br>
+          `;
+
+          // Add saved error info if available
+          if (savedError) {
+            debugInfo += `
+              <br><strong>Previous Error:</strong><br>
+              Message: ${savedError.message || 'Unknown'}<br>
+              ${savedError.details ? 'Details: ' + savedError.details + '<br>' : ''}
+              Status: ${savedError.status || 'Unknown'}<br>
+              Time: ${savedError.timestamp || 'Unknown'}<br>
+            `;
+          }
+
+          debugInfo += `
+            <br><small>To fix this issue, please check:</small><br>
+            <small>- Supabase URL and API key configuration</small><br>
+            <small>- JWT secret in environment variables</small><br>
+            <small>- Token validation configuration in backend</small><br>
+            <small>- Try inspecting the network requests in your browser's developer tools</small>
+          `;
+
+          debugContainer.innerHTML = debugInfo;
+        }
+
+        // Reset button
+        loginButton.disabled = false;
+        loginButton.innerHTML = "{{ 'تسجيل الدخول' if lang == 'ar' else 'Sign In' }}";
+      }
+
+      if (loginForm) {
+        loginForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+
+          // Disable button and show loading state
+          loginButton.disabled = true;
+          loginButton.innerHTML = "{{ 'جاري تسجيل الدخول...' if lang == 'ar' else 'Signing in...' }}";
+
+          // Hide previous errors
+          errorDisplay.style.display = 'none';
+          debugContainer.style.display = 'none';
+
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+
+          try {
+            // Make sure SupabaseAuth is available
+            if (!window.SupabaseAuth) {
+              throw new Error('Authentication module not initialized. Please refresh the page.');
+            }
+
+            // Call Supabase Auth login function
+            const result = await window.SupabaseAuth.loginWithEmail(email, password);
+
+            if (result.success) {
+              // Add a success message before redirecting
+              errorDisplay.style.backgroundColor = '#d1e7dd';
+              errorDisplay.style.borderColor = '#badbcc';
+              errorMessage.style.color = '#0f5132';
+              errorMessage.textContent = 'Login successful! Redirecting...';
+              errorDisplay.style.display = 'flex';
+
+              // Redirect to dashboard after a brief delay
+              setTimeout(() => {
+                window.location.href = result.redirectUrl || '/dashboard';
+              }, 500);
+            } else {
+              // Get additional details if available
+              const details = result.details || '';
+              handleLoginError(new Error(result.error), details, result.status);
+            }
+          } catch (error) {
+            handleLoginError(error);
+          }
+        });
+      }
+
+      // Google login handling
+      const googleLoginButton = document.getElementById('google-login-button');
+
+      if (googleLoginButton) {
+        googleLoginButton.addEventListener('click', async function() {
+          try {
+            // Get Supabase client
+            let supabaseClient;
+
+            // If SupabaseAuth is available, use its function
+            if (window.SupabaseAuth && window.SupabaseAuth.getSupabaseClient) {
+              try {
+                supabaseClient = window.SupabaseAuth.getSupabaseClient();
+              } catch (error) {
+                console.error("Error getting client from SupabaseAuth:", error);
+              }
+            }
+
+            // If still no client, create it directly
+            if (!supabaseClient) {
+              const supabaseUrl = document.querySelector('meta[name="supabase-url"]').content;
+              const supabaseKey = document.querySelector('meta[name="supabase-key"]').content;
+
+              if (!supabaseUrl || !supabaseKey) {
+                throw new Error('Supabase credentials not found. Check your meta tags.');
+              }
+
+              if (!window.supabase) {
+                throw new Error('Supabase SDK not loaded. Please refresh the page.');
+              }
+
+              supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+              console.log('Created temporary Supabase client for Google auth');
+            }
+
+            // Display loading state
+            const originalText = googleLoginButton.innerHTML;
+            googleLoginButton.disabled = true;
+            googleLoginButton.innerHTML = "{{ 'جاري التحويل...' if lang == 'ar' else 'Redirecting...' }}";
+
+            const { data, error } = await supabaseClient.auth.signInWithOAuth({
+              provider: 'google',
+              options: {
+                redirectTo: window.location.origin + '/auth/callback'
+              }
+            });
+
+            if (error) {
+              // Reset button
+              googleLoginButton.disabled = false;
+              googleLoginButton.innerHTML = originalText;
+
+              // Display error
+              errorMessage.textContent = error.message;
+              errorDisplay.style.display = 'flex';
+            }
+          } catch (error) {
+            console.error('Google login error:', error);
+            errorMessage.textContent = error.message || 'Failed to sign in with Google';
+            errorDisplay.style.display = 'flex';
+
+            // Reset button if available
+            if (googleLoginButton) {
+              googleLoginButton.disabled = false;
+              googleLoginButton.innerHTML = "{{ 'تسجيل الدخول بـ جوجل' if lang == 'ar' else 'Sign in with Google' }}";
+            }
+          }
+        });
+      }
+
+      // Check if there's already a session
+      if (window.SupabaseAuth && window.SupabaseAuth.getCurrentSession) {
+        window.SupabaseAuth.getCurrentSession().then(result => {
+          if (result.success && result.session) {
+            // Validate token with backend
+            if (window.SupabaseAuth.validateTokenWithBackend) {
+              window.SupabaseAuth.validateTokenWithBackend(result.session.access_token).then(validationResult => {
+                if (validationResult.success) {
+                  window.location.href = validationResult.redirectUrl || '/dashboard';
+                }
+              });
+            } else {
+              // Fallback validation if the SupabaseAuth module is not working
+              fetch('/auth/login', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ token: result.session.access_token })
+              })
+              .then(response => response.json())
+              .then(validationResult => {
+                if (validationResult.success) {
+                  window.location.href = validationResult.redirectUrl || '/dashboard';
+                }
+              })
+              .catch(err => console.error('Token validation error:', err));
+            }
+          }
+        });
+      } else {
+        // Try with direct client
+        if (window.supabase) {
+          try {
+            const supabaseUrl = document.querySelector('meta[name="supabase-url"]').content;
+            const supabaseKey = document.querySelector('meta[name="supabase-key"]').content;
+
+            if (supabaseUrl && supabaseKey) {
+              const tempClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+              tempClient.auth.getSession().then(({ data, error }) => {
+                if (!error && data.session) {
+                  // Validate the session with backend
+                  fetch('/auth/login', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ token: data.session.access_token })
+                  })
+                  .then(response => response.json())
+                  .then(result => {
+                    if (result.success) {
+                      window.location.href = result.redirectUrl || '/dashboard';
+                    }
+                  })
+                  .catch(err => console.error('Token validation error:', err));
+                }
+              });
+            }
+          } catch (err) {
+            console.error('Session check fallback error:', err);
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% block title %}{% if lang == 'ar' %}تقرير المخزون | ستوك ماستر برو{% else %}Stock Report | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}تقرير المخزون{% else %}Stock Report{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <!-- Title and Date -->
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                {% if lang == 'ar' %}تقرير المخزون ليوم {{ report.report_date }}{% else %}Stock Report for {{ report.report_date }}{% endif %}
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">
+                {% if lang == 'ar' %}تم إنشاؤه في {{ report.created_at }}{% else %}Generated on {{ report.created_at }}{% endif %}
+            </p>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex items-center gap-3">
+            <a href="{{ url_for('inventory.export_report', report_id=report.id) }}" class="btn-primary">
+                <i class="ri-download-line mr-1"></i>
+                {% if lang == 'ar' %}تصدير CSV{% else %}Export CSV{% endif %}
+            </a>
+            <a href="{{ url_for('inventory.reports') }}" class="btn-secondary">
+                <i class="ri-arrow-left-line mr-1"></i>
+                {% if lang == 'ar' %}العودة إلى التقارير{% else %}Back to Reports{% endif %}
+            </a>
+        </div>
+    </div>
+    
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Items -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">
+                    <i class="ri-stack-line text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {% if lang == 'ar' %}إجمالي العناصر{% else %}Total Items{% endif %}
+                    </p>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                        {{ report.total_items }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Low Stock Items -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-600 dark:text-yellow-300">
+                    <i class="ri-alert-line text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {% if lang == 'ar' %}مخزون منخفض{% else %}Low Stock{% endif %}
+                    </p>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                        {{ report.low_stock_items }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Total Value -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300">
+                    <i class="ri-money-dollar-circle-line text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {% if lang == 'ar' %}إجمالي القيمة{% else %}Total Value{% endif %}
+                    </p>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                        {{ report.total_value|round(2) }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Waste Percentage -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-red-100 dark:bg-red-900 text-red-600 dark:text-red-300">
+                    <i class="ri-recycle-line text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {% if lang == 'ar' %}نسبة الهدر{% else %}Waste Percentage{% endif %}
+                    </p>
+                    <p class="text-lg font-semibold text-gray-900 dark:text-white">
+                        {{ report.waste_percentage|round(1) }}%
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="mb-6">
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="{% if lang == 'ar' %}بحث...{% else %}Search...{% endif %}" class="form-input pl-10">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                    <i class="ri-search-line text-gray-400"></i>
+                </div>
+            </div>
+            
+            <select id="categoryFilter" class="form-select">
+                <option value="">{% if lang == 'ar' %}جميع الفئات{% else %}All Categories{% endif %}</option>
+                {% set categories = [] %}
+                {% for item in report.items %}
+                    {% if item.category and item.category not in categories %}
+                        {% set categories = categories + [item.category] %}
+                        <option value="{{ item.category }}">{{ item.category }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+            
+            <select id="statusFilter" class="form-select">
+                <option value="">{% if lang == 'ar' %}جميع الحالات{% else %}All Statuses{% endif %}</option>
+                <option value="normal">{% if lang == 'ar' %}عادي{% else %}Normal{% endif %}</option>
+                <option value="low_stock">{% if lang == 'ar' %}مخزون منخفض{% else %}Low Stock{% endif %}</option>
+                <option value="out_of_stock">{% if lang == 'ar' %}نفذ من المخزون{% else %}Out of Stock{% endif %}</option>
+                <option value="expiring_soon">{% if lang == 'ar' %}ينتهي قريبًا{% else %}Expiring Soon{% endif %}</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Report Items Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700" id="reportTable">
+                <thead class="bg-gray-50 dark:bg-gray-900">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}المادة الخام{% else %}Raw Material{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}الفئة{% else %}Category{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}الكمية الافتتاحية{% else %}Opening Qty{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}المستلم{% else %}Received{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}المستهلك{% else %}Consumed{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}الهدر{% else %}Waste{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}الكمية النهائية{% else %}Closing Qty{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}الحالة{% else %}Status{% endif %}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for item in report.items %}
+                    <tr data-category="{{ item.category or '' }}" data-status="{{ item.status }}" data-name="{{ item.raw_material_name }}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="font-medium text-gray-900 dark:text-white">{{ item.raw_material_name }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ item.category or 'N/A' }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white">{{ item.opening_quantity|round(2) }} {{ item.unit }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white">{{ item.received_quantity|round(2) }} {{ item.unit }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white">{{ item.consumed_quantity|round(2) }} {{ item.unit }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white">{{ item.waste_quantity|round(2) }} {{ item.unit }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white">{{ item.closing_quantity|round(2) }} {{ item.unit }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if item.status == 'low_stock' %}
+                                    bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                                {% elif item.status == 'out_of_stock' %}
+                                    bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                                {% elif item.status == 'expiring_soon' %}
+                                    bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200
+                                {% else %}
+                                    bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                                {% endif %}">
+                                {% if item.status == 'low_stock' %}
+                                    {% if lang == 'ar' %}مخزون منخفض{% else %}Low Stock{% endif %}
+                                {% elif item.status == 'out_of_stock' %}
+                                    {% if lang == 'ar' %}نفذ من المخزون{% else %}Out of Stock{% endif %}
+                                {% elif item.status == 'expiring_soon' %}
+                                    {% if lang == 'ar' %}ينتهي قريبًا{% else %}Expiring Soon{% endif %}
+                                {% else %}
+                                    {% if lang == 'ar' %}عادي{% else %}Normal{% endif %}
+                                {% endif %}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const statusFilter = document.getElementById('statusFilter');
+        const tableRows = document.querySelectorAll('#reportTable tbody tr');
+        
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const categoryValue = categoryFilter.value.toLowerCase();
+            const statusValue = statusFilter.value.toLowerCase();
+            
+            tableRows.forEach(row => {
+                const name = row.getAttribute('data-name').toLowerCase();
+                const category = row.getAttribute('data-category').toLowerCase();
+                const status = row.getAttribute('data-status').toLowerCase();
+                
+                const matchesSearch = name.includes(searchTerm);
+                const matchesCategory = categoryValue === '' || category === categoryValue;
+                const matchesStatus = statusValue === '' || status === statusValue;
+                
+                if (matchesSearch && matchesCategory && matchesStatus) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        searchInput.addEventListener('input', filterTable);
+        categoryFilter.addEventListener('change', filterTable);
+        statusFilter.addEventListener('change', filterTable);
+    });
+</script>
+{% endblock %}

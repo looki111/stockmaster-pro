@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}{% if lang == 'ar' %}خطط الاشتراك | ستوك ماستر برو{% else %}Subscription Plans | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}خطط الاشتراك{% else %}Subscription Plans{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="text-center mb-12">
+        <h1 class="text-3xl font-bold mb-4">{% if lang == 'ar' %}اختر خطة الاشتراك المناسبة لك{% else %}Choose the Right Plan for Your Coffee Shop{% endif %}</h1>
+        <p class="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+            {% if lang == 'ar' %}
+            نقدم لك مجموعة من الخطط المصممة خصيصًا لتلبية احتياجات مقهى القهوة الخاص بك، بدءًا من المقاهي الصغيرة وحتى السلاسل متعددة الفروع.
+            {% else %}
+            We offer a range of plans designed specifically to meet the needs of your coffee shop, from small cafes to multi-branch chains.
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        {% for plan in plans %}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden border border-gray-200 dark:border-gray-700 transition-transform hover:scale-105">
+            <div class="bg-blue-600 p-6 text-white text-center">
+                <h3 class="text-2xl font-bold">{{ plan.name }}</h3>
+                <div class="mt-4 flex justify-center items-baseline">
+                    <span class="text-3xl font-extrabold">{{ plan.price_monthly }}</span>
+                    <span class="ms-1 text-xl text-blue-100">{% if lang == 'ar' %}ريال / شهريًا{% else %}SAR / month{% endif %}</span>
+                </div>
+                <div class="mt-1 text-blue-100">
+                    {% if lang == 'ar' %}
+                    أو {{ plan.price_yearly }} ريال سنويًا (وفر {{ (plan.price_monthly * 12 - plan.price_yearly)|round|int }} ريال)
+                    {% else %}
+                    or {{ plan.price_yearly }} SAR yearly (save {{ (plan.price_monthly * 12 - plan.price_yearly)|round|int }} SAR)
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="p-6">
+                <p class="text-gray-600 dark:text-gray-400 mb-6">{{ plan.description }}</p>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center">
+                        <i class="ri-store-2-line text-blue-500 mr-2"></i>
+                        <span>{% if lang == 'ar' %}حتى {{ plan.max_branches }} فرع{% else %}Up to {{ plan.max_branches }} branch{{ 'es' if plan.max_branches > 1 else '' }}{% endif %}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="ri-user-line text-blue-500 mr-2"></i>
+                        <span>{% if lang == 'ar' %}حتى {{ plan.max_users }} مستخدم{% else %}Up to {{ plan.max_users }} user{{ 's' if plan.max_users > 1 else '' }}{% endif %}</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="ri-shopping-bag-line text-blue-500 mr-2"></i>
+                        <span>{% if lang == 'ar' %}حتى {{ plan.max_products }} منتج{% else %}Up to {{ plan.max_products }} product{{ 's' if plan.max_products > 1 else '' }}{% endif %}</span>
+                    </div>
+                    
+                    {% if plan.features %}
+                        {% if plan.features.pos %}
+                        <div class="flex items-center">
+                            <i class="ri-shopping-cart-line text-blue-500 mr-2"></i>
+                            <span>{% if lang == 'ar' %}نظام نقاط البيع{% else %}POS System{% endif %}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if plan.features.inventory %}
+                        <div class="flex items-center">
+                            <i class="ri-stack-line text-blue-500 mr-2"></i>
+                            <span>{% if lang == 'ar' %}إدارة المخزون{% else %}Inventory Management{% endif %}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if plan.features.reports %}
+                        <div class="flex items-center">
+                            <i class="ri-bar-chart-line text-blue-500 mr-2"></i>
+                            <span>{% if lang == 'ar' %}تقارير متقدمة{% else %}Advanced Reports{% endif %}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if plan.features.marketing %}
+                        <div class="flex items-center">
+                            <i class="ri-megaphone-line text-blue-500 mr-2"></i>
+                            <span>{% if lang == 'ar' %}أدوات التسويق{% else %}Marketing Tools{% endif %}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if plan.features.ai %}
+                        <div class="flex items-center">
+                            <i class="ri-robot-line text-blue-500 mr-2"></i>
+                            <span>{% if lang == 'ar' %}ميزات الذكاء الاصطناعي{% else %}AI Features{% endif %}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if plan.features.api %}
+                        <div class="flex items-center">
+                            <i class="ri-code-line text-blue-500 mr-2"></i>
+                            <span>{% if lang == 'ar' %}وصول API{% else %}API Access{% endif %}</span>
+                        </div>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="p-6 bg-gray-50 dark:bg-gray-900 text-center">
+                <a href="{{ url_for('subscription.register', plan_id=plan.id) }}" class="inline-block w-full py-3 px-6 text-white bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition">
+                    {% if lang == 'ar' %}اشترك الآن{% else %}Subscribe Now{% endif %}
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="bg-blue-50 dark:bg-blue-900 rounded-lg p-8 max-w-3xl mx-auto">
+        <h3 class="text-xl font-bold mb-4 text-blue-800 dark:text-blue-200">{% if lang == 'ar' %}تحتاج إلى خطة مخصصة؟{% else %}Need a Custom Plan?{% endif %}</h3>
+        <p class="text-blue-700 dark:text-blue-300 mb-4">
+            {% if lang == 'ar' %}
+            إذا كانت احتياجات عملك تتجاوز خططنا القياسية، فنحن نقدم حلولًا مخصصة لسلاسل المقاهي الكبيرة والشركات.
+            {% else %}
+            If your business needs go beyond our standard plans, we offer custom solutions for large coffee chains and enterprises.
+            {% endif %}
+        </p>
+        <a href="mailto:contact@stockmasterpro.com" class="inline-block py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+            {% if lang == 'ar' %}تواصل معنا{% else %}Contact Us{% endif %}
+        </a>
+    </div>
+</div>
+{% endblock %}

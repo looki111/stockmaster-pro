@@ -1,0 +1,305 @@
+/**
+ * StockMaster Pro Gradient Effects
+ * Beautiful gradients for buttons, backgrounds, and UI elements
+ */
+
+:root {
+  /* Gradient Presets */
+  --gradient-blue: linear-gradient(135deg, #60A5FA 0%, #3B82F6 50%, #2563EB 100%);
+  --gradient-purple: linear-gradient(135deg, #A78BFA 0%, #8B5CF6 50%, #7C3AED 100%);
+  --gradient-green: linear-gradient(135deg, #34D399 0%, #10B981 50%, #059669 100%);
+  --gradient-yellow: linear-gradient(135deg, #FBBF24 0%, #F59E0B 50%, #D97706 100%);
+  --gradient-red: linear-gradient(135deg, #F87171 0%, #EF4444 50%, #DC2626 100%);
+  --gradient-pink: linear-gradient(135deg, #F472B6 0%, #EC4899 50%, #DB2777 100%);
+  --gradient-indigo: linear-gradient(135deg, #818CF8 0%, #6366F1 50%, #4F46E5 100%);
+  
+  /* Multi-color Gradients */
+  --gradient-sunset: linear-gradient(135deg, #FF512F 0%, #F09819 100%);
+  --gradient-ocean: linear-gradient(135deg, #1A2980 0%, #26D0CE 100%);
+  --gradient-forest: linear-gradient(135deg, #134E5E 0%, #71B280 100%);
+  --gradient-aurora: linear-gradient(135deg, #009FFF 0%, #ec2F4B 100%);
+  --gradient-candy: linear-gradient(135deg, #FC466B 0%, #3F5EFB 100%);
+  
+  /* Soft Gradients */
+  --gradient-soft-blue: linear-gradient(135deg, #E0F2FE 0%, #BFDBFE 100%);
+  --gradient-soft-purple: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%);
+  --gradient-soft-green: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
+  --gradient-soft-yellow: linear-gradient(135deg, #FEF9C3 0%, #FEF08A 100%);
+  --gradient-soft-red: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%);
+  
+  /* Dark Gradients */
+  --gradient-dark-blue: linear-gradient(135deg, #1E3A8A 0%, #1E40AF 50%, #1D4ED8 100%);
+  --gradient-dark-purple: linear-gradient(135deg, #4C1D95 0%, #5B21B6 50%, #6D28D9 100%);
+  --gradient-dark-green: linear-gradient(135deg, #064E3B 0%, #065F46 50%, #047857 100%);
+  --gradient-dark-yellow: linear-gradient(135deg, #78350F 0%, #92400E 50%, #B45309 100%);
+  --gradient-dark-red: linear-gradient(135deg, #7F1D1D 0%, #991B1B 50%, #B91C1C 100%);
+  
+  /* Animated Gradient Variables */
+  --gradient-animation-duration: 3s;
+  --gradient-animation-timing: ease-in-out;
+}
+
+/* Gradient Backgrounds */
+.bg-gradient-blue { background: var(--gradient-blue); }
+.bg-gradient-purple { background: var(--gradient-purple); }
+.bg-gradient-green { background: var(--gradient-green); }
+.bg-gradient-yellow { background: var(--gradient-yellow); }
+.bg-gradient-red { background: var(--gradient-red); }
+.bg-gradient-pink { background: var(--gradient-pink); }
+.bg-gradient-indigo { background: var(--gradient-indigo); }
+
+.bg-gradient-sunset { background: var(--gradient-sunset); }
+.bg-gradient-ocean { background: var(--gradient-ocean); }
+.bg-gradient-forest { background: var(--gradient-forest); }
+.bg-gradient-aurora { background: var(--gradient-aurora); }
+.bg-gradient-candy { background: var(--gradient-candy); }
+
+.bg-gradient-soft-blue { background: var(--gradient-soft-blue); }
+.bg-gradient-soft-purple { background: var(--gradient-soft-purple); }
+.bg-gradient-soft-green { background: var(--gradient-soft-green); }
+.bg-gradient-soft-yellow { background: var(--gradient-soft-yellow); }
+.bg-gradient-soft-red { background: var(--gradient-soft-red); }
+
+.bg-gradient-dark-blue { background: var(--gradient-dark-blue); }
+.bg-gradient-dark-purple { background: var(--gradient-dark-purple); }
+.bg-gradient-dark-green { background: var(--gradient-dark-green); }
+.bg-gradient-dark-yellow { background: var(--gradient-dark-yellow); }
+.bg-gradient-dark-red { background: var(--gradient-dark-red); }
+
+/* Gradient Text */
+.text-gradient-blue {
+  background: var(--gradient-blue);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-purple {
+  background: var(--gradient-purple);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-green {
+  background: var(--gradient-green);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-yellow {
+  background: var(--gradient-yellow);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-red {
+  background: var(--gradient-red);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-sunset {
+  background: var(--gradient-sunset);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.text-gradient-ocean {
+  background: var(--gradient-ocean);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Gradient Borders */
+.border-gradient-blue {
+  border: 2px solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: 
+    linear-gradient(to right, var(--card-bg), var(--card-bg)), 
+    var(--gradient-blue);
+}
+
+.border-gradient-purple {
+  border: 2px solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: 
+    linear-gradient(to right, var(--card-bg), var(--card-bg)), 
+    var(--gradient-purple);
+}
+
+.border-gradient-green {
+  border: 2px solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: 
+    linear-gradient(to right, var(--card-bg), var(--card-bg)), 
+    var(--gradient-green);
+}
+
+/* Gradient Buttons */
+.btn-gradient-blue {
+  background: var(--gradient-blue);
+  color: white;
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-medium);
+  transition: all var(--transition-fast) var(--transition-ease);
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.25);
+}
+
+.btn-gradient-blue:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(37, 99, 235, 0.3);
+}
+
+.btn-gradient-blue:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+}
+
+.btn-gradient-purple {
+  background: var(--gradient-purple);
+  color: white;
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-medium);
+  transition: all var(--transition-fast) var(--transition-ease);
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(124, 58, 237, 0.25);
+}
+
+.btn-gradient-purple:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(124, 58, 237, 0.3);
+}
+
+.btn-gradient-purple:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(124, 58, 237, 0.2);
+}
+
+.btn-gradient-green {
+  background: var(--gradient-green);
+  color: white;
+  border: none;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-medium);
+  transition: all var(--transition-fast) var(--transition-ease);
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(5, 150, 105, 0.25);
+}
+
+.btn-gradient-green:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(5, 150, 105, 0.3);
+}
+
+.btn-gradient-green:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2);
+}
+
+/* Animated Gradients */
+.gradient-animated {
+  background-size: 200% 200%;
+  animation: gradient-shift var(--gradient-animation-duration) var(--gradient-animation-timing) infinite;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Gradient Cards */
+.card-gradient-blue {
+  background: var(--gradient-blue);
+  color: white;
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3), 0 4px 6px -2px rgba(37, 99, 235, 0.2);
+}
+
+.card-gradient-purple {
+  background: var(--gradient-purple);
+  color: white;
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.3), 0 4px 6px -2px rgba(124, 58, 237, 0.2);
+}
+
+.card-gradient-green {
+  background: var(--gradient-green);
+  color: white;
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3), 0 4px 6px -2px rgba(5, 150, 105, 0.2);
+}
+
+/* Gradient Overlays */
+.overlay-gradient-blue {
+  position: relative;
+}
+
+.overlay-gradient-blue::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-blue);
+  opacity: 0.7;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+.overlay-gradient-purple {
+  position: relative;
+}
+
+.overlay-gradient-purple::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-purple);
+  opacity: 0.7;
+  border-radius: inherit;
+  z-index: 1;
+}
+
+/* Gradient Dividers */
+.divider-gradient-horizontal {
+  height: 2px;
+  width: 100%;
+  background: var(--gradient-blue);
+  margin: var(--space-4) 0;
+}
+
+.divider-gradient-vertical {
+  width: 2px;
+  height: 100%;
+  background: var(--gradient-blue);
+  margin: 0 var(--space-4);
+}

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Auth Test</title>
+    
+    <!-- Add Supabase configuration from .env - you'll need to enter your actual values -->
+    <meta name="supabase-url" content="https://your-project-id.supabase.co">
+    <meta name="supabase-key" content="your-anon-key">
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            border: 1px solid #eaeaea;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        h1, h2 {
+            color: #333;
+        }
+        pre {
+            background-color: #f7f7f7;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        input[type="text"], input[type="password"], input[type="email"] {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 10px;
+        }
+        .success {
+            color: #22c55e;
+            font-weight: bold;
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <h1>Supabase Auth Test</h1>
+    
+    <div class="card">
+        <h2>Connection Status</h2>
+        <div id="connection-status">Checking Supabase connection...</div>
+    </div>
+    
+    <div class="card">
+        <h2>Login</h2>
+        <div class="form-group">
+            <label class="form-label" for="email">Email:</label>
+            <input type="email" id="email" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label class="form-label" for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter your password">
+        </div>
+        <button id="login-btn">Login</button>
+        <div id="login-result"></div>
+    </div>
+    
+    <div class="card">
+        <h2>Session</h2>
+        <button id="get-session-btn">Get Current Session</button>
+        <pre id="session-info">No session data available. Click "Get Current Session" to check.</pre>
+    </div>
+    
+    <div class="card">
+        <h2>User Data (/auth/me)</h2>
+        <button id="get-user-btn">Get User Data</button>
+        <pre id="user-info">No user data available. Click "Get User Data" to fetch from /auth/me endpoint.</pre>
+    </div>
+    
+    <div class="card">
+        <h2>JWT Token</h2>
+        <button id="analyze-token-btn">Analyze Current Token</button>
+        <pre id="token-info">No token information available.</pre>
+    </div>
+    
+    <div class="card">
+        <h2>Logout</h2>
+        <button id="logout-btn">Logout</button>
+        <div id="logout-result"></div>
+    </div>
+    
+    <!-- Load Supabase SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get elements
+            const connectionStatus = document.getElementById('connection-status');
+            const loginBtn = document.getElementById('login-btn');
+            const loginResult = document.getElementById('login-result');
+            const getSessionBtn = document.getElementById('get-session-btn');
+            const sessionInfo = document.getElementById('session-info');
+            const getUserBtn = document.getElementById('get-user-btn');
+            const userInfo = document.getElementById('user-info');
+            const analyzeTokenBtn = document.getElementById('analyze-token-btn');
+            const tokenInfo = document.getElementById('token-info');
+            const logoutBtn = document.getElementById('logout-btn');
+            const logoutResult = document.getElementById('logout-result');
+            
+            // Get Supabase credentials from meta tags
+            const supabaseUrl = document.querySelector('meta[name="supabase-url"]')?.content;
+            const supabaseKey = document.querySelector('meta[name="supabase-key"]')?.content;
+            
+            // Initialize Supabase client
+            let supabase;
+            try {
+                if (!supabaseUrl || !supabaseKey) {
+                    throw new Error('Missing Supabase credentials in meta tags');
+                }
+                
+                supabase = supabase.createClient(supabaseUrl, supabaseKey);
+                connectionStatus.innerHTML = `<span class="success">✓ Connected to Supabase</span><br>URL: ${supabaseUrl}`;
+            } catch (error) {
+                connectionStatus.innerHTML = `<span class="error">✗ Failed to connect to Supabase</span><br>Error: ${error.message}`;
+            }
+            
+            // Helper to decode JWT
+            function decodeJWT(token) {
+                if (!token) return null;
+                
+                try {
+                    const parts = token.split('.');
+                    if (parts.length !== 3) return null;
+                    
+                    const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
+                    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+                    
+                    return { header, payload, signature: parts[2].substring(0, 10) + '...' };
+                } catch (error) {
+                    console.error('Error decoding token:', error);
+                    return null;
+                }
+            }
+            
+            // Login
+            loginBtn.addEventListener('click', async function() {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                if (!email || !password) {
+                    loginResult.innerHTML = '<span class="error">Please enter both email and password</span>';
+                    return;
+                }
+                
+                try {
+                    loginResult.innerHTML = 'Logging in...';
+                    
+                    const { data, error } = await supabase.auth.signInWithPassword({
+                        email,
+                        password
+                    });
+                    
+                    if (error) throw error;
+                    
+                    loginResult.innerHTML = `<span class="success">✓ Login successful</span>`;
+                    
+                    // Refresh session and token info
+                    getSessionBtn.click();
+                    analyzeTokenBtn.click();
+                } catch (error) {
+                    loginResult.innerHTML = `<span class="error">✗ Login failed: ${error.message}</span>`;
+                }
+            });
+            
+            // Get session
+            getSessionBtn.addEventListener('click', async function() {
+                try {
+                    sessionInfo.textContent = 'Fetching session...';
+                    
+                    const { data, error } = await supabase.auth.getSession();
+                    
+                    if (error) throw error;
+                    
+                    sessionInfo.textContent = data.session ? 
+                        JSON.stringify(data.session, null, 2) : 
+                        'No active session found';
+                    
+                } catch (error) {
+                    sessionInfo.textContent = `Error: ${error.message}`;
+                }
+            });
+            
+            // Get user from /auth/me endpoint
+            getUserBtn.addEventListener('click', async function() {
+                try {
+                    userInfo.textContent = 'Fetching user data...';
+                    
+                    // Get current session for token
+                    const { data: sessionData } = await supabase.auth.getSession();
+                    
+                    if (!sessionData.session) {
+                        userInfo.textContent = 'No active session. Please login first.';
+                        return;
+                    }
+                    
+                    // Make request to /auth/me endpoint with the token
+                    const token = sessionData.session.access_token;
+                    const response = await fetch('/auth/me', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    // Check content type
+                    const contentType = response.headers.get('content-type');
+                    const isJson = contentType && contentType.includes('application/json');
+                    
+                    // Add info about the response
+                    let responseInfo = `Status: ${response.status} ${response.statusText}\nContent-Type: ${contentType}\n\n`;
+                    
+                    if (isJson) {
+                        const data = await response.json();
+                        userInfo.textContent = responseInfo + JSON.stringify(data, null, 2);
+                    } else {
+                        // If not JSON, get text and show part of it
+                        const text = await response.text();
+                        userInfo.textContent = responseInfo + 
+                            `Response is not JSON. First 300 characters:\n${text.substring(0, 300)}${text.length > 300 ? '...' : ''}`;
+                    }
+                    
+                } catch (error) {
+                    userInfo.textContent = `Error: ${error.message}`;
+                }
+            });
+            
+            // Analyze token
+            analyzeTokenBtn.addEventListener('click', async function() {
+                try {
+                    tokenInfo.textContent = 'Analyzing token...';
+                    
+                    const { data, error } = await supabase.auth.getSession();
+                    
+                    if (error) throw error;
+                    
+                    if (!data.session) {
+                        tokenInfo.textContent = 'No active session. Please login first.';
+                        return;
+                    }
+                    
+                    const token = data.session.access_token;
+                    const decoded = decodeJWT(token);
+                    
+                    if (!decoded) {
+                        tokenInfo.textContent = 'Failed to decode token.';
+                        return;
+                    }
+                    
+                    // Check expiration
+                    const now = Math.floor(Date.now() / 1000);
+                    const exp = decoded.payload.exp;
+                    const isExpired = exp < now;
+                    const expTime = new Date(exp * 1000).toLocaleString();
+                    
+                    // Format token info
+                    let tokenDetails = 
+                        `Token: ${token.substring(0, 10)}...${token.substring(token.length - 5)}\n\n` +
+                        `Header: ${JSON.stringify(decoded.header, null, 2)}\n\n` +
+                        `Payload: ${JSON.stringify(decoded.payload, null, 2)}\n\n` +
+                        `Expiration: ${expTime} (${isExpired ? 'EXPIRED' : 'valid'})\n` +
+                        `Signature: ${decoded.signature}`;
+                    
+                    tokenInfo.textContent = tokenDetails;
+                    
+                } catch (error) {
+                    tokenInfo.textContent = `Error: ${error.message}`;
+                }
+            });
+            
+            // Logout
+            logoutBtn.addEventListener('click', async function() {
+                try {
+                    logoutResult.innerHTML = 'Logging out...';
+                    
+                    const { error } = await supabase.auth.signOut();
+                    
+                    if (error) throw error;
+                    
+                    logoutResult.innerHTML = '<span class="success">✓ Logout successful</span>';
+                    
+                    // Clear info
+                    sessionInfo.textContent = 'No session data available. Click "Get Current Session" to check.';
+                    userInfo.textContent = 'No user data available. Click "Get User Data" to fetch from /auth/me endpoint.';
+                    tokenInfo.textContent = 'No token information available.';
+                    
+                } catch (error) {
+                    logoutResult.innerHTML = `<span class="error">✗ Logout failed: ${error.message}</span>`;
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

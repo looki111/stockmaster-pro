@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html class="theme-light" lang="{{ lang }}" dir="{{ 'rtl' if lang == 'ar' else 'ltr' }}">
+<head>
+  <meta name="theme-color" content="#ffffff">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if lang == 'ar' %}تسجيل الدخول | ستوك ماستر برو{% else %}Login | StockMaster Pro{% endif %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- Design System -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/design-system.css') }}">
+    
+    <!-- Modern UI Techniques -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/glassmorphism.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/neumorphism.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/gradients.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/3d-effects.css') }}">
+    
+    <!-- Bidirectional support -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bidirectional.css') }}">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Login Page Specific Styles */
+        .login-container {
+            min-height: 100vh;
+            background-image: var(--gradient-ocean);
+            background-size: 400% 400%;
+            animation: gradient-shift 15s ease infinite;
+        }
+        
+        .login-card {
+            max-width: 450px;
+            width: 90%;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+            pointer-events: none;
+        }
+        
+        .login-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .login-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .login-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+        }
+        
+        .login-button {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .login-button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transform: translateX(-100%);
+        }
+        
+        .login-button:hover::after {
+            transform: translateX(100%);
+            transition: transform 0.5s ease;
+        }
+        
+        /* Floating particles */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* Dark mode adjustments */
+        [data-theme="dark"] .login-input {
+            background: rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        [data-theme="dark"] .login-input:focus {
+            background: rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Animation for form elements */
+        @keyframes float-in {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-float-in {
+            animation: float-in 0.6s ease forwards;
+        }
+        
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+        .delay-400 { animation-delay: 0.4s; }
+        .delay-500 { animation-delay: 0.5s; }
+    </style>
+</head>
+<body class="{% if theme == 'dark' %}dark{% else %}light{% endif %}">
+    <div class="login-container flex justify-center items-center p-4">
+        <!-- Particles Background -->
+        <div class="particles" id="particles"></div>
+        
+        <!-- Login Card -->
+        <div class="login-card glass perspective-container" data-tilt data-tilt-max="5">
+            <div class="relative z-10 p-8 md:p-10">
+                <!-- Logo -->
+                <div class="flex justify-center mb-8 animate-float-in">
+                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="StockMaster Pro" class="h-20 transform hover:scale-105 transition-transform duration-300">
+                </div>
+                
+                <!-- Title -->
+                <h1 class="text-3xl font-bold text-white text-center mb-2 animate-float-in delay-100">
+                    {% if lang == 'ar' %}مرحباً بك{% else %}Welcome Back{% endif %}
+                </h1>
+                
+                <!-- Subtitle -->
+                <p class="text-white text-opacity-80 text-center mb-8 animate-float-in delay-200">
+                    {% if lang == 'ar' %}سجل دخولك للوصول إلى لوحة التحكم{% else %}Sign in to access your dashboard{% endif %}
+                </p>
+                
+                <!-- Login Form -->
+                <form method="POST" action="/auth/login" id="loginForm" class="space-y-6" autocomplete="off">
+                    <!-- Username Input -->
+                    <div class="relative animate-float-in delay-300">
+                        <span class="absolute {{ 'right-4' if lang == 'ar' else 'left-4' }} top-1/2 transform -translate-y-1/2 text-white text-opacity-80">
+                            <i class="ri-user-line"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            name="username" 
+                            placeholder="{% if lang == 'ar' %}اسم المستخدم{% else %}Username{% endif %}" 
+                            class="login-input w-full py-4 {{ 'pr-12' if lang == 'ar' else 'pl-12' }} rounded-xl focus:outline-none"
+                            required
+                        >
+                    </div>
+                    
+                    <!-- Password Input -->
+                    <div class="relative animate-float-in delay-400">
+                        <span class="absolute {{ 'right-4' if lang == 'ar' else 'left-4' }} top-1/2 transform -translate-y-1/2 text-white text-opacity-80">
+                            <i class="ri-lock-2-line"></i>
+                        </span>
+                        <input 
+                            type="password" 
+                            name="password" 
+                            id="passwordInput"
+                            placeholder="{% if lang == 'ar' %}كلمة المرور{% else %}Password{% endif %}" 
+                            class="login-input w-full py-4 {{ 'pr-12' if lang == 'ar' else 'pl-12' }} rounded-xl focus:outline-none"
+                            required
+                        >
+                        <button 
+                            type="button" 
+                            class="absolute {{ 'left-4' if lang == 'ar' else 'right-4' }} top-1/2 transform -translate-y-1/2 text-white text-opacity-80 hover:text-opacity-100"
+                            onclick="togglePasswordVisibility()"
+                        >
+                            <i class="ri-eye-line" id="passwordToggleIcon"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Remember Me & Language Toggle -->
+                    <div class="flex items-center justify-between animate-float-in delay-500">
+                        <label class="flex items-center cursor-pointer">
+                            <div class="relative">
+                                <input type="checkbox" name="remember" class="sr-only">
+                                <div class="w-10 h-5 bg-white bg-opacity-20 rounded-full shadow-inner"></div>
+                                <div class="dot absolute w-4 h-4 bg-white rounded-full transition {{ 'right-1' if lang == 'ar' else 'left-1' }} top-0.5"></div>
+                            </div>
+                            <span class="ml-3 text-white text-opacity-90 text-sm">
+                                {% if lang == 'ar' %}تذكرني{% else %}Remember me{% endif %}
+                            </span>
+                        </label>
+                        
+                        <button 
+                            type="button" 
+                            onclick="toggleLanguage()"
+                            class="text-white text-opacity-90 hover:text-opacity-100 text-sm flex items-center gap-1"
+                        >
+                            <i class="ri-translate-2"></i>
+                            {% if lang == 'ar' %}English{% else %}العربية{% endif %}
+                        </button>
+                    </div>
+                    
+                    <!-- Error Container -->
+                    <div id="errorContainer" class="text-red-300 text-sm text-center hidden animate-float-in"></div>
+                    
+                    <!-- Submit Button -->
+                    <button 
+                        type="submit" 
+                        class="login-button w-full py-4 rounded-xl bg-gradient-blue text-white font-bold text-lg transform hover:scale-[1.02] transition-all duration-300 animate-float-in delay-500"
+                    >
+                        {% if lang == 'ar' %}تسجيل الدخول{% else %}Sign In{% endif %}
+                    </button>
+                </form>
+                
+                <!-- Register Link -->
+                <div class="mt-8 text-center animate-float-in delay-500">
+                    <p class="text-white text-opacity-80">
+                        {% if lang == 'ar' %}ليس لديك حساب؟{% else %}Don't have an account?{% endif %}
+                        <a href="{{ url_for('auth.register') }}" class="text-white font-semibold hover:underline">
+                            {% if lang == 'ar' %}إنشاء حساب{% else %}Register{% endif %}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/animations.js') }}"></script>
+    <script>
+        // Initialize theme
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof window.StockMaster !== 'undefined' && typeof window.StockMaster.applyThemeOnLoad === 'function') {
+                window.StockMaster.applyThemeOnLoad();
+            }
+            
+            // Create particles
+            createParticles();
+            
+            // Initialize 3D tilt effect
+            initTiltEffect();
+            
+            // Setup form validation
+            setupFormValidation();
+        });
+        
+        // Toggle password visibility
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('passwordInput');
+            const passwordToggleIcon = document.getElementById('passwordToggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordToggleIcon.classList.remove('ri-eye-line');
+                passwordToggleIcon.classList.add('ri-eye-off-line');
+            } else {
+                passwordInput.type = 'password';
+                passwordToggleIcon.classList.remove('ri-eye-off-line');
+                passwordToggleIcon.classList.add('ri-eye-line');
+            }
+        }
+        
+        // Toggle language
+        function toggleLanguage() {
+            const currentLang = document.documentElement.lang;
+            const newLang = currentLang === 'ar' ? 'en' : 'ar';
+            
+            // Save language preference
+            localStorage.setItem('language', newLang);
+            
+            // Redirect to same page with new language
+            window.location.href = window.location.pathname + '?lang=' + newLang;
+        }
+        
+        // Create floating particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                // Random size between 5px and 20px
+                const size = Math.random() * 15 + 5;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Random position
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                // Random opacity
+                particle.style.opacity = Math.random() * 0.5 + 0.1;
+                
+                // Random animation
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                
+                particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite alternate`;
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        // Initialize 3D tilt effect
+        function initTiltEffect() {
+            const card = document.querySelector('.login-card');
+            
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const deltaX = (x - centerX) / centerX;
+                const deltaY = (y - centerY) / centerY;
+                
+                card.style.transform = `perspective(1000px) rotateX(${-deltaY * 5}deg) rotateY(${deltaX * 5}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+            });
+        }
+        
+        // Setup form validation
+        function setupFormValidation() {
+            const form = document.getElementById('loginForm');
+            const errorContainer = document.getElementById('errorContainer');
+            
+            form.addEventListener('submit', (e) => {
+                const username = form.querySelector('input[name="username"]');
+                const password = form.querySelector('input[name="password"]');
+                let hasError = false;
+                
+                // Reset errors
+                errorContainer.innerHTML = '';
+                errorContainer.classList.add('hidden');
+                
+                // Validate username
+                if (!username.value.trim()) {
+                    hasError = true;
+                    errorContainer.innerHTML += `<p>{% if lang == 'ar' %}يرجى إدخال اسم المستخدم{% else %}Please enter your username{% endif %}</p>`;
+                    username.classList.add('border-red-400');
+                }
+                
+                // Validate password
+                if (!password.value) {
+                    hasError = true;
+                    errorContainer.innerHTML += `<p>{% if lang == 'ar' %}يرجى إدخال كلمة المرور{% else %}Please enter your password{% endif %}</p>`;
+                    password.classList.add('border-red-400');
+                }
+                
+                // Show errors if any
+                if (hasError) {
+                    e.preventDefault();
+                    errorContainer.classList.remove('hidden');
+                    
+                    // Shake animation
+                    form.classList.add('animate-shake');
+                    setTimeout(() => {
+                        form.classList.remove('animate-shake');
+                    }, 500);
+                }
+            });
+            
+            // Remove error styling on input
+            form.querySelectorAll('input').forEach(input => {
+                input.addEventListener('input', () => {
+                    input.classList.remove('border-red-400');
+                    if (errorContainer.innerHTML !== '') {
+                        errorContainer.innerHTML = '';
+                        errorContainer.classList.add('hidden');
+                    }
+                });
+            });
+        }
+    </script>
+    
+    <style>
+        /* Additional animations */
+        @keyframes float {
+            0% {
+                transform: translateY(0) translateX(0);
+            }
+            50% {
+                transform: translateY(-20px) translateX(10px);
+            }
+            100% {
+                transform: translateY(0) translateX(0);
+            }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        .animate-shake {
+            animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+        
+        /* Toggle switch styling */
+        input[type="checkbox"]:checked + .w-10 .dot {
+            transform: translateX(20px);
+        }
+        
+        input[type="checkbox"]:checked + .w-10 {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .dot {
+            transition: all 0.3s ease-in-out;
+        }
+    </style>
+</body>
+</html>

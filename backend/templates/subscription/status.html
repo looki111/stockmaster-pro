@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+{% block title %}{% if lang == 'ar' %}حالة الاشتراك | ستوك ماستر برو{% else %}Subscription Status | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}حالة الاشتراك{% else %}Subscription Status{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Subscription Status Card -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden mb-8">
+            <div class="p-6 {% if subscription.status == 'active' %}bg-green-600{% elif subscription.status == 'expiring_soon' %}bg-yellow-600{% else %}bg-red-600{% endif %} text-white">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-2xl font-bold">
+                        {% if lang == 'ar' %}حالة الاشتراك{% else %}Subscription Status{% endif %}
+                    </h2>
+                    <span class="px-3 py-1 rounded-full text-sm font-medium 
+                        {% if subscription.status == 'active' %}bg-green-500{% elif subscription.status == 'expiring_soon' %}bg-yellow-500{% else %}bg-red-500{% endif %}">
+                        {% if subscription.status == 'active' %}
+                            {% if lang == 'ar' %}نشط{% else %}Active{% endif %}
+                        {% elif subscription.status == 'expiring_soon' %}
+                            {% if lang == 'ar' %}ينتهي قريبًا{% else %}Expiring Soon{% endif %}
+                        {% elif subscription.status == 'expired' %}
+                            {% if lang == 'ar' %}منتهي{% else %}Expired{% endif %}
+                        {% else %}
+                            {% if lang == 'ar' %}غير نشط{% else %}Inactive{% endif %}
+                        {% endif %}
+                    </span>
+                </div>
+                <p class="mt-2 text-sm opacity-90">
+                    {% if subscription.status == 'active' %}
+                        {% if lang == 'ar' %}
+                        اشتراكك نشط وسيستمر حتى {{ subscription.end_date.strftime('%Y-%m-%d') }}
+                        {% else %}
+                        Your subscription is active and will continue until {{ subscription.end_date.strftime('%B %d, %Y') }}
+                        {% endif %}
+                    {% elif subscription.status == 'expiring_soon' %}
+                        {% if lang == 'ar' %}
+                        اشتراكك سينتهي خلال {{ subscription.days_remaining }} يوم. يرجى التجديد لتجنب انقطاع الخدمة.
+                        {% else %}
+                        Your subscription will expire in {{ subscription.days_remaining }} day(s). Please renew to avoid service interruption.
+                        {% endif %}
+                    {% elif subscription.status == 'expired' %}
+                        {% if lang == 'ar' %}
+                        انتهى اشتراكك في {{ subscription.end_date.strftime('%Y-%m-%d') }}. يرجى التجديد لاستعادة الوصول الكامل.
+                        {% else %}
+                        Your subscription expired on {{ subscription.end_date.strftime('%B %d, %Y') }}. Please renew to restore full access.
+                        {% endif %}
+                    {% else %}
+                        {% if lang == 'ar' %}
+                        اشتراكك غير نشط حاليًا. يرجى التجديد لاستعادة الوصول.
+                        {% else %}
+                        Your subscription is currently inactive. Please renew to restore access.
+                        {% endif %}
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">
+                            {% if lang == 'ar' %}تفاصيل الاشتراك{% else %}Subscription Details{% endif %}
+                        </h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">
+                                    {% if lang == 'ar' %}خطة الاشتراك{% else %}Subscription Plan{% endif %}:
+                                </span>
+                                <span class="font-medium">{{ subscription.plan.name }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">
+                                    {% if lang == 'ar' %}دورة الفوترة{% else %}Billing Cycle{% endif %}:
+                                </span>
+                                <span class="font-medium">
+                                    {% if subscription.billing_cycle == 'monthly' %}
+                                        {% if lang == 'ar' %}شهري{% else %}Monthly{% endif %}
+                                    {% else %}
+                                        {% if lang == 'ar' %}سنوي{% else %}Yearly{% endif %}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">
+                                    {% if lang == 'ar' %}تاريخ البدء{% else %}Start Date{% endif %}:
+                                </span>
+                                <span class="font-medium">{{ subscription.start_date.strftime('%Y-%m-%d') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">
+                                    {% if lang == 'ar' %}تاريخ الانتهاء{% else %}End Date{% endif %}:
+                                </span>
+                                <span class="font-medium">{{ subscription.end_date.strftime('%Y-%m-%d') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">
+                                    {% if lang == 'ar' %}الأيام المتبقية{% else %}Days Remaining{% endif %}:
+                                </span>
+                                <span class="font-medium">{{ subscription.days_remaining }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600 dark:text-gray-400">
+                                    {% if lang == 'ar' %}التجديد التلقائي{% else %}Auto Renewal{% endif %}:
+                                </span>
+                                <span class="font-medium">
+                                    {% if subscription.auto_renew %}
+                                        {% if lang == 'ar' %}مفعل{% else %}Enabled{% endif %}
+                                    {% else %}
+                                        {% if lang == 'ar' %}معطل{% else %}Disabled{% endif %}
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-lg font-semibold mb-4">
+                            {% if lang == 'ar' %}حدود الخطة{% else %}Plan Limits{% endif %}
+                        </h3>
+                        <div class="space-y-4">
+                            <!-- Branches Usage -->
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">
+                                        {% if lang == 'ar' %}الفروع{% else %}Branches{% endif %}
+                                    </span>
+                                    <span class="text-sm font-medium">
+                                        {{ shop.branches|length }} / {{ subscription.plan.max_branches }}
+                                    </span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ (shop.branches|length / subscription.plan.max_branches * 100)|round|int }}%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Users Usage -->
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">
+                                        {% if lang == 'ar' %}المستخدمين{% else %}Users{% endif %}
+                                    </span>
+                                    <span class="text-sm font-medium">
+                                        {{ shop.branches|map(attribute='users')|map('length')|sum }} / {{ subscription.plan.max_users }}
+                                    </span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ (shop.branches|map(attribute='users')|map('length')|sum / subscription.plan.max_users * 100)|round|int }}%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Products Usage -->
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm text-gray-600 dark:text-gray-400">
+                                        {% if lang == 'ar' %}المنتجات{% else %}Products{% endif %}
+                                    </span>
+                                    <span class="text-sm font-medium">
+                                        {{ shop.branches|map(attribute='products')|map('length')|sum }} / {{ subscription.plan.max_products }}
+                                    </span>
+                                </div>
+                                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                                    <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ (shop.branches|map(attribute='products')|map('length')|sum / subscription.plan.max_products * 100)|round|int }}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <a href="{{ url_for('subscription.renew_subscription') }}" class="inline-block w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white text-center font-medium rounded transition">
+                                {% if subscription.status == 'active' %}
+                                    {% if lang == 'ar' %}تغيير الخطة{% else %}Change Plan{% endif %}
+                                {% else %}
+                                    {% if lang == 'ar' %}تجديد الاشتراك{% else %}Renew Subscription{% endif %}
+                                {% endif %}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payment History -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold">
+                    {% if lang == 'ar' %}سجل المدفوعات{% else %}Payment History{% endif %}
+                </h3>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-gray-900">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}التاريخ{% else %}Date{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}المبلغ{% else %}Amount{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}طريقة الدفع{% else %}Payment Method{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}الحالة{% else %}Status{% endif %}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        {% for payment in payments %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                                {{ payment.payment_date.strftime('%Y-%m-%d') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                                {{ payment.amount }} {% if lang == 'ar' %}ريال{% else %}SAR{% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-300">
+                                {% if payment.payment_method == 'credit_card' %}
+                                    {% if lang == 'ar' %}بطاقة ائتمان{% else %}Credit Card{% endif %}
+                                {% elif payment.payment_method == 'bank_transfer' %}
+                                    {% if lang == 'ar' %}تحويل بنكي{% else %}Bank Transfer{% endif %}
+                                {% elif payment.payment_method == 'manual' %}
+                                    {% if lang == 'ar' %}يدوي{% else %}Manual{% endif %}
+                                {% else %}
+                                    {{ payment.payment_method }}
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {% if payment.status == 'completed' %}
+                                        bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                                    {% elif payment.status == 'pending' %}
+                                        bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                                    {% elif payment.status == 'failed' %}
+                                        bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                                    {% else %}
+                                        bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200
+                                    {% endif %}">
+                                    {% if payment.status == 'completed' %}
+                                        {% if lang == 'ar' %}مكتمل{% else %}Completed{% endif %}
+                                    {% elif payment.status == 'pending' %}
+                                        {% if lang == 'ar' %}قيد الانتظار{% else %}Pending{% endif %}
+                                    {% elif payment.status == 'failed' %}
+                                        {% if lang == 'ar' %}فشل{% else %}Failed{% endif %}
+                                    {% else %}
+                                        {{ payment.status }}
+                                    {% endif %}
+                                </span>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                {% if lang == 'ar' %}لا توجد مدفوعات سابقة{% else %}No payment history available{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

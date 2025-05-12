@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="80" fill="url(#paint0_linear)" fill-opacity="0.1"/>
+  
+  <!-- Shopping Cart -->
+  <path d="M140 60H40L50 120H130L140 60Z" stroke="#6366F1" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M70 140C73.3137 140 76 137.314 76 134C76 130.686 73.3137 128 70 128C66.6863 128 64 130.686 64 134C64 137.314 66.6863 140 70 140Z" fill="#6366F1"/>
+  <path d="M110 140C113.314 140 116 137.314 116 134C116 130.686 113.314 128 110 128C106.686 128 104 130.686 104 134C104 137.314 106.686 140 110 140Z" fill="#6366F1"/>
+  
+  <!-- X Mark -->
+  <path d="M85 85L115 115M115 85L85 115" stroke="#6366F1" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="paint0_linear" x1="20" y1="20" x2="180" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F46E5"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+</svg>

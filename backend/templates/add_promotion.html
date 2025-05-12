@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-white">
+                {% if lang == 'ar' %}إضافة عرض جديد{% else %}Add New Promotion{% endif %}
+            </h1>
+            <a href="{{ url_for('promotions.promotions') }}" 
+               class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
+                {% if lang == 'ar' %}العودة للعروض{% else %}Back to Promotions{% endif %}
+            </a>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 backdrop-blur-lg bg-opacity-80 dark:bg-opacity-80 border border-gray-200 dark:border-gray-700">
+            <form method="POST" class="space-y-6">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {% if lang == 'ar' %}اسم العرض{% else %}Promotion Name{% endif %} *
+                    </label>
+                    <input type="text" id="name" name="name" required class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {% if lang == 'ar' %}الوصف{% else %}Description{% endif %}
+                    </label>
+                    <textarea id="description" name="description" rows="3" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"></textarea>
+                </div>
+                <div>
+                    <label for="discount_type" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {% if lang == 'ar' %}نوع الخصم{% else %}Discount Type{% endif %}
+                    </label>
+                    <select id="discount_type" name="discount_type" required class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <option value="percentage">{% if lang == 'ar' %}نسبة مئوية{% else %}Percentage{% endif %}</option>
+                        <option value="fixed_amount">{% if lang == 'ar' %}مبلغ ثابت{% else %}Fixed Amount{% endif %}</option>
+                        <option value="loyalty_multiplier">{% if lang == 'ar' %}مضاعف نقاط الولاء{% else %}Loyalty Multiplier{% endif %}</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="discount_value" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {% if lang == 'ar' %}قيمة الخصم{% else %}Discount Value{% endif %} *
+                    </label>
+                    <input type="number" step="0.01" id="discount_value" name="discount_value" required class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {% if lang == 'ar' %}تاريخ البداية{% else %}Start Date{% endif %}
+                        </label>
+                        <input type="date" id="start_date" name="start_date" required class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label for="end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {% if lang == 'ar' %}تاريخ النهاية{% else %}End Date{% endif %}
+                        </label>
+                        <input type="date" id="end_date" name="end_date" required class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="min_purchase" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {% if lang == 'ar' %}الحد الأدنى للشراء{% else %}Min Purchase{% endif %}
+                        </label>
+                        <input type="number" step="0.01" id="min_purchase" name="min_purchase" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label for="max_discount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            {% if lang == 'ar' %}الحد الأقصى للخصم{% else %}Max Discount{% endif %}
+                        </label>
+                        <input type="number" step="0.01" id="max_discount" name="max_discount" class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="window.location.href='{{ url_for('promotions.promotions') }}'" class="px-6 py-2 rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        {% if lang == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                    </button>
+                    <button type="submit" class="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
+                        {% if lang == 'ar' %}حفظ{% else %}Save{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

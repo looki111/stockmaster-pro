@@ -1,0 +1,131 @@
+/* Global Styles */
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --secondary: #64748b;
+  --background: #f8fafc;
+  --surface: #ffffff;
+  --error: #dc2626;
+  --success: #16a34a;
+  --border-radius: 0.5rem;
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+[dir="rtl"] {
+  --direction: rtl;
+}
+
+[dir="ltr"] {
+  --direction: ltr;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--background);
+  color: #1e293b;
+  direction: var(--direction);
+}
+
+/* Base Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius);
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+  border: 1px solid var(--primary);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Form Inputs */
+.input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--border-radius);
+  transition: border-color 0.2s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* POS Styles */
+.pos-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.category-tab {
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  white-space: nowrap;
+  background-color: var(--background);
+  border: 1px solid #e2e8f0;
+}
+
+.category-tab.active {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.product-card {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-2px);
+}
+
+.product-image {
+  background-size: cover;
+  background-position: center;
+}
+
+.order-item {
+  padding: 0.75rem;
+  border-radius: var(--border-radius);
+  background-color: var(--background);
+}
+
+.btn-icon {
+  padding: 0.5rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--secondary);
+  transition: all 0.2s ease;
+}
+
+.btn-icon:hover {
+  background-color: var(--background);
+  color: var(--primary);
+}
+
+@media (max-width: 768px) {
+  .pos-container {
+    flex-direction: column;
+  }
+  
+  .pos-container > div {
+    width: 100% !important;
+  }
+}

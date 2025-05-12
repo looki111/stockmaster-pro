@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+
+{% block title %}{% if lang == 'ar' %}التقارير | ستوك ماستر{% else %}Reports | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}التقارير{% else %}Reports{% endif %}{% endblock %}
+{% block breadcrumb %}{% if lang == 'ar' %}التقارير{% else %}Reports{% endif %}{% endblock %}
+
+{% block content %}
+<div class="glass-card p-6 mb-6 animate-fade-in">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-semibold">{% if lang == 'ar' %}تقارير وتحليلات{% else %}Reports & Analytics{% endif %}</h2>
+    <div class="flex gap-2">
+      <button id="exportBtn" class="px-4 py-2 bg-[var(--primary-color)] text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+        <i class="ri-download-line"></i>
+        <span>{% if lang == 'ar' %}تصدير{% else %}Export{% endif %}</span>
+      </button>
+      <button id="dateRangeBtn" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-[var(--text-color)] rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition flex items-center gap-2">
+        <i class="ri-calendar-line"></i>
+        <span>{% if lang == 'ar' %}تاريخ{% else %}Date Range{% endif %}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Date Range Selector -->
+  <div class="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="relative">
+      <span class="absolute {{ 'right-3' if lang == 'ar' else 'left-3' }} top-3 text-gray-400">
+        <i class="ri-calendar-line"></i>
+      </span>
+      <input type="date" id="startDate" class="w-full {{ 'pr-10' if lang == 'ar' else 'pl-10' }} py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-[var(--input-bg)] text-[var(--text-color)] focus:ring-2 focus:ring-blue-500 transition">
+    </div>
+    <div class="relative">
+      <span class="absolute {{ 'right-3' if lang == 'ar' else 'left-3' }} top-3 text-gray-400">
+        <i class="ri-calendar-line"></i>
+      </span>
+      <input type="date" id="endDate" class="w-full {{ 'pr-10' if lang == 'ar' else 'pl-10' }} py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-[var(--input-bg)] text-[var(--text-color)] focus:ring-2 focus:ring-blue-500 transition">
+    </div>
+    <button id="applyDateRange" class="px-4 py-2 bg-[var(--primary-color)] text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2">
+      <i class="ri-filter-line"></i>
+      <span>{% if lang == 'ar' %}تطبيق{% else %}Apply{% endif %}</span>
+    </button>
+  </div>
+
+  <!-- Sales Chart -->
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold mb-4">{% if lang == 'ar' %}تحليل المبيعات{% else %}Sales Analysis{% endif %}</h3>
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+      <canvas id="salesChart" height="300"></canvas>
+    </div>
+  </div>
+
+  <!-- Inventory Status -->
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold mb-4">{% if lang == 'ar' %}حالة المخزون{% else %}Inventory Status{% endif %}</h3>
+    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+      <canvas id="inventoryChart" height="300"></canvas>
+    </div>
+  </div>
+
+  <!-- Top Products Table -->
+  <div>
+    <h3 class="text-lg font-semibold mb-4">{% if lang == 'ar' %}أفضل المنتجات مبيعاً{% else %}Top Selling Products{% endif %}</h3>
+    <div class="overflow-x-auto">
+      <table class="min-w-full table-modern">
+        <thead>
+          <tr class="border-b border-gray-200 dark:border-gray-700">
+            <th class="py-3 px-4 text-left">{% if lang == 'ar' %}المنتج{% else %}Product{% endif %}</th>
+            <th class="py-3 px-4 text-left">{% if lang == 'ar' %}الكمية المباعة{% else %}Quantity Sold{% endif %}</th>
+            <th class="py-3 px-4 text-left">{% if lang == 'ar' %}الإيرادات{% else %}Revenue{% endif %}</th>
+            <th class="py-3 px-4 text-left">{% if lang == 'ar' %}نسبة المبيعات{% else %}% of Sales{% endif %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="py-3 px-4">{% if lang == 'ar' %}قهوة أمريكية{% else %}Americano{% endif %}</td>
+            <td class="py-3 px-4">245</td>
+            <td class="py-3 px-4">$735.00</td>
+            <td class="py-3 px-4">24%</td>
+          </tr>
+          <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="py-3 px-4">{% if lang == 'ar' %}لاتيه{% else %}Latte{% endif %}</td>
+            <td class="py-3 px-4">198</td>
+            <td class="py-3 px-4">$693.00</td>
+            <td class="py-3 px-4">19%</td>
+          </tr>
+          <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="py-3 px-4">{% if lang == 'ar' %}كابتشينو{% else %}Cappuccino{% endif %}</td>
+            <td class="py-3 px-4">156</td>
+            <td class="py-3 px-4">$546.00</td>
+            <td class="py-3 px-4">15%</td>
+          </tr>
+          <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="py-3 px-4">{% if lang == 'ar' %}إسبريسو{% else %}Espresso{% endif %}</td>
+            <td class="py-3 px-4">132</td>
+            <td class="py-3 px-4">$396.00</td>
+            <td class="py-3 px-4">13%</td>
+          </tr>
+          <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="py-3 px-4">{% if lang == 'ar' %}موكا{% else %}Mocha{% endif %}</td>
+            <td class="py-3 px-4">98</td>
+            <td class="py-3 px-4">$343.00</td>
+            <td class="py-3 px-4">10%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Set default dates (last 30 days)
+  const today = new Date();
+  const thirtyDaysAgo = new Date(today);
+  thirtyDaysAgo.setDate(today.getDate() - 30);
+
+  document.getElementById('startDate').valueAsDate = thirtyDaysAgo;
+  document.getElementById('endDate').valueAsDate = today;
+
+  // Sales Chart
+  const salesCtx = document.getElementById('salesChart').getContext('2d');
+  const salesChart = new Chart(salesCtx, {
+    type: 'line',
+    data: {
+      labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+      datasets: [{
+        label: '{{ 'المبيعات' if lang == 'ar' else 'Sales' }}',
+        data: [120, 190, 300, 500, 200, 300],
+        borderColor: 'rgb(74, 144, 226)',
+        backgroundColor: 'rgba(74, 144, 226, 0.1)',
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: document.body.classList.contains('dark') ? '#D4D4D4' : '#333333'
+          }
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            color: document.body.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+          },
+          ticks: {
+            color: document.body.classList.contains('dark') ? '#D4D4D4' : '#333333'
+          }
+        },
+        y: {
+          grid: {
+            color: document.body.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+          },
+          ticks: {
+            color: document.body.classList.contains('dark') ? '#D4D4D4' : '#333333'
+          }
+        }
+      }
+    }
+  });
+
+  // Inventory Chart
+  const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
+  const inventoryChart = new Chart(inventoryCtx, {
+    type: 'bar',
+    data: {
+      labels: ['{{ 'حبوب القهوة' if lang == 'ar' else 'Coffee Beans' }}', '{{ 'حليب' if lang == 'ar' else 'Milk' }}', '{{ 'سكر' if lang == 'ar' else 'Sugar' }}', '{{ 'شراب' if lang == 'ar' else 'Syrup' }}', '{{ 'أكواب' if lang == 'ar' else 'Cups' }}'],
+      datasets: [{
+        label: '{{ 'المخزون الحالي' if lang == 'ar' else 'Current Stock' }}',
+        data: [65, 40, 80, 35, 60],
+        backgroundColor: 'rgba(255, 167, 38, 0.7)',
+        borderColor: 'rgb(255, 167, 38)',
+        borderWidth: 1
+      }, {
+        label: '{{ 'الحد الأدنى' if lang == 'ar' else 'Min Threshold' }}',
+        data: [30, 20, 25, 15, 40],
+        backgroundColor: 'rgba(244, 67, 54, 0.5)',
+        borderColor: 'rgb(244, 67, 54)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: document.body.classList.contains('dark') ? '#D4D4D4' : '#333333'
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {
+            color: document.body.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+          },
+          ticks: {
+            color: document.body.classList.contains('dark') ? '#D4D4D4' : '#333333'
+          }
+        },
+        y: {
+          grid: {
+            color: document.body.classList.contains('dark') ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+          },
+          ticks: {
+            color: document.body.classList.contains('dark') ? '#D4D4D4' : '#333333'
+          }
+        }
+      }
+    }
+  });
+
+  // Handle theme changes
+  window.addEventListener('themeChanged', function(e) {
+    const isDark = e.detail.theme === 'dark';
+    const textColor = isDark ? '#D4D4D4' : '#333333';
+    const gridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
+    // Update sales chart
+    salesChart.options.scales.x.grid.color = gridColor;
+    salesChart.options.scales.y.grid.color = gridColor;
+    salesChart.options.scales.x.ticks.color = textColor;
+    salesChart.options.scales.y.ticks.color = textColor;
+    salesChart.options.plugins.legend.labels.color = textColor;
+    salesChart.update();
+
+    // Update inventory chart
+    inventoryChart.options.scales.x.grid.color = gridColor;
+    inventoryChart.options.scales.y.grid.color = gridColor;
+    inventoryChart.options.scales.x.ticks.color = textColor;
+    inventoryChart.options.scales.y.ticks.color = textColor;
+    inventoryChart.options.plugins.legend.labels.color = textColor;
+    inventoryChart.update();
+  });
+
+  // Export button
+  document.getElementById('exportBtn').addEventListener('click', function() {
+    showToast('{{ 'جاري تصدير التقرير...' if lang == 'ar' else 'Exporting report...' }}', 'info');
+    setTimeout(() => {
+      showToast('{{ 'تم تصدير التقرير بنجاح' if lang == 'ar' else 'Report exported successfully' }}', 'success');
+    }, 1500);
+  });
+
+  // Apply date range
+  document.getElementById('applyDateRange').addEventListener('click', function() {
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    if (!startDate || !endDate) {
+      showToast('{{ 'يرجى تحديد تاريخ البداية والنهاية' if lang == 'ar' else 'Please select start and end dates' }}', 'error');
+      return;
+    }
+
+    showToast('{{ 'جاري تحديث البيانات...' if lang == 'ar' else 'Updating data...' }}', 'info');
+
+    // Here you would normally fetch new data based on the date range
+    // For demo purposes, we'll just update with random data
+    setTimeout(() => {
+      // Update sales chart with new random data
+      salesChart.data.datasets[0].data = Array.from({length: 6}, () => Math.floor(Math.random() * 500) + 100);
+      salesChart.update();
+
+      // Update inventory chart with new random data
+      inventoryChart.data.datasets[0].data = Array.from({length: 5}, () => Math.floor(Math.random() * 100) + 20);
+      inventoryChart.update();
+
+      showToast('{{ 'تم تحديث البيانات' if lang == 'ar' else 'Data updated' }}', 'success');
+    }, 1000);
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Authentication Callback - StockMaster Pro</title>
+  
+  <!-- Supabase configuration -->
+  <meta name="supabase-url" content="{{ config.get('SUPABASE_URL', '') }}">
+  <meta name="supabase-key" content="{{ config.get('SUPABASE_KEY', '') }}">
+  
+  <!-- Load Supabase SDK first without defer -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+      background-color: #f9fafb;
+    }
+    .loader {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top: 4px solid #4A90E2;
+      width: 40px;
+      height: 40px;
+      margin: 20px auto;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .message {
+      margin-top: 20px;
+      font-size: 16px;
+      color: #4b5563;
+    }
+    .error {
+      color: #ef4444;
+      margin-top: 20px;
+      max-width: 500px;
+      text-align: center;
+    }
+    .success {
+      color: #10b981;
+      margin-top: 20px;
+    }
+    .debug-info {
+      margin-top: 30px;
+      padding: 15px;
+      background-color: #f3f4f6;
+      border-radius: 8px;
+      text-align: left;
+      font-size: 12px;
+      font-family: monospace;
+      max-width: 500px;
+      overflow: auto;
+      display: none;
+    }
+    .retry-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #4A90E2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .retry-btn:hover {
+      background-color: #3a7bc8;
+    }
+    .go-login {
+      margin-top: 30px;
+      color: #4b5563;
+      text-decoration: none;
+    }
+    .go-login:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <h2>Completing Authentication</h2>
+    <div class="loader"></div>
+    <p class="message">Please wait while we complete your sign-in...</p>
+  </div>
+  
+  <div id="success" style="display: none;">
+    <h2>Authentication Successful</h2>
+    <p class="success">You have been successfully authenticated!</p>
+    <p class="message">Redirecting to dashboard...</p>
+  </div>
+  
+  <div id="error" style="display: none;">
+    <h2>Authentication Error</h2>
+    <p class="error" id="error-message"></p>
+    <div class="debug-info" id="debug-info"></div>
+    <button class="retry-btn" id="retry-btn">Try Again</button>
+    <p><a href="/auth/login" class="go-login">Return to login page</a></p>
+  </div>
+
+  <!-- Supabase JavaScript -->
+  <script src="/static/js/supabase-init.js"></script>
+  <script src="/static/js/supabase-auth.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+      console.log("OAuth callback handler started");
+      
+      // Retry button handler
+      document.getElementById('retry-btn').addEventListener('click', function() {
+        window.location.href = '/auth/login';
+      });
+      
+      try {
+        // Get Supabase client
+        let supabaseClient;
+            
+        // If SupabaseAuth is available, use its function
+        if (window.SupabaseAuth && window.SupabaseAuth.getSupabaseClient) {
+          try {
+            supabaseClient = window.SupabaseAuth.getSupabaseClient();
+            console.log("Using SupabaseAuth client");
+          } catch (error) {
+            console.error("Error getting client from SupabaseAuth:", error);
+          }
+        }
+        
+        // If still no client, create it directly
+        if (!supabaseClient) {
+          const supabaseUrl = document.querySelector('meta[name="supabase-url"]').content;
+          const supabaseKey = document.querySelector('meta[name="supabase-key"]').content;
+          
+          if (!supabaseUrl || !supabaseKey) {
+            throw new Error('Supabase credentials not found. Check your meta tags.');
+          }
+          
+          if (!window.supabase) {
+            throw new Error('Supabase SDK not loaded. Please refresh the page.');
+          }
+          
+          supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
+          console.log('Created temporary Supabase client for auth callback');
+        }
+        
+        // Get the current URL hash (fragment)
+        const hash = window.location.hash;
+        console.log("URL hash present:", !!hash);
+        
+        if (!hash) {
+          throw new Error('No authentication data found in URL');
+        }
+        
+        // Parse the hash to get the access token
+        const hashParams = new URLSearchParams(hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+        const expiresIn = hashParams.get('expires_in');
+        const tokenType = hashParams.get('token_type');
+        
+        // Debug info
+        console.log("Access token present:", !!accessToken);
+        console.log("Refresh token present:", !!refreshToken);
+        console.log("Expires in:", expiresIn);
+        console.log("Token type:", tokenType);
+        
+        if (!accessToken) {
+          throw new Error('No access token found in URL');
+        }
+        
+        // Show success message
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('success').style.display = 'block';
+        
+        console.log("Validating token with backend...");
+        // Validate the token with the backend
+        try {
+          const response = await fetch('/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ token: accessToken }),
+            credentials: 'include'
+          });
+          
+          console.log("Backend response status:", response.status);
+          
+          if (!response.ok) {
+            throw new Error(`Backend validation failed with status code ${response.status}`);
+          }
+          
+          const result = await response.json();
+          console.log("Token validation result:", result.success ? "Success" : "Failed");
+          
+          if (!result.success) {
+            throw new Error(result.error || 'Failed to validate token');
+          }
+          
+          // Success! Redirect after a brief delay
+          setTimeout(() => {
+            window.location.href = '/dashboard';
+          }, 1000);
+          
+        } catch (backendError) {
+          console.error("Backend validation error:", backendError);
+          throw new Error(`Backend validation error: ${backendError.message}`);
+        }
+      } catch (error) {
+        console.error('Authentication callback error:', error);
+        
+        // Show error message
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error-message').textContent = error.message || 'An unexpected error occurred';
+        
+        // Show debug info for troubleshooting
+        if (location.search.includes('debug=1')) {
+          const debugInfo = document.getElementById('debug-info');
+          debugInfo.style.display = 'block';
+          debugInfo.innerHTML = `
+            URL: ${window.location.href}<br>
+            Has Hash: ${window.location.hash ? 'Yes' : 'No'}<br>
+            Hash Length: ${window.location.hash.length}<br>
+            Supabase URL: ${document.querySelector('meta[name="supabase-url"]')?.content || 'Not found'}<br>
+            Supabase Key: ${document.querySelector('meta[name="supabase-key"]')?.content ? 'Present' : 'Not found'}<br>
+            Error: ${error.toString()}<br>
+            Stack: ${error.stack || 'No stack trace available'}
+          `;
+        }
+      }
+    });
+  </script>
+</body>
+</html> 

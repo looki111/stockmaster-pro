@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="80" fill="url(#paint0_linear)" fill-opacity="0.1"/>
+  
+  <!-- Box Outline -->
+  <path d="M60 70L100 50L140 70L100 90L60 70Z" stroke="#6366F1" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M60 70V130L100 150V90" stroke="#6366F1" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M140 70V130L100 150" stroke="#6366F1" stroke-width="4" stroke-linejoin="round"/>
+  
+  <!-- Question Mark -->
+  <path d="M95 110C95 110 95 105 100 105C105 105 105 110 100 110C95 110 95 115 95 115M95 125H95.01" stroke="#6366F1" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="paint0_linear" x1="20" y1="20" x2="180" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F46E5"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+</svg>

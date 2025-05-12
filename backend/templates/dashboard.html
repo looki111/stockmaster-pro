@@ -1,0 +1,482 @@
+{% extends base_template|default("base.html") %}
+{% block title %}{% if lang == 'ar' %}لوحة التحكم | ستوك ماستر برو{% else %}Dashboard | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}لوحة التحكم{% else %}Dashboard{% endif %}{% endblock %}
+{% block body_class %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-dashboard-new.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div>
+            <h1 class="dashboard-title">{{ 'مرحباً، ' if lang == 'ar' else 'Hello, ' }}{{ current_user.username }}</h1>
+            <p class="dashboard-subtitle">{{ 'هنا نظرة عامة على متجرك اليوم' if lang == 'ar' else 'Here\'s an overview of your store today' }}</p>
+        </div>
+
+        <div class="dashboard-actions">
+            <div class="dashboard-date-filter">
+                <i class="ri-calendar-line"></i>
+                <span>{{ 'آخر 7 أيام' if lang == 'ar' else 'Last 7 days' }}</span>
+            </div>
+
+            <button class="btn btn-primary">
+                <i class="ri-download-line"></i>
+                <span>{{ 'تصدير التقرير' if lang == 'ar' else 'Export Report' }}</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <!-- Total Sales -->
+        <div class="stat-card stat-card-glass stat-card-primary animate-fadeIn">
+            <div class="stat-card-icon">
+                <i class="ri-money-dollar-circle-line"></i>
+            </div>
+            <div class="stat-card-title">{{ 'إجمالي المبيعات' if lang == 'ar' else 'Total Sales' }}</div>
+            <div class="stat-card-value">12,450 SAR</div>
+            <div class="stat-card-change stat-card-change-positive">
+                <i class="ri-arrow-up-line"></i>
+                <span>+12% {{ 'من الشهر الماضي' if lang == 'ar' else 'from last month' }}</span>
+            </div>
+            <div class="stat-card-decoration">
+                <i class="ri-money-dollar-circle-line"></i>
+            </div>
+        </div>
+
+        <!-- New Orders -->
+        <div class="stat-card stat-card-glass stat-card-success animate-fadeIn" style="animation-delay: 0.1s;">
+            <div class="stat-card-icon">
+                <i class="ri-shopping-cart-line"></i>
+            </div>
+            <div class="stat-card-title">{{ 'طلبات جديدة' if lang == 'ar' else 'New Orders' }}</div>
+            <div class="stat-card-value">24</div>
+            <div class="stat-card-change stat-card-change-positive">
+                <i class="ri-arrow-up-line"></i>
+                <span>+4 {{ 'من الأمس' if lang == 'ar' else 'from yesterday' }}</span>
+            </div>
+            <div class="stat-card-decoration">
+                <i class="ri-shopping-cart-line"></i>
+            </div>
+        </div>
+
+        <!-- Inventory Alerts -->
+        <div class="stat-card stat-card-glass stat-card-warning animate-fadeIn" style="animation-delay: 0.2s;">
+            <div class="stat-card-icon">
+                <i class="ri-alarm-warning-line"></i>
+            </div>
+            <div class="stat-card-title">{{ 'تنبيهات المخزون' if lang == 'ar' else 'Inventory Alerts' }}</div>
+            <div class="stat-card-value">5</div>
+            <div class="stat-card-change stat-card-change-negative">
+                <i class="ri-error-warning-line"></i>
+                <span>{{ 'يحتاج إلى اهتمام' if lang == 'ar' else 'Needs attention' }}</span>
+            </div>
+            <div class="stat-card-decoration">
+                <i class="ri-alarm-warning-line"></i>
+            </div>
+        </div>
+
+        <!-- Active Users -->
+        <div class="stat-card stat-card-glass stat-card-info animate-fadeIn" style="animation-delay: 0.3s;">
+            <div class="stat-card-icon">
+                <i class="ri-user-line"></i>
+            </div>
+            <div class="stat-card-title">{{ 'مستخدمين نشطين' if lang == 'ar' else 'Active Users' }}</div>
+            <div class="stat-card-value">3</div>
+            <div class="stat-card-change stat-card-change-neutral">
+                <span>{{ 'متصل الآن' if lang == 'ar' else 'Currently online' }}</span>
+            </div>
+            <div class="stat-card-decoration">
+                <i class="ri-user-line"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+        <!-- Sales Chart -->
+        <div class="chart-card chart-card-glass animate-fadeIn" style="animation-delay: 0.4s;">
+            <div class="chart-card-header">
+                <h3 class="chart-card-title">{{ 'إحصائيات المبيعات' if lang == 'ar' else 'Sales Statistics' }}</h3>
+                <div class="chart-card-actions">
+                    <select class="form-select">
+                        <option>{{ 'هذا الأسبوع' if lang == 'ar' else 'This Week' }}</option>
+                        <option>{{ 'هذا الشهر' if lang == 'ar' else 'This Month' }}</option>
+                        <option>{{ 'هذا العام' if lang == 'ar' else 'This Year' }}</option>
+                    </select>
+                </div>
+            </div>
+            <div class="chart-card-body">
+                <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+                    <img src="{{ url_for('static', filename='img/no-data.svg') }}" alt="No data" style="width: 120px; height: 120px; opacity: 0.7;">
+                    <p class="ms-3">{{ 'رسم بياني للمبيعات سيظهر هنا' if lang == 'ar' else 'Sales chart will appear here' }}</p>
+                </div>
+            </div>
+            <div class="chart-card-footer">
+                <div class="chart-legend">
+                    <div class="chart-legend-item">
+                        <div class="chart-legend-color" style="background-color: var(--primary-500);"></div>
+                        <div class="chart-legend-label">{{ 'المبيعات' if lang == 'ar' else 'Sales' }}</div>
+                    </div>
+                    <div class="chart-legend-item">
+                        <div class="chart-legend-color" style="background-color: var(--success-500);"></div>
+                        <div class="chart-legend-label">{{ 'الأرباح' if lang == 'ar' else 'Profit' }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-feed activity-feed-glass animate-fadeIn" style="animation-delay: 0.5s;">
+            <div class="activity-feed-header">
+                <h3 class="activity-feed-title">{{ 'النشاط الأخير' if lang == 'ar' else 'Recent Activity' }}</h3>
+            </div>
+            <div class="activity-feed-body">
+                <!-- Activity Item -->
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="ri-shopping-cart-line"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">{{ 'طلب جديد #1025' if lang == 'ar' else 'New Order #1025' }}</div>
+                        <div class="text-secondary-content text-sm">{{ 'تم بواسطة محمد' if lang == 'ar' else 'By Mohammed' }}</div>
+                    </div>
+                    <div class="text-tertiary-content text-xs">{{ 'منذ 5 دقائق' if lang == 'ar' else '5 min ago' }}</div>
+                </div>
+
+                <!-- Activity Item -->
+                <div class="activity-item">
+                    <div class="activity-icon" style="background-color: var(--success-100); color: var(--success-600);">
+                        <i class="ri-check-line"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">{{ 'تم الدفع للطلب #1024' if lang == 'ar' else 'Payment for Order #1024' }}</div>
+                        <div class="text-secondary-content text-sm">{{ 'بطاقة ائتمان' if lang == 'ar' else 'Credit Card' }}</div>
+                    </div>
+                    <div class="text-tertiary-content text-xs">{{ 'منذ ساعة' if lang == 'ar' else '1 hour ago' }}</div>
+                </div>
+
+                <!-- Activity Item -->
+                <div class="activity-item">
+                    <div class="activity-icon" style="background-color: var(--warning-100); color: var(--warning-600);">
+                        <i class="ri-alarm-warning-line"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="activity-title">{{ 'تحذير مخزون' if lang == 'ar' else 'Inventory Warning' }}</div>
+                        <div class="text-secondary-content text-sm">{{ 'قهوة إسبريسو منخفضة' if lang == 'ar' else 'Espresso Coffee low' }}</div>
+                    </div>
+                    <div class="text-tertiary-content text-xs">{{ 'منذ 3 ساعات' if lang == 'ar' else '3 hours ago' }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inventory Overview -->
+    <div class="inventory-section">
+        <!-- Low Stock Items -->
+        <div class="card card-glass animate-fadeIn" style="animation-delay: 0.6s;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title m-0">{{ 'المخزون المنخفض' if lang == 'ar' else 'Low Stock Items' }}</h3>
+                <button class="btn btn-sm btn-glass">
+                    <i class="ri-refresh-line me-1"></i>
+                    {{ 'تحديث' if lang == 'ar' else 'Refresh' }}
+                </button>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="badge bg-danger-light me-3" style="width: 10px; height: 10px; border-radius: 50%;"></div>
+                            <span>{{ 'قهوة إسبريسو' if lang == 'ar' else 'Espresso Coffee' }}</span>
+                        </div>
+                        <span class="badge bg-danger-light text-danger-dark">2 {{ 'كجم' if lang == 'ar' else 'kg' }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="badge bg-danger-light me-3" style="width: 10px; height: 10px; border-radius: 50%;"></div>
+                            <span>{{ 'حليب طازج' if lang == 'ar' else 'Fresh Milk' }}</span>
+                        </div>
+                        <span class="badge bg-danger-light text-danger-dark">3 {{ 'لتر' if lang == 'ar' else 'L' }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="badge bg-warning-light me-3" style="width: 10px; height: 10px; border-radius: 50%;"></div>
+                            <span>{{ 'شوكولاتة' if lang == 'ar' else 'Chocolate' }}</span>
+                        </div>
+                        <span class="badge bg-warning-light text-warning-dark">5 {{ 'كجم' if lang == 'ar' else 'kg' }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="badge bg-warning-light me-3" style="width: 10px; height: 10px; border-radius: 50%;"></div>
+                            <span>{{ 'شاي أخضر' if lang == 'ar' else 'Green Tea' }}</span>
+                        </div>
+                        <span class="badge bg-warning-light text-warning-dark">10 {{ 'علبة' if lang == 'ar' else 'boxes' }}</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="badge bg-success-light me-3" style="width: 10px; height: 10px; border-radius: 50%;"></div>
+                            <span>{{ 'سكر' if lang == 'ar' else 'Sugar' }}</span>
+                        </div>
+                        <span class="badge bg-success-light text-success-dark">25 {{ 'كجم' if lang == 'ar' else 'kg' }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{{ url_for('inventory.raw_materials') }}" class="btn btn-sm btn-primary">
+                    {{ 'عرض كل المخزون' if lang == 'ar' else 'View All Inventory' }}
+                </a>
+            </div>
+        </div>
+
+        <!-- Top Selling Items -->
+        <div class="card card-glass animate-fadeIn" style="animation-delay: 0.7s;">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title m-0">{{ 'الأصناف الأكثر مبيعاً' if lang == 'ar' else 'Top Selling Items' }}</h3>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-glass dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ 'هذا الأسبوع' if lang == 'ar' else 'This Week' }}
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        <li><a class="dropdown-item" href="#">{{ 'اليوم' if lang == 'ar' else 'Today' }}</a></li>
+                        <li><a class="dropdown-item" href="#">{{ 'هذا الأسبوع' if lang == 'ar' else 'This Week' }}</a></li>
+                        <li><a class="dropdown-item" href="#">{{ 'هذا الشهر' if lang == 'ar' else 'This Month' }}</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="me-3 rounded-circle bg-primary" style="width: 12px; height: 12px;"></div>
+                        <div>
+                            <div class="font-medium">{{ 'لاتيه' if lang == 'ar' else 'Latte' }}</div>
+                            <div class="text-sm text-secondary-content">142 {{ 'مبيعات' if lang == 'ar' else 'sales' }}</div>
+                        </div>
+                    </div>
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-4">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="me-3 rounded-circle" style="width: 12px; height: 12px; background-color: var(--primary-400);"></div>
+                        <div>
+                            <div class="font-medium">{{ 'كابتشينو' if lang == 'ar' else 'Cappuccino' }}</div>
+                            <div class="text-sm text-secondary-content">98 {{ 'مبيعات' if lang == 'ar' else 'sales' }}</div>
+                        </div>
+                    </div>
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                        <div class="progress-bar" style="width: 69%; background-color: var(--primary-400);" role="progressbar" aria-valuenow="69" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-4">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="me-3 rounded-circle" style="width: 12px; height: 12px; background-color: var(--primary-300);"></div>
+                        <div>
+                            <div class="font-medium">{{ 'إسبريسو' if lang == 'ar' else 'Espresso' }}</div>
+                            <div class="text-sm text-secondary-content">87 {{ 'مبيعات' if lang == 'ar' else 'sales' }}</div>
+                        </div>
+                    </div>
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                        <div class="progress-bar" style="width: 61%; background-color: var(--primary-300);" role="progressbar" aria-valuenow="61" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center mb-4">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="me-3 rounded-circle" style="width: 12px; height: 12px; background-color: var(--primary-200);"></div>
+                        <div>
+                            <div class="font-medium">{{ 'أمريكانو' if lang == 'ar' else 'Americano' }}</div>
+                            <div class="text-sm text-secondary-content">65 {{ 'مبيعات' if lang == 'ar' else 'sales' }}</div>
+                        </div>
+                    </div>
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                        <div class="progress-bar" style="width: 46%; background-color: var(--primary-200);" role="progressbar" aria-valuenow="46" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <div class="me-3 rounded-circle" style="width: 12px; height: 12px; background-color: var(--primary-100);"></div>
+                        <div>
+                            <div class="font-medium">{{ 'شاي' if lang == 'ar' else 'Tea' }}</div>
+                            <div class="text-sm text-secondary-content">42 {{ 'مبيعات' if lang == 'ar' else 'sales' }}</div>
+                        </div>
+                    </div>
+                    <div class="progress flex-grow-1" style="height: 8px;">
+                        <div class="progress-bar" style="width: 30%; background-color: var(--primary-100);" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-center">
+                <a href="{{ url_for('dashboard.sales') }}" class="btn btn-sm btn-primary">
+                    {{ 'عرض تقرير المبيعات' if lang == 'ar' else 'View Sales Report' }}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add animation to stats cards
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+        });
+
+        // Add animation to other cards
+        const cards = document.querySelectorAll('.card, .chart-card, .activity-feed');
+        cards.forEach((card, index) => {
+            if (!card.style.animationDelay) {
+                card.style.animationDelay = `${(index + 4) * 0.1}s`;
+            }
+        });
+
+        // Add hover effect to list items
+        const listItems = document.querySelectorAll('.list-group-item');
+        listItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.backgroundColor = 'var(--hover-bg)';
+                this.style.transition = 'background-color var(--transition-fast) var(--transition-timing)';
+            });
+
+            item.addEventListener('mouseleave', function() {
+                this.style.backgroundColor = '';
+            });
+        });
+
+        // Initialize dropdown functionality
+        const dropdownToggles = document.querySelectorAll('.dropdown-toggle');
+        dropdownToggles.forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const dropdown = this.nextElementSibling;
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                } else {
+                    // Close all other dropdowns
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                    dropdown.classList.add('show');
+                }
+            });
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                    menu.classList.remove('show');
+                });
+            }
+        });
+
+        // Initialize sales chart
+        const salesChartCanvas = document.getElementById('sales-chart');
+        if (salesChartCanvas) {
+            // Sample data - in a real app, this would come from an API
+            const salesData = {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [
+                    {
+                        label: "{{ 'المبيعات' if lang == 'ar' else 'Sales' }}",
+                        data: [1200, 1900, 1500, 2500, 2200, 3000],
+                        borderColor: window.stockmasterCharts.colors.primary,
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointBackgroundColor: 'white',
+                        pointBorderColor: window.stockmasterCharts.colors.primary,
+                        pointBorderWidth: 2
+                    },
+                    {
+                        label: "{{ 'الأرباح' if lang == 'ar' else 'Profit' }}",
+                        data: [700, 1200, 900, 1800, 1400, 2200],
+                        borderColor: window.stockmasterCharts.colors.success,
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointBackgroundColor: 'white',
+                        pointBorderColor: window.stockmasterCharts.colors.success,
+                        pointBorderWidth: 2
+                    }
+                ]
+            };
+
+            // Create chart
+            window.stockmasterCharts.createLineChart('sales-chart', salesData);
+
+            // Show welcome notification
+            setTimeout(() => {
+                window.toast.success({
+                    title: "{{ 'مرحبًا بك في ستوك ماستر برو' if lang == 'ar' else 'Welcome to StockMaster Pro' }}",
+                    message: "{{ 'تم تحديث لوحة التحكم بنجاح' if lang == 'ar' else 'Dashboard has been successfully updated' }}",
+                    glass: true,
+                    duration: 5000
+                });
+            }, 1000);
+
+            // Initialize guided tour
+            const tourSteps = [
+                {
+                    target: '.stat-card:first-child',
+                    title: "{{ 'إحصائيات المبيعات' if lang == 'ar' else 'Sales Statistics' }}",
+                    content: "{{ 'هنا يمكنك رؤية إجمالي المبيعات والتغيير من الشهر الماضي' if lang == 'ar' else 'Here you can see your total sales and the change from last month' }}",
+                    position: 'bottom'
+                },
+                {
+                    target: '#sales-chart',
+                    title: "{{ 'رسم بياني للمبيعات' if lang == 'ar' else 'Sales Chart' }}",
+                    content: "{{ 'يعرض هذا الرسم البياني اتجاهات المبيعات والأرباح على مدار الوقت' if lang == 'ar' else 'This chart shows your sales and profit trends over time' }}",
+                    position: 'top'
+                },
+                {
+                    target: '.activity-feed',
+                    title: "{{ 'النشاط الأخير' if lang == 'ar' else 'Recent Activity' }}",
+                    content: "{{ 'تتبع أحدث الأنشطة في نظامك' if lang == 'ar' else 'Track the latest activities in your system' }}",
+                    position: 'left'
+                },
+                {
+                    target: '#theme-toggle',
+                    title: "{{ 'تبديل السمة' if lang == 'ar' else 'Theme Toggle' }}",
+                    content: "{{ 'انقر هنا للتبديل بين الوضع الفاتح والمظلم' if lang == 'ar' else 'Click here to toggle between light and dark mode' }}",
+                    position: 'bottom'
+                }
+            ];
+
+            // Add tour button
+            const headerActions = document.querySelector('.header-actions');
+            if (headerActions) {
+                const tourButton = document.createElement('button');
+                tourButton.className = 'header-action';
+                tourButton.setAttribute('data-tooltip', "{{ 'بدء جولة' if lang == 'ar' else 'Start Tour' }}");
+                tourButton.innerHTML = '<i class="ri-guide-line"></i>';
+                tourButton.addEventListener('click', () => {
+                    window.guidedTour = new GuidedTour({
+                        steps: tourSteps,
+                        labels: {
+                            next: "{{ 'التالي' if lang == 'ar' else 'Next' }}",
+                            prev: "{{ 'السابق' if lang == 'ar' else 'Previous' }}",
+                            skip: "{{ 'تخطي' if lang == 'ar' else 'Skip' }}",
+                            finish: "{{ 'إنهاء' if lang == 'ar' else 'Finish' }}",
+                            close: "{{ 'إغلاق' if lang == 'ar' else 'Close' }}",
+                            step: "{{ 'خطوة' if lang == 'ar' else 'Step' }}",
+                            of: "{{ 'من' if lang == 'ar' else 'of' }}"
+                        }
+                    });
+                    window.guidedTour.start();
+                });
+                headerActions.insertBefore(tourButton, headerActions.firstChild);
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html class="theme-light" lang="{{ lang }}" dir="{{ 'rtl' if lang == 'ar' else 'ltr' }}">
+<head>
+  <meta name="theme-color" content="#ffffff">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'تسجيل الدخول' if lang == 'ar' else 'Login' }} | StockMaster Pro</title>
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
+    
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Modern Login Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern-login.css') }}">
+    
+    <!-- Remixicon for icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- RTL Support if Arabic -->
+    {% if lang == 'ar' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/rtl-support.css') }}">
+    {% endif %}
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="StockMaster Pro" class="auth-logo">
+                <h1 class="auth-title">{{ 'مرحباً بعودتك' if lang == 'ar' else 'Welcome Back' }}</h1>
+                <p class="auth-subtitle">{{ 'سجل الدخول للوصول إلى لوحة التحكم' if lang == 'ar' else 'Sign in to access your dashboard' }}</p>
+            </div>
+            
+            <div class="auth-body">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                <i class="ri-information-line"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    <div class="form-group">
+                        <label for="username" class="form-label">{{ 'اسم المستخدم' if lang == 'ar' else 'Username' }}</label>
+                        <input type="text" id="username" name="username" class="form-input" placeholder="{{ 'أدخل اسم المستخدم' if lang == 'ar' else 'Enter your username' }}" required autofocus>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password" class="form-label">{{ 'كلمة المرور' if lang == 'ar' else 'Password' }}</label>
+                        <div class="password-input-wrapper">
+                            <input type="password" id="password" name="password" class="form-input" placeholder="{{ 'أدخل كلمة المرور' if lang == 'ar' else 'Enter your password' }}" required>
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility()">
+                                <i class="ri-eye-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-checkbox">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">{{ 'تذكرني' if lang == 'ar' else 'Remember me' }}</label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">
+                        {{ 'تسجيل الدخول' if lang == 'ar' else 'Sign In' }}
+                    </button>
+                </form>
+                
+                <div class="auth-footer">
+                    <p>{{ 'نسيت كلمة المرور؟' if lang == 'ar' else 'Forgot your password?' }} <a href="#" class="auth-link">{{ 'استعادة' if lang == 'ar' else 'Reset it' }}</a></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Language Switcher -->
+        <div class="language-switcher">
+            <a href="{{ url_for('switch_lang') }}" class="lang-switch-btn">
+                {% if lang == 'ar' %}
+                <span>English</span>
+                <i class="ri-translate-2"></i>
+                {% else %}
+                <span>العربية</span>
+                <i class="ri-translate-2"></i>
+                {% endif %}
+            </a>
+        </div>
+    </div>
+    
+    <script>
+        // Toggle password visibility
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const toggleBtn = document.querySelector('.password-toggle i');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.classList.remove('ri-eye-line');
+                toggleBtn.classList.add('ri-eye-off-line');
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.classList.remove('ri-eye-off-line');
+                toggleBtn.classList.add('ri-eye-line');
+            }
+        }
+        
+        // Add animation to form elements
+        document.addEventListener('DOMContentLoaded', function() {
+            const formElements = document.querySelectorAll('.form-group, .form-checkbox, .btn');
+            
+            formElements.forEach((element, index) => {
+                element.style.opacity = '0';
+                element.style.transform = 'translateY(10px)';
+                element.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                element.style.transitionDelay = `${index * 0.1}s`;
+                
+                setTimeout(() => {
+                    element.style.opacity = '1';
+                    element.style.transform = 'translateY(0)';
+                }, 100);
+            });
+        });
+    </script>
+</body>
+</html>

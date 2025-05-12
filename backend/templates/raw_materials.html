@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% block title %}{% if lang == 'ar' %}المخزون | ستوك ماستر{% else %}Inventory | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}المخزون{% else %}Inventory{% endif %}{% endblock %}
+{% block content %}
+<div class="glass-card p-6 mb-6">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-semibold">{% if lang == 'ar' %}إدارة المخزون{% else %}Inventory Management{% endif %}</h2>
+    <div class="flex gap-2">
+      <a href="{{ url_for('add_material') }}" class="px-4 py-2 bg-[var(--primary-color)] text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+        <i class="ri-add-line"></i>
+        <span>{% if lang == 'ar' %}إضافة عنصر{% else %}Add Item{% endif %}</span>
+      </a>
+      <button id="filterBtn" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-[var(--text-color)] rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition flex items-center gap-2">
+        <i class="ri-filter-line"></i>
+        <span>{% if lang == 'ar' %}تصفية{% else %}Filter{% endif %}</span>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Search & Filter -->
+  <div class="mb-6">
+    <div class="relative">
+      <span class="absolute {{ 'right-3' if lang == 'ar' else 'left-3' }} top-3 text-gray-400">
+        <i class="ri-search-line"></i>
+      </span>
+      <input type="text" id="searchInput" placeholder="{% if lang == 'ar' %}بحث في المخزون...{% else %}Search inventory...{% endif %}" class="w-full {{ 'pr-10' if lang == 'ar' else 'pl-10' }} py-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-[var(--input-bg)] text-[var(--text-color)] focus:ring-2 focus:ring-blue-500 transition">
+    </div>
+  </div>
+  
+  <!-- Inventory Table -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full">
+      <thead>
+        <tr class="border-b border-gray-200 dark:border-gray-700">
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}العنصر{% else %}Item{% endif %}</th>
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}الكمية{% else %}Quantity{% endif %}</th>
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}الوحدة{% else %}Unit{% endif %}</th>
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}الحد الأدنى{% else %}Min Threshold{% endif %}</th>
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}السعر{% else %}Cost{% endif %}</th>
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}الإجراءات{% else %}Actions{% endif %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for material in materials %}
+        <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+          <td class="py-3 px-4">
+            <div class="font-medium">{{ material.name }}</div>
+            <div class="text-sm text-gray-500 dark:text-gray-400">{{ material.category }}</div>
+          </td>
+          <td class="py-3 px-4 {{ 'text-red-500' if material.quantity < material.alert_threshold else '' }}">
+            {{ material.quantity }}
+          </td>
+          <td class="py-3 px-4">{{ material.unit }}</td>
+          <td class="py-3 px-4">{{ material.alert_threshold }}</td>
+          <td class="py-3 px-4">{{ material.cost_per_unit }}</td>
+          <td class="py-3 px-4">
+            <div class="flex gap-2">
+              <a href="{{ url_for('edit_material', id=material.id) }}" class="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" title="{% if lang == 'ar' %}تعديل{% else %}Edit{% endif %}">
+                <i class="ri-edit-line"></i>
+              </a>
+              <button onclick="confirmDelete({{ material.id }}, '{{ material.name }}')" class="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" title="{% if lang == 'ar' %}حذف{% else %}Delete{% endif %}">
+                <i class="ri-delete-bin-line"></i>
+              </button>
+              <a href="{{ url_for('material_history', id=material.id) }}" class="p-2 text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300" title="{% if lang == 'ar' %}السجل{% else %}History{% endif %}">
+                <i class="ri-history-line"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="py-6 text-center text-gray-500">
+            {% if lang == 'ar' %}لا توجد عناصر في المخزون{% else %}No inventory items found{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Low Stock Items -->
+<div class="glass-card p-6">
+  <h2 class="text-xl font-semibold mb-6">{% if lang == 'ar' %}المواد منخفضة المخزون{% else %}Low Stock Items{% endif %}</h2>
+  <div class="overflow-x-auto">
+    <table class="min-w-full">
+      <thead>
+        <tr class="border-b border-gray-200 dark:border-gray-700">
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}العنصر{% else %}Item{% endif %}</th>
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}الكمية{% else %}Quantity{% endif %}</th>
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}الحد الأدنى{% else %}Min Threshold{% endif %}</th>
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}الإجراءات{% else %}Actions{% endif %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for material in low_stock %}
+        <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+          <td class="py-3 px-4">{{ material.name }}</td>
+          <td class="py-3 px-4 text-red-500">{{ material.quantity }}</td>
+          <td class="py-3 px-4">{{ material.alert_threshold }}</td>
+          <td class="py-3 px-4">
+            <a href="{{ url_for('edit_material', id=material.id) }}" class="px-3 py-1 bg-[var(--primary-color)] text-white rounded hover:bg-blue-700 transition">
+              {% if lang == 'ar' %}تعديل{% else %}Restock{% endif %}
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="4" class="py-6 text-center text-gray-500">
+            {% if lang == 'ar' %}لا توجد مواد منخفضة المخزون{% else %}No low stock items{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+  <div class="glass-card p-6 max-w-md w-full">
+    <h3 class="text-lg font-bold mb-4">{% if lang == 'ar' %}تأكيد الحذف{% else %}Confirm Delete{% endif %}</h3>
+    <p id="deleteMessage" class="mb-6"></p>
+    <div class="flex justify-end gap-4">
+      <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-[var(--text-color)] rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+        {% if lang == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+      </button>
+      <form id="deleteForm" method="POST">
+        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+          {% if lang == 'ar' %}حذف{% else %}Delete{% endif %}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Search functionality
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', function() {
+  const searchTerm = this.value.toLowerCase();
+  const rows = document.querySelectorAll('tbody tr');
+  
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(searchTerm) ? '' : 'none';
+  });
+});
+
+// Delete confirmation modal
+function confirmDelete(id, name) {
+  const modal = document.getElementById('deleteModal');
+  const message = document.getElementById('deleteMessage');
+  const form = document.getElementById('deleteForm');
+  
+  if ({% if lang == 'ar' %}true{% else %}false{% endif %}) {
+    message.textContent = "هل أنت متأكد من حذف " + name + "؟";
+  } else {
+    message.textContent = "Are you sure you want to delete " + name + "?";
+  }
+  
+  form.action = `{{ url_for('delete_material', id=0) }}`.replace('0', id);
+  
+  modal.classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+  const modal = document.getElementById('deleteModal');
+  modal.classList.add('hidden');
+}
+
+// Close modal when clicking outside
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeDeleteModal();
+  }
+});
+</script>
+{% endblock %}

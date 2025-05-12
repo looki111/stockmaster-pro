@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}{% if lang == 'ar' %}إضافة مادة خام | ستوك ماستر{% else %}Add Raw Material | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}إضافة مادة خام{% else %}Add Raw Material{% endif %}{% endblock %}
+{% block breadcrumb %}{% if lang == 'ar' %}إضافة مادة خام{% else %}Add Raw Material{% endif %}{% endblock %}
+
+{% block content %}
+<div class="glass-card p-6 mb-6">
+  <div class="flex justify-between items-center mb-6">
+    <h2 class="text-xl font-semibold">{% if lang == 'ar' %}إضافة مادة خام جديدة{% else %}Add New Raw Material{% endif %}</h2>
+    <a href="{{ url_for('inventory.raw_materials') }}" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-[var(--text-color)] rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition flex items-center gap-2">
+      <i class="ri-arrow-left-line"></i>
+      <span>{% if lang == 'ar' %}العودة{% else %}Back{% endif %}</span>
+    </a>
+  </div>
+  
+  <form method="POST" class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label class="block mb-2 text-sm font-medium">{% if lang == 'ar' %}اسم المادة{% else %}Material Name{% endif %}</label>
+        <input type="text" name="name" required class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+      </div>
+      
+      <div>
+        <label class="block mb-2 text-sm font-medium">{% if lang == 'ar' %}الفئة{% else %}Category{% endif %}</label>
+        <input type="text" name="category" class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+      </div>
+      
+      <div>
+        <label class="block mb-2 text-sm font-medium">{% if lang == 'ar' %}الكمية{% else %}Quantity{% endif %}</label>
+        <input type="number" name="quantity" min="0" step="0.01" required class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+      </div>
+      
+      <div>
+        <label class="block mb-2 text-sm font-medium">{% if lang == 'ar' %}وحدة القياس{% else %}Unit{% endif %}</label>
+        <select name="unit" required class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+          <option value="kg">{% if lang == 'ar' %}كيلوجرام{% else %}Kilogram (kg){% endif %}</option>
+          <option value="g">{% if lang == 'ar' %}جرام{% else %}Gram (g){% endif %}</option>
+          <option value="l">{% if lang == 'ar' %}لتر{% else %}Liter (l){% endif %}</option>
+          <option value="ml">{% if lang == 'ar' %}مليلتر{% else %}Milliliter (ml){% endif %}</option>
+          <option value="pcs">{% if lang == 'ar' %}قطعة{% else %}Piece (pcs){% endif %}</option>
+          <option value="box">{% if lang == 'ar' %}صندوق{% else %}Box{% endif %}</option>
+        </select>
+      </div>
+      
+      <div>
+        <label class="block mb-2 text-sm font-medium">{% if lang == 'ar' %}الحد الأدنى للتنبيه{% else %}Alert Threshold{% endif %}</label>
+        <input type="number" name="alert_threshold" min="0" step="0.01" required class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+      </div>
+      
+      <div>
+        <label class="block mb-2 text-sm font-medium">{% if lang == 'ar' %}التكلفة لكل وحدة{% else %}Cost Per Unit{% endif %}</label>
+        <input type="number" name="cost_per_unit" min="0" step="0.01" required class="w-full p-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+      </div>
+    </div>
+    
+    <div class="flex justify-end">
+      <button type="submit" class="px-6 py-3 bg-[var(--primary-color)] text-white rounded-lg hover:bg-blue-700 transition">
+        {% if lang == 'ar' %}إضافة المادة{% else %}Add Material{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

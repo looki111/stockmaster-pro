@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% block title %}{% if lang == 'ar' %}قواعد الاستهلاك | ستوك ماستر برو{% else %}Consumption Rules | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}قواعد الاستهلاك{% else %}Consumption Rules{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <!-- Filters -->
+        <div class="flex flex-wrap items-center gap-3">
+            <form action="{{ url_for('inventory.consumption_rules') }}" method="get" class="flex flex-wrap items-center gap-3">
+                <!-- Product Filter -->
+                <select name="product_id" class="form-select">
+                    <option value="">{% if lang == 'ar' %}جميع المنتجات{% else %}All Products{% endif %}</option>
+                    {% for product in products %}
+                    <option value="{{ product.id }}" {% if selected_product_id|int == product.id %}selected{% endif %}>{{ product.name }}</option>
+                    {% endfor %}
+                </select>
+                
+                <!-- Raw Material Filter -->
+                <select name="raw_material_id" class="form-select">
+                    <option value="">{% if lang == 'ar' %}جميع المواد الخام{% else %}All Raw Materials{% endif %}</option>
+                    {% for material in raw_materials %}
+                    <option value="{{ material.id }}" {% if selected_raw_material_id|int == material.id %}selected{% endif %}>{{ material.name }}</option>
+                    {% endfor %}
+                </select>
+                
+                <button type="submit" class="btn-primary">
+                    {% if lang == 'ar' %}تطبيق{% else %}Apply{% endif %}
+                </button>
+                
+                <a href="{{ url_for('inventory.consumption_rules') }}" class="btn-secondary">
+                    {% if lang == 'ar' %}إعادة تعيين{% else %}Reset{% endif %}
+                </a>
+            </form>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex items-center gap-3">
+            <a href="{{ url_for('inventory.add_consumption_rule') }}" class="btn-primary">
+                <i class="ri-add-line mr-1"></i>
+                {% if lang == 'ar' %}إضافة قاعدة استهلاك{% else %}Add Consumption Rule{% endif %}
+            </a>
+        </div>
+    </div>
+    
+    <!-- Consumption Rules Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-900">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}المنتج{% else %}Product{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}المادة الخام{% else %}Raw Material{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}الكمية{% else %}Quantity{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}عامل الهدر{% else %}Waste Factor{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}الشرط{% else %}Condition{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}الإجراءات{% else %}Actions{% endif %}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for rule in rules %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="font-medium text-gray-900 dark:text-white">{{ rule.product_name }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white">{{ rule.raw_material_name }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white">{{ rule.quantity }} {{ rule.unit }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ (rule.waste_factor * 100)|round(1) }}%</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-500 dark:text-gray-400">
+                                {% if rule.condition_type %}
+                                    {{ rule.condition_type }}: {{ rule.condition_value }}
+                                {% else %}
+                                    {% if lang == 'ar' %}دائمًا{% else %}Always{% endif %}
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <a href="{{ url_for('inventory.consumption_rules', rule_id=rule.id) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                                    {% if lang == 'ar' %}تعديل{% else %}Edit{% endif %}
+                                </a>
+                                <button onclick="deleteRule({{ rule.id }})" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                    {% if lang == 'ar' %}حذف{% else %}Delete{% endif %}
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                            {% if lang == 'ar' %}لا توجد قواعد استهلاك{% else %}No consumption rules found{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Explanation Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <!-- What are Consumption Rules -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {% if lang == 'ar' %}ما هي قواعد الاستهلاك؟{% else %}What are Consumption Rules?{% endif %}
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300">
+                {% if lang == 'ar' %}
+                قواعد الاستهلاك تحدد كمية المواد الخام المستخدمة في كل منتج. على سبيل المثال، كم جرام من حبوب البن يستخدم لصنع كوب من القهوة.
+                {% else %}
+                Consumption rules define how much raw material is used in each product. For example, how many grams of coffee beans are used to make a cup of coffee.
+                {% endif %}
+            </p>
+            <p class="text-gray-600 dark:text-gray-300 mt-2">
+                {% if lang == 'ar' %}
+                عند بيع منتج، يتم خصم المواد الخام المستخدمة تلقائيًا من المخزون بناءً على هذه القواعد.
+                {% else %}
+                When a product is sold, the raw materials used are automatically deducted from inventory based on these rules.
+                {% endif %}
+            </p>
+        </div>
+        
+        <!-- Waste Factor Explanation -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                {% if lang == 'ar' %}ما هو عامل الهدر؟{% else %}What is Waste Factor?{% endif %}
+            </h3>
+            <p class="text-gray-600 dark:text-gray-300">
+                {% if lang == 'ar' %}
+                عامل الهدر هو النسبة المئوية الإضافية من المواد الخام التي تُهدر أثناء عملية الإنتاج.
+                {% else %}
+                Waste factor is the percentage of additional raw material that is wasted during the production process.
+                {% endif %}
+            </p>
+            <p class="text-gray-600 dark:text-gray-300 mt-2">
+                {% if lang == 'ar' %}
+                على سبيل المثال، إذا كان عامل الهدر 5٪، وكان المنتج يستخدم 100 جرام من المادة الخام، فسيتم خصم 105 جرام من المخزون.
+                {% else %}
+                For example, if the waste factor is 5%, and the product uses 100g of raw material, 105g will be deducted from inventory.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    function deleteRule(ruleId) {
+        if (confirm('{% if lang == "ar" %}هل أنت متأكد من حذف هذه القاعدة؟{% else %}Are you sure you want to delete this rule?{% endif %}')) {
+            window.location.href = "{{ url_for('inventory.consumption_rules', rule_id=0) }}".replace('0', ruleId);
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html class="theme-light" lang="{{ lang|default('en') }}" dir="{{ 'rtl' if lang == 'ar' else 'ltr' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <meta name="supabase-url" content="{{ config.get('SUPABASE_URL', '') }}">
+  <meta name="supabase-key" content="{{ config.get('SUPABASE_KEY', '') }}">
+  <title>{% block title %}StockMaster Pro{% endblock %}</title>
+
+  <!-- Google Fonts - Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- RTL Support - Arabic Font -->
+  {% if lang == 'ar' %}
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  {% endif %}
+
+  <!-- Remix Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+  <!-- Theme System -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme-variables.css') }}">
+
+  <!-- StockMaster Pro CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-design-system.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-components.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-layout.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-utilities.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-dashboard.css') }}">
+
+  <!-- Page-specific CSS -->
+  {% block extra_css %}{% endblock %}
+
+  <!-- Theme Manager Script -->
+  <script src="{{ url_for('static', filename='js/theme-manager.js') }}"></script>
+</head>
+<body class="{% block body_class %}{% endblock %} {% if current_user.is_authenticated %}user-authenticated{% endif %}">
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="StockMaster Pro">
+          <span class="sidebar-logo-text">StockMaster Pro</span>
+        </div>
+        <div class="sidebar-toggle" id="sidebar-toggle">
+          <i class="ri-menu-fold-line"></i>
+        </div>
+      </div>
+
+      <div class="sidebar-content">
+        <div class="nav-section">
+          <h3 class="nav-section-title">{{ 'الرئيسية' if lang == 'ar' else 'Main' }}</h3>
+
+          <div class="nav-item">
+            <a href="{{ url_for('dashboard.dashboard') }}" class="nav-link {% if request.endpoint == 'dashboard.dashboard' %}active{% endif %}">
+              <i class="ri-dashboard-line"></i>
+              <span class="nav-link-text">{{ 'لوحة التحكم' if lang == 'ar' else 'Dashboard' }}</span>
+            </a>
+          </div>
+          <div class="nav-item">
+            <a href="{{ url_for('pos.index') }}" class="nav-link {% if request.endpoint == 'pos.index' %}active{% endif %}">
+              <i class="ri-shopping-cart-line"></i>
+              <span class="nav-link-text">{{ 'نقطة البيع' if lang == 'ar' else 'POS' }}</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <h3 class="nav-section-title">{{ 'المخزون' if lang == 'ar' else 'Inventory' }}</h3>
+
+          <div class="nav-item">
+            <a href="{{ url_for('inventory.raw_materials') }}" class="nav-link {% if request.endpoint == 'inventory.raw_materials' %}active{% endif %}">
+              <i class="ri-archive-line"></i>
+              <span class="nav-link-text">{{ 'المواد الخام' if lang == 'ar' else 'Raw Materials' }}</span>
+            </a>
+          </div>
+
+          <div class="nav-item">
+            <a href="{{ url_for('inventory.recipes') }}" class="nav-link {% if request.endpoint == 'inventory.recipes' %}active{% endif %}">
+              <i class="ri-file-list-3-line"></i>
+              <span class="nav-link-text">{{ 'الوصفات' if lang == 'ar' else 'Recipes' }}</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <h3 class="nav-section-title">{{ 'العملاء' if lang == 'ar' else 'Clients' }}</h3>
+
+          <div class="nav-item">
+            <a href="{{ url_for('clients.index') }}" class="nav-link {% if request.endpoint == 'clients.index' %}active{% endif %}">
+              <i class="ri-user-line"></i>
+              <span class="nav-link-text">{{ 'العملاء' if lang == 'ar' else 'Clients' }}</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <h3 class="nav-section-title">{{ 'التقارير' if lang == 'ar' else 'Reports' }}</h3>
+
+          <div class="nav-item">
+            <a href="{{ url_for('inventory.reports') }}" class="nav-link {% if request.endpoint == 'inventory.reports' %}active{% endif %}">
+              <i class="ri-line-chart-line"></i>
+              <span class="nav-link-text">{{ 'التقارير' if lang == 'ar' else 'Reports' }}</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <h3 class="nav-section-title">{{ 'الإعدادات' if lang == 'ar' else 'Settings' }}</h3>
+
+          <div class="nav-item">
+            <a href="{{ url_for('dashboard.settings') }}" class="nav-link {% if request.endpoint == 'dashboard.settings' %}active{% endif %}">
+              <i class="ri-settings-3-line"></i>
+              <span class="nav-link-text">{{ 'الإعدادات العامة' if lang == 'ar' else 'General Settings' }}</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="content-container">
+      <!-- Top Navigation -->
+      <header class="app-header">
+        <h2 class="header-title">{% block page_title %}{% endblock %}</h2>
+
+        <div class="header-actions">
+          <div class="header-action" id="theme-toggle">
+            <i class="ri-moon-line"></i>
+          </div>
+
+          <div class="user-dropdown">
+            <div class="user-dropdown-toggle">
+              <div class="user-avatar">
+                {{ current_user.username[0]|upper if current_user.username else 'U' }}
+              </div>
+              <div class="user-info">
+                <div class="user-name">{{ current_user.username }}</div>
+                <div class="user-role">{{ current_user.role }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="main-content">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <!-- Supabase JavaScript -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="{{ url_for('static', filename='js/supabase-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/supabase-auth.js') }}"></script>
+
+  <!-- Core JavaScript -->
+  <script src="{{ url_for('static', filename='js/stockmaster-core.js') }}"></script>
+
+  <!-- Page-specific JavaScript -->
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

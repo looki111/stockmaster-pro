@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{% if lang == 'ar' %}سجل المادة الخام | ستوك ماستر{% else %}Raw Material History | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}سجل المادة الخام{% else %}Raw Material History{% endif %}{% endblock %}
+{% block breadcrumb %}{% if lang == 'ar' %}سجل المادة الخام{% else %}Raw Material History{% endif %}{% endblock %}
+
+{% block content %}
+<div class="glass-card p-6 mb-6">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h2 class="text-xl font-semibold">{{ material.name }}</h2>
+      <p class="text-gray-500 dark:text-gray-400">{% if lang == 'ar' %}سجل الحركة{% else %}Movement History{% endif %}</p>
+    </div>
+    <a href="{{ url_for('inventory.raw_materials') }}" class="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-[var(--text-color)] rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition flex items-center gap-2">
+      <i class="ri-arrow-left-line"></i>
+      <span>{% if lang == 'ar' %}العودة{% else %}Back{% endif %}</span>
+    </a>
+  </div>
+  
+  <!-- Material Info Card -->
+  <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{% if lang == 'ar' %}الكمية الحالية{% else %}Current Quantity{% endif %}</p>
+        <p class="text-lg font-semibold">{{ material.quantity }} {{ material.unit }}</p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{% if lang == 'ar' %}الحد الأدنى{% else %}Min Threshold{% endif %}</p>
+        <p class="text-lg font-semibold">{{ material.alert_threshold }} {{ material.unit }}</p>
+      </div>
+      <div>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{% if lang == 'ar' %}التكلفة لكل وحدة{% else %}Cost Per Unit{% endif %}</p>
+        <p class="text-lg font-semibold">{{ material.cost_per_unit }}</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- History Table -->
+  <div class="overflow-x-auto">
+    <table class="min-w-full">
+      <thead>
+        <tr class="border-b border-gray-200 dark:border-gray-700">
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}التاريخ{% else %}Date{% endif %}</th>
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}النوع{% else %}Type{% endif %}</th>
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}الكمية{% else %}Quantity{% endif %}</th>
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}الرصيد{% else %}Balance{% endif %}</th>
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}المستخدم{% else %}User{% endif %}</th>
+          <th class="py-3 px-4 text-left">{% if lang == 'ar' %}ملاحظات{% else %}Notes{% endif %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in history %}
+        <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+          <td class="py-3 px-4">{{ entry.date }}</td>
+          <td class="py-3 px-4">
+            <span class="px-2 py-1 rounded-full text-xs 
+              {% if entry.type == 'add' %}bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+              {% elif entry.type == 'remove' %}bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+              {% else %}bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200{% endif %}">
+              {% if entry.type == 'add' %}
+                {% if lang == 'ar' %}إضافة{% else %}Add{% endif %}
+              {% elif entry.type == 'remove' %}
+                {% if lang == 'ar' %}سحب{% else %}Remove{% endif %}
+              {% else %}
+                {% if lang == 'ar' %}تعديل{% else %}Adjust{% endif %}
+              {% endif %}
+            </span>
+          </td>
+          <td class="py-3 px-4">{{ entry.quantity }} {{ material.unit }}</td>
+          <td class="py-3 px-4">{{ entry.balance }} {{ material.unit }}</td>
+          <td class="py-3 px-4">{{ entry.user }}</td>
+          <td class="py-3 px-4">{{ entry.notes }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="py-6 text-center text-gray-500">
+            {% if lang == 'ar' %}لا يوجد سجل للحركة{% else %}No history records found{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

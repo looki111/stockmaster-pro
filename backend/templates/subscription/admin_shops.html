@@ -1,0 +1,293 @@
+{% extends "base.html" %}
+{% block title %}{% if lang == 'ar' %}إدارة المتاجر | ستوك ماستر برو{% else %}Manage Shops | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}إدارة المتاجر{% else %}Manage Shops{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div class="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <h2 class="text-xl font-semibold">
+                {% if lang == 'ar' %}جميع المتاجر{% else %}All Shops{% endif %}
+            </h2>
+            <div class="flex space-x-2">
+                <a href="{{ url_for('subscription.admin_plans') }}" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition">
+                    {% if lang == 'ar' %}إدارة الخطط{% else %}Manage Plans{% endif %}
+                </a>
+            </div>
+        </div>
+        
+        <!-- Filters and Search -->
+        <div class="p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div class="flex-1">
+                    <input type="text" id="shop-search" placeholder="{% if lang == 'ar' %}بحث عن متجر...{% else %}Search shops...{% endif %}" 
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700">
+                </div>
+                
+                <div class="flex flex-wrap gap-2">
+                    <select id="status-filter" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700">
+                        <option value="all">{% if lang == 'ar' %}جميع الحالات{% else %}All Statuses{% endif %}</option>
+                        <option value="active">{% if lang == 'ar' %}نشط{% else %}Active{% endif %}</option>
+                        <option value="expired">{% if lang == 'ar' %}منتهي{% else %}Expired{% endif %}</option>
+                        <option value="trial">{% if lang == 'ar' %}تجريبي{% else %}Trial{% endif %}</option>
+                        <option value="inactive">{% if lang == 'ar' %}غير نشط{% else %}Inactive{% endif %}</option>
+                    </select>
+                    
+                    <select id="plan-filter" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700">
+                        <option value="all">{% if lang == 'ar' %}جميع الخطط{% else %}All Plans{% endif %}</option>
+                        {% for plan in plans %}
+                        <option value="{{ plan.id }}">{{ plan.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Shops Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-900">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}المتجر{% else %}Shop{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}المالك{% else %}Owner{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}خطة الاشتراك{% else %}Subscription Plan{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}الحالة{% else %}Status{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}تاريخ الانتهاء{% else %}Expiry Date{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}الإجراءات{% else %}Actions{% endif %}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for shop in shops %}
+                    <tr class="shop-row" 
+                        data-name="{{ shop.name }}" 
+                        data-status="{{ shop.subscription.status if shop.subscription else 'inactive' }}"
+                        data-plan="{{ shop.subscription.plan_id if shop.subscription else '' }}">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0 h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+                                    {% if shop.logo %}
+                                    <img src="{{ shop.logo }}" alt="{{ shop.name }}" class="h-10 w-10 rounded-full">
+                                    {% else %}
+                                    <span class="text-lg font-bold text-gray-500 dark:text-gray-400">{{ shop.name[0] }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="ml-4">
+                                    <a href="{{ url_for('subscription.admin_shop_detail', shop_id=shop.id) }}" class="text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400">
+                                        {{ shop.name }}
+                                    </a>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ shop.email }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-gray-100">{{ shop.owner_name }}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ shop.phone }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if shop.subscription and shop.subscription.plan %}
+                            <div class="text-sm text-gray-900 dark:text-gray-100">{{ shop.subscription.plan.name }}</div>
+                            <div class="text-sm text-gray-500 dark:text-gray-400">
+                                {% if shop.subscription.billing_cycle == 'monthly' %}
+                                    {% if lang == 'ar' %}شهري{% else %}Monthly{% endif %}
+                                {% else %}
+                                    {% if lang == 'ar' %}سنوي{% else %}Yearly{% endif %}
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <span class="text-sm text-gray-500 dark:text-gray-400">{% if lang == 'ar' %}لا يوجد اشتراك{% else %}No subscription{% endif %}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {% if shop.subscription %}
+                                {% if shop.subscription.status == 'active' %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                    {% if lang == 'ar' %}نشط{% else %}Active{% endif %}
+                                </span>
+                                {% elif shop.subscription.status == 'expiring_soon' %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                    {% if lang == 'ar' %}ينتهي قريبًا{% else %}Expiring Soon{% endif %}
+                                </span>
+                                {% elif shop.subscription.status == 'expired' %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                    {% if lang == 'ar' %}منتهي{% else %}Expired{% endif %}
+                                </span>
+                                {% elif shop.subscription.payment_status == 'trial' %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                                    {% if lang == 'ar' %}تجريبي{% else %}Trial{% endif %}
+                                </span>
+                                {% else %}
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                    {% if lang == 'ar' %}غير نشط{% else %}Inactive{% endif %}
+                                </span>
+                                {% endif %}
+                            {% else %}
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                {% if lang == 'ar' %}غير نشط{% else %}Inactive{% endif %}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                            {% if shop.subscription %}
+                                {{ shop.subscription.end_date.strftime('%Y-%m-%d') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <a href="{{ url_for('subscription.admin_shop_detail', shop_id=shop.id) }}" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                                    {% if lang == 'ar' %}عرض{% else %}View{% endif %}
+                                </a>
+                                
+                                {% if shop.subscription %}
+                                    {% if shop.subscription.is_active %}
+                                    <form action="{{ url_for('subscription.admin_deactivate_subscription', subscription_id=shop.subscription.id) }}" method="POST" class="inline">
+                                        <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                            {% if lang == 'ar' %}تعطيل{% else %}Deactivate{% endif %}
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <button type="button" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 activate-btn" data-subscription-id="{{ shop.subscription.id }}">
+                                        {% if lang == 'ar' %}تفعيل{% else %}Activate{% endif %}
+                                    </button>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        <div class="px-6 py-4 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="text-sm text-gray-700 dark:text-gray-300">
+                    {% if lang == 'ar' %}
+                    عرض <span class="font-medium">{{ shops|length }}</span> متجر
+                    {% else %}
+                    Showing <span class="font-medium">{{ shops|length }}</span> shops
+                    {% endif %}
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50" disabled>
+                        {% if lang == 'ar' %}السابق{% else %}Previous{% endif %}
+                    </button>
+                    <button class="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50" disabled>
+                        {% if lang == 'ar' %}التالي{% else %}Next{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activation Modal -->
+<div id="activation-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md w-full">
+        <div class="p-6">
+            <h3 class="text-lg font-semibold mb-4">
+                {% if lang == 'ar' %}تفعيل الاشتراك{% else %}Activate Subscription{% endif %}
+            </h3>
+            
+            <form id="activation-form" method="POST" class="space-y-4">
+                <div>
+                    <label for="duration_months" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        {% if lang == 'ar' %}مدة التفعيل (بالشهور){% else %}Activation Duration (months){% endif %}
+                    </label>
+                    <input type="number" id="duration_months" name="duration_months" min="1" max="36" value="1"
+                        class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700">
+                </div>
+                
+                <div class="flex justify-end space-x-2 pt-4">
+                    <button type="button" id="cancel-activation" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                        {% if lang == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition">
+                        {% if lang == 'ar' %}تفعيل{% else %}Activate{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Search functionality
+        const searchInput = document.getElementById('shop-search');
+        const statusFilter = document.getElementById('status-filter');
+        const planFilter = document.getElementById('plan-filter');
+        const shopRows = document.querySelectorAll('.shop-row');
+        
+        function filterShops() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const statusValue = statusFilter.value;
+            const planValue = planFilter.value;
+            
+            shopRows.forEach(row => {
+                const name = row.getAttribute('data-name').toLowerCase();
+                const status = row.getAttribute('data-status');
+                const plan = row.getAttribute('data-plan');
+                
+                const matchesSearch = name.includes(searchTerm);
+                const matchesStatus = statusValue === 'all' || status === statusValue;
+                const matchesPlan = planValue === 'all' || plan === planValue;
+                
+                if (matchesSearch && matchesStatus && matchesPlan) {
+                    row.classList.remove('hidden');
+                } else {
+                    row.classList.add('hidden');
+                }
+            });
+        }
+        
+        if (searchInput) searchInput.addEventListener('input', filterShops);
+        if (statusFilter) statusFilter.addEventListener('change', filterShops);
+        if (planFilter) planFilter.addEventListener('change', filterShops);
+        
+        // Activation modal
+        const activationModal = document.getElementById('activation-modal');
+        const activationForm = document.getElementById('activation-form');
+        const cancelActivation = document.getElementById('cancel-activation');
+        const activateBtns = document.querySelectorAll('.activate-btn');
+        
+        activateBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const subscriptionId = this.getAttribute('data-subscription-id');
+                activationForm.action = `/subscription/admin/subscription/${subscriptionId}/activate`;
+                activationModal.classList.remove('hidden');
+            });
+        });
+        
+        if (cancelActivation) {
+            cancelActivation.addEventListener('click', function() {
+                activationModal.classList.add('hidden');
+            });
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(e) {
+            if (e.target === activationModal) {
+                activationModal.classList.add('hidden');
+            }
+        });
+    });
+</script>
+{% endblock %}

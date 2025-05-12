@@ -1,0 +1,361 @@
+from flask import Flask, Blueprint, render_template, request, redirect, session, jsonify
+from backend.middleware.supabase_middleware import supabase_auth_middleware
+from backend.routes.supabase_auth import supabase_auth_bp
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+app = Flask(__name__,
+            static_url_path='/static',
+            static_folder='backend/static',
+            template_folder='backend/templates')
+
+# Configure app from environment
+app.secret_key = os.environ.get('SECRET_KEY', 'stockmaster_pro_secret_key')
+app.config['SUPABASE_URL'] = os.environ.get('SUPABASE_URL', '')
+app.config['SUPABASE_KEY'] = os.environ.get('SUPABASE_KEY', '')
+app.config['SUPABASE_SERVICE_ROLE_KEY'] = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '')
+app.config['FORCE_ADMIN_SECRET'] = os.environ.get('FORCE_ADMIN_SECRET', 'stockmaster-admin-secret')
+
+
+# Apply middleware
+app.before_request(supabase_auth_middleware())
+
+# Mock user data for demonstration
+users = {
+    'admin': {
+        'username': 'admin',
+        'password': 'admin123',
+        'role': 'Administrator'
+    }
+}
+
+# Mock current user for templates
+class User:
+    def __init__(self, username, role):
+        self.username = username
+        self.role = role
+
+# Create blueprints
+auth_bp = Blueprint('auth', __name__)
+pos_bp = Blueprint('pos', __name__, url_prefix='/pos')
+inventory_bp = Blueprint('inventory', __name__, url_prefix='/inventory')
+clients_bp = Blueprint('clients', __name__, url_prefix='/clients')
+
+# Import dashboard blueprint from backend/routes/dashboard.py
+from backend.routes.dashboard import dashboard_bp
+
+@app.context_processor
+def inject_user():
+    if 'username' in session:
+        return {'current_user': User(session['username'], users[session['username']]['role'])}
+    return {'current_user': User('Guest', 'Guest')}
+
+# Root route - not protected by any middleware
+@app.route('/')
+def index():
+    """
+    Root route - redirects to dashboard if logged in, otherwise shows the landing page
+    This route should not be protected by any middleware and should not throw 403 errors
+    """
+    # This route is intentionally simple and not protected by any middleware
+    # It should always work and never throw 403 Forbidden errors
+    from flask import g
+
+    # Check if user is authenticated using g.supabase_user
+    user = getattr(g, 'supabase_user', None)
+    if user:
+        return redirect('/dashboard')  # Redirect to dashboard if logged in
+    else:
+        # Show landing page (this prevents redirect loops)
+        return render_template('landing.html', lang=request.args.get('lang', 'en'))
+
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    """
+    Login route - handles login form submission and renders login page
+    """
+    # Check if user is already logged in
+    from flask import g
+    user = getattr(g, 'supabase_user', None)
+    if user:
+        return redirect('/dashboard')  # Redirect to dashboard if already logged in
+
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username in users and users[username]['password'] == password:
+            session['username'] = username
+            return redirect('/dashboard')  # Use direct path instead of url_for
+
+        return render_template('login.html', error='Invalid username or password', lang=request.args.get('lang', 'en'))
+
+    return render_template('login.html', lang=request.args.get('lang', 'en'))
+
+@auth_bp.route('/logout')
+def logout():
+    """
+    Logout route - clears session and redirects to login page
+    """
+    session.pop('username', None)
+    return redirect('/')  # Use direct path instead of url_for
+
+@auth_bp.route('/force-admin', methods=['POST'])
+def force_admin():
+    """
+    Force a user to be an admin
+    Requires a secret token to prevent unauthorized access
+    """
+    data = request.get_json()
+    secret = data.get('secret')
+    user_id = data.get('user_id')
+
+    if not secret or not user_id:
+        return jsonify({'error': 'Secret and user_id are required'}), 400
+
+    if secret != app.config.get('FORCE_ADMIN_SECRET', 'stockmaster-admin-secret'):
+        return jsonify({'error': 'Invalid secret'}), 401
+
+    # For simplicity, we'll just assume success
+    # In a real implementation, this would call set_user_as_admin(user_id)
+    return jsonify({'success': True})
+
+# Dashboard routes - moved to backend/routes/dashboard.py
+
+# Settings route - moved to backend/routes/dashboard.py
+
+# POS routes
+@pos_bp.route('/')
+def index():
+    """
+    POS route - shows POS interface
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('pos.html', lang=request.args.get('lang', 'en'))
+
+# Inventory routes
+@inventory_bp.route('/')
+def index():
+    """
+    Inventory index route - shows inventory overview
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('inventory.html', lang=request.args.get('lang', 'en'))
+
+@inventory_bp.route('/raw-materials')
+def raw_materials():
+    """
+    Raw materials route - shows raw materials inventory
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('inventory/raw_materials.html', lang=request.args.get('lang', 'en'))
+
+@inventory_bp.route('/raw-materials/add', methods=['GET', 'POST'])
+def add_raw_material():
+    """
+    Add raw material route - form to add new raw material
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    if request.method == 'POST':
+        # This would handle the form submission in a real implementation
+        # For now, just redirect back to the raw materials list
+        return redirect('/inventory/raw-materials')
+
+    return render_template('add_material.html', lang=request.args.get('lang', 'en'))
+
+@inventory_bp.route('/recipes')
+def recipes():
+    """
+    Recipes route - shows recipes
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('inventory/recipes.html', lang=request.args.get('lang', 'en'))
+
+@inventory_bp.route('/reports')
+def reports():
+    """
+    Reports route - shows inventory reports
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('inventory/reports.html', lang=request.args.get('lang', 'en'))
+
+# Clients routes
+@clients_bp.route('/')
+def index():
+    """
+    Clients index route - shows clients overview
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('clients.html', lang=request.args.get('lang', 'en'))
+
+@clients_bp.route('/list')
+def clients_list():
+    """
+    Clients list route - shows clients list
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('clients/list.html', lang=request.args.get('lang', 'en'))
+
+# Import blueprints
+from backend.routes.suppliers import suppliers_bp
+from backend.routes.pos import pos_bp
+from backend.routes.inventory_new import inventory_bp
+from backend.routes.clients_new import clients_bp
+
+# Register blueprints
+app.register_blueprint(auth_bp)
+app.register_blueprint(dashboard_bp)
+app.register_blueprint(pos_bp)
+app.register_blueprint(inventory_bp)
+app.register_blueprint(clients_bp)
+app.register_blueprint(suppliers_bp)
+app.register_blueprint(supabase_auth_bp)
+
+# Language switch route
+@app.route('/switch_lang')
+def switch_lang():
+    """
+    Switch language route - toggles between Arabic and English
+    """
+    # Get current language from session or request args
+    current_lang = request.args.get('lang', session.get('lang', 'en'))
+
+    # Toggle language
+    new_lang = 'ar' if current_lang == 'en' else 'en'
+
+    # Store in session
+    session['lang'] = new_lang
+
+    # Redirect back to the referring page or home
+    referrer = request.referrer
+    if referrer:
+        return redirect(referrer)
+    return redirect('/')
+
+# Test route for Supabase
+@app.route('/test/supabase')
+def test_supabase():
+    """
+    Test route to verify Supabase client initialization
+    """
+    return render_template('test_supabase.html')
+
+# Create template directories if they don't exist
+import os
+os.makedirs('backend/templates/inventory', exist_ok=True)
+os.makedirs('backend/templates/clients', exist_ok=True)
+os.makedirs('backend/templates/suppliers', exist_ok=True)
+
+# Create placeholder templates for missing pages
+if not os.path.exists('backend/templates/inventory/raw_materials.html'):
+    with open('backend/templates/inventory/raw_materials.html', 'w') as f:
+        f.write('''{% extends "base.html" %}
+{% block title %}Raw Materials | StockMaster Pro{% endblock %}
+{% block page_title %}Raw Materials{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Raw Materials</h1>
+    <p>This is a placeholder for the Raw Materials page.</p>
+</div>
+{% endblock %}''')
+
+if not os.path.exists('backend/templates/inventory/recipes.html'):
+    with open('backend/templates/inventory/recipes.html', 'w') as f:
+        f.write('''{% extends "base.html" %}
+{% block title %}Recipes | StockMaster Pro{% endblock %}
+{% block page_title %}Recipes{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Recipes</h1>
+    <p>This is a placeholder for the Recipes page.</p>
+</div>
+{% endblock %}''')
+
+if not os.path.exists('backend/templates/inventory/reports.html'):
+    with open('backend/templates/inventory/reports.html', 'w') as f:
+        f.write('''{% extends "base.html" %}
+{% block title %}Inventory Reports | StockMaster Pro{% endblock %}
+{% block page_title %}Inventory Reports{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Inventory Reports</h1>
+    <p>This is a placeholder for the Inventory Reports page.</p>
+</div>
+{% endblock %}''')
+
+if not os.path.exists('backend/templates/clients/list.html'):
+    with open('backend/templates/clients/list.html', 'w') as f:
+        f.write('''{% extends "base.html" %}
+{% block title %}Clients List | StockMaster Pro{% endblock %}
+{% block page_title %}Clients List{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Clients List</h1>
+    <p>This is a placeholder for the Clients List page.</p>
+</div>
+{% endblock %}''')
+
+if not os.path.exists('backend/templates/pos.html'):
+    with open('backend/templates/pos.html', 'w') as f:
+        f.write('''{% extends "base.html" %}
+{% block title %}POS | StockMaster Pro{% endblock %}
+{% block page_title %}Point of Sale{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Point of Sale</h1>
+    <p>This is a placeholder for the POS page.</p>
+</div>
+{% endblock %}''')
+
+if not os.path.exists('backend/templates/settings.html'):
+    with open('backend/templates/settings.html', 'w') as f:
+        f.write('''{% extends "base.html" %}
+{% block title %}Settings | StockMaster Pro{% endblock %}
+{% block page_title %}Settings{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Settings</h1>
+    <p>This is a placeholder for the Settings page.</p>
+</div>
+{% endblock %}''')
+
+if not os.path.exists('backend/templates/sales.html'):
+    with open('backend/templates/sales.html', 'w') as f:
+        f.write('''{% extends "base.html" %}
+{% block title %}Sales | StockMaster Pro{% endblock %}
+{% block page_title %}Sales{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Sales</h1>
+    <p>This is a placeholder for the Sales page.</p>
+</div>
+{% endblock %}''')
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

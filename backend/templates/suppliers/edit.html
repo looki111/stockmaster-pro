@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Edit Supplier | StockMaster Pro{% endblock %}
+{% block page_title %}{{ 'تعديل مورد' if lang == 'ar' else 'Edit Supplier' }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h2>{{ 'تعديل مورد' if lang == 'ar' else 'Edit Supplier' }}: {{ supplier.name }}</h2>
+        </div>
+        <div class="card-body">
+            <form method="post" action="{{ url_for('suppliers.edit_supplier', supplier_id=supplier.id) }}">
+                <div class="mb-3">
+                    <label for="name" class="form-label">{{ 'اسم الشركة' if lang == 'ar' else 'Company Name' }} *</label>
+                    <input type="text" class="form-control" id="name" name="name" value="{{ supplier.name }}" required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="contact_name" class="form-label">{{ 'اسم جهة الاتصال' if lang == 'ar' else 'Contact Name' }}</label>
+                    <input type="text" class="form-control" id="contact_name" name="contact_name" value="{{ supplier.contact_name }}">
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">{{ 'البريد الإلكتروني' if lang == 'ar' else 'Email' }}</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ supplier.email }}">
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="phone" class="form-label">{{ 'رقم الهاتف' if lang == 'ar' else 'Phone Number' }} *</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" value="{{ supplier.phone }}" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="address" class="form-label">{{ 'العنوان' if lang == 'ar' else 'Address' }}</label>
+                    <textarea class="form-control" id="address" name="address" rows="3">{{ supplier.address }}</textarea>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="notes" class="form-label">{{ 'ملاحظات' if lang == 'ar' else 'Notes' }}</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="3">{{ supplier.notes }}</textarea>
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('suppliers.index') }}" class="btn btn-secondary">
+                        {{ 'إلغاء' if lang == 'ar' else 'Cancel' }}
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        {{ 'حفظ التغييرات' if lang == 'ar' else 'Save Changes' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

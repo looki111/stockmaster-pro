@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html class="theme-light" lang="{{ lang }}" dir="{{ 'rtl' if lang == 'ar' else 'ltr' }}">
+<head>
+  <meta name="theme-color" content="#ffffff">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ 'لوحة التحكم' if lang == 'ar' else 'Dashboard' }} | StockMaster Pro</title>
+    
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/x-icon">
+    
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- RTL Support - Arabic Font -->
+    {% if lang == 'ar' %}
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    {% endif %}
+    
+    <!-- Remixicon for icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- Modern Dashboard Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modern-dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard-components.css') }}">
+    
+    <!-- RTL Support if Arabic -->
+    {% if lang == 'ar' %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/rtl-support.css') }}">
+    {% endif %}
+    
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <img src="{{ url_for('static', filename='img/logo-icon.svg') }}" alt="StockMaster Pro">
+                    <span class="sidebar-logo-text">StockMaster Pro</span>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="ri-menu-fold-line"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-content">
+                <nav class="nav-section">
+                    <h3 class="nav-section-title">{{ 'الرئيسية' if lang == 'ar' else 'Main' }}</h3>
+                    
+                    <div class="nav-item">
+                        <a href="{{ url_for('dashboard.dashboard') }}" class="nav-link active">
+                            <i class="ri-dashboard-line"></i>
+                            <span class="nav-link-text">{{ 'لوحة التحكم' if lang == 'ar' else 'Dashboard' }}</span>
+                        </a>
+                    </div>
+                    
+                    <div class="nav-item">
+                        <a href="{{ url_for('pos.index') }}" class="nav-link">
+                            <i class="ri-shopping-cart-line"></i>
+                            <span class="nav-link-text">{{ 'نقطة البيع' if lang == 'ar' else 'POS' }}</span>
+                        </a>
+                    </div>
+                    
+                    <div class="nav-item">
+                        <a href="{{ url_for('dashboard.sales') }}" class="nav-link">
+                            <i class="ri-line-chart-line"></i>
+                            <span class="nav-link-text">{{ 'المبيعات' if lang == 'ar' else 'Sales' }}</span>
+                        </a>
+                    </div>
+                </nav>
+                
+                <nav class="nav-section">
+                    <h3 class="nav-section-title">{{ 'المخزون' if lang == 'ar' else 'Inventory' }}</h3>
+                    
+                    <div class="nav-item">
+                        <a href="{{ url_for('inventory.raw_materials') }}" class="nav-link">
+                            <i class="ri-archive-line"></i>
+                            <span class="nav-link-text">{{ 'المواد الخام' if lang == 'ar' else 'Raw Materials' }}</span>
+                            <span class="nav-badge">{{ low_stock_items|length }}</span>
+                        </a>
+                    </div>
+                    
+                    <div class="nav-item">
+                        <a href="{{ url_for('inventory.recipes') }}" class="nav-link">
+                            <i class="ri-file-list-3-line"></i>
+                            <span class="nav-link-text">{{ 'الوصفات' if lang == 'ar' else 'Recipes' }}</span>
+                        </a>
+                    </div>
+                    
+                    <div class="nav-item">
+                        <a href="{{ url_for('inventory.reports') }}" class="nav-link">
+                            <i class="ri-bar-chart-box-line"></i>
+                            <span class="nav-link-text">{{ 'التقارير' if lang == 'ar' else 'Reports' }}</span>
+                        </a>
+                    </div>
+                </nav>
+                
+                <nav class="nav-section">
+                    <h3 class="nav-section-title">{{ 'العملاء' if lang == 'ar' else 'Customers' }}</h3>
+                    
+                    <div class="nav-item">
+                        <a href="{{ url_for('clients.clients_list') }}" class="nav-link">
+                            <i class="ri-user-line"></i>
+                            <span class="nav-link-text">{{ 'العملاء' if lang == 'ar' else 'Clients' }}</span>
+                        </a>
+                    </div>
+                    
+                    <div class="nav-item">
+                        <a href="{{ url_for('promotions.promotions') }}" class="nav-link">
+                            <i class="ri-gift-line"></i>
+                            <span class="nav-link-text">{{ 'العروض' if lang == 'ar' else 'Promotions' }}</span>
+                        </a>
+                    </div>
+                </nav>
+                
+                <nav class="nav-section">
+                    <h3 class="nav-section-title">{{ 'الإعدادات' if lang == 'ar' else 'Settings' }}</h3>
+                    
+                    <div class="nav-item">
+                        <a href="{{ url_for('dashboard.settings') }}" class="nav-link">
+                            <i class="ri-settings-line"></i>
+                            <span class="nav-link-text">{{ 'الإعدادات العامة' if lang == 'ar' else 'General Settings' }}</span>
+                        </a>
+                    </div>
+                    
+                    <div class="nav-item">
+                        <a href="{{ url_for('dashboard.settings') }}" class="nav-link">
+                            <i class="ri-user-settings-line"></i>
+                            <span class="nav-link-text">{{ 'المستخدمين' if lang == 'ar' else 'Users' }}</span>
+                        </a>
+                    </div>
+                </nav>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="nav-item">
+                    <a href="{{ url_for('auth.logout') }}" class="nav-link">
+                        <i class="ri-logout-box-line"></i>
+                        <span class="nav-link-text">{{ 'تسجيل الخروج' if lang == 'ar' else 'Logout' }}</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-content">
+                    <div class="header-left">
+                        <div class="search-bar">
+                            <i class="ri-search-line search-icon"></i>
+                            <input type="text" class="search-input" placeholder="{{ 'البحث...' if lang == 'ar' else 'Search...' }}">
+                        </div>
+                    </div>
+                    
+                    <div class="header-right">
+                        <!-- Language Toggle -->
+                        <a href="{{ url_for('switch_lang') }}" class="btn btn-outline btn-icon" aria-label="{{ 'Switch to English' if lang == 'ar' else 'التبديل إلى العربية' }}">
+                            <i class="ri-translate-2"></i>
+                        </a>
+                        
+                        <!-- Theme Toggle -->
+                        <button class="btn btn-outline btn-icon" id="themeToggle" aria-label="{{ 'تبديل السمة' if lang == 'ar' else 'Toggle Theme' }}">
+                            <i class="ri-sun-line"></i>
+                        </button>
+                        
+                        <!-- Notifications -->
+                        <div class="dropdown">
+                            <button class="btn btn-outline btn-icon" id="notificationsDropdown" aria-label="{{ 'الإشعارات' if lang == 'ar' else 'Notifications' }}">
+                                <i class="ri-notification-3-line"></i>
+                                <span class="notification-badge">3</span>
+                            </button>
+                        </div>
+                        
+                        <!-- User Menu -->
+                        <div class="dropdown">
+                            <button class="btn btn-outline" id="userDropdown">
+                                <div class="user-avatar">
+                                    <span>{{ current_user.username[0].upper() }}</span>
+                                </div>
+                                <span class="user-name">{{ current_user.username }}</span>
+                                <i class="ri-arrow-down-s-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Page Content -->
+            <div class="page-container">
+                <div class="page-header">
+                    <h1 class="page-title">{{ 'لوحة التحكم' if lang == 'ar' else 'Dashboard' }}</h1>
+                    <p class="page-description">{{ 'نظرة عامة على أداء متجرك' if lang == 'ar' else 'Overview of your store performance' }}</p>
+                </div>
+                
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <!-- Total Sales -->
+                    <div class="card stat-card">
+                        <div class="stat-icon primary">
+                            <i class="ri-money-dollar-circle-line"></i>
+                        </div>
+                        <div class="stat-value">{{ stats.total_revenue }}</div>
+                        <div class="stat-label">{{ 'إجمالي المبيعات' if lang == 'ar' else 'Total Sales' }}</div>
+                        <div class="stat-change positive">
+                            <i class="ri-arrow-up-line"></i>
+                            <span>12.5% {{ 'من الشهر الماضي' if lang == 'ar' else 'from last month' }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Total Orders -->
+                    <div class="card stat-card">
+                        <div class="stat-icon info">
+                            <i class="ri-shopping-bag-line"></i>
+                        </div>
+                        <div class="stat-value">{{ stats.total_orders }}</div>
+                        <div class="stat-label">{{ 'إجمالي الطلبات' if lang == 'ar' else 'Total Orders' }}</div>
+                        <div class="stat-change positive">
+                            <i class="ri-arrow-up-line"></i>
+                            <span>8.2% {{ 'من الشهر الماضي' if lang == 'ar' else 'from last month' }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Products -->
+                    <div class="card stat-card">
+                        <div class="stat-icon success">
+                            <i class="ri-store-2-line"></i>
+                        </div>
+                        <div class="stat-value">{{ stats.total_products }}</div>
+                        <div class="stat-label">{{ 'المنتجات' if lang == 'ar' else 'Products' }}</div>
+                        <div class="stat-change positive">
+                            <i class="ri-arrow-up-line"></i>
+                            <span>3.1% {{ 'من الشهر الماضي' if lang == 'ar' else 'from last month' }}</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Low Stock -->
+                    <div class="card stat-card">
+                        <div class="stat-icon warning">
+                            <i class="ri-alert-line"></i>
+                        </div>
+                        <div class="stat-value">{{ stats.low_stock_items }}</div>
+                        <div class="stat-label">{{ 'المواد منخفضة المخزون' if lang == 'ar' else 'Low Stock Items' }}</div>
+                        <div class="stat-change negative">
+                            <i class="ri-arrow-up-line"></i>
+                            <span>5.3% {{ 'من الشهر الماضي' if lang == 'ar' else 'from last month' }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Orders -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">{{ 'الطلبات الأخيرة' if lang == 'ar' else 'Recent Orders' }}</h2>
+                        <a href="{{ url_for('dashboard.sales') }}" class="btn btn-outline btn-sm">
+                            {{ 'عرض الكل' if lang == 'ar' else 'View All' }}
+                        </a>
+                    </div>
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>{{ 'رقم الطلب' if lang == 'ar' else 'Order ID' }}</th>
+                                    <th>{{ 'العميل' if lang == 'ar' else 'Customer' }}</th>
+                                    <th>{{ 'التاريخ' if lang == 'ar' else 'Date' }}</th>
+                                    <th>{{ 'المبلغ' if lang == 'ar' else 'Amount' }}</th>
+                                    <th>{{ 'الحالة' if lang == 'ar' else 'Status' }}</th>
+                                    <th>{{ 'الإجراءات' if lang == 'ar' else 'Actions' }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for order in recent_orders %}
+                                <tr>
+                                    <td>#{{ order.id }}</td>
+                                    <td>{{ order.client.name if order.client else 'Walk-in Customer' }}</td>
+                                    <td>{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                    <td>{{ order.total }}</td>
+                                    <td>
+                                        <span class="badge badge-success">{{ 'مكتمل' if lang == 'ar' else 'Completed' }}</span>
+                                    </td>
+                                    <td class="action-buttons">
+                                        <button class="btn btn-outline btn-sm btn-icon">
+                                            <i class="ri-eye-line"></i>
+                                        </button>
+                                        <button class="btn btn-outline btn-sm btn-icon">
+                                            <i class="ri-printer-line"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Floating Action Button -->
+    <button class="fab" id="fab">
+        <i class="ri-add-line"></i>
+    </button>
+    
+    <script>
+        // Sidebar Toggle
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+            
+            // Update toggle icon
+            const toggleIcon = this.querySelector('i');
+            if (sidebar.classList.contains('collapsed')) {
+                toggleIcon.classList.remove('ri-menu-fold-line');
+                toggleIcon.classList.add('ri-menu-unfold-line');
+            } else {
+                toggleIcon.classList.remove('ri-menu-unfold-line');
+                toggleIcon.classList.add('ri-menu-fold-line');
+            }
+            
+            // Save preference
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        });
+        
+        // Load sidebar state from localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleIcon = document.querySelector('#sidebarToggle i');
+            
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                sidebar.classList.add('collapsed');
+                toggleIcon.classList.remove('ri-menu-fold-line');
+                toggleIcon.classList.add('ri-menu-unfold-line');
+            }
+            
+            // Save sidebar preference to server if authenticated
+            if (document.body.classList.contains('user-authenticated')) {
+                fetch('/api/user/preferences', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        key: 'sidebar_collapsed',
+                        value: localStorage.getItem('sidebarCollapsed') || 'false'
+                    })
+                }).catch(error => {
+                    console.error('Error saving sidebar preference:', error);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

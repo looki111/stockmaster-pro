@@ -1,0 +1,206 @@
+/**
+ * StockMaster Pro Theme Variables
+ * Comprehensive theme variable system for light and dark themes
+ */
+
+:root {
+  /* Theme transition settings for smooth switches */
+  --theme-transition-duration: 300ms;
+  --theme-transition-timing: ease;
+  
+  /* ===== LIGHT THEME (DEFAULT) ===== */
+  
+  /* Background colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f7fa;
+  --bg-tertiary: #eef2f7;
+  --bg-elevated: #ffffff;
+  
+  /* Text colors */
+  --text-primary: #333333;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-inverted: #ffffff;
+  --text-link: var(--primary-600);
+  --text-link-hover: var(--primary-700);
+  
+  /* Border colors */
+  --border-color: #e1e4e8;
+  --border-color-light: #f0f0f0;
+  --border-color-focus: var(--primary-400);
+  
+  /* Shadow values for depth */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Form control colors */
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-text: #111827;
+  --input-placeholder: #9ca3af;
+  
+  /* Component specific colors */
+  --card-bg: #ffffff;
+  --sidebar-bg: #ffffff;
+  --header-bg: #ffffff;
+  --dropdown-bg: #ffffff;
+  --tooltip-bg: #374151;
+  --tooltip-text: #ffffff;
+  
+  /* Overlay colors */
+  --overlay-bg: rgba(0, 0, 0, 0.4);
+  --modal-bg: #ffffff;
+  
+  /* Status colors remain consistent across themes */
+  --status-success-bg: #d1fae5;
+  --status-success-text: #047857;
+  --status-warning-bg: #fef3c7;
+  --status-warning-text: #b45309;
+  --status-error-bg: #fee2e2;
+  --status-error-text: #b91c1c;
+  --status-info-bg: #dbeafe;
+  --status-info-text: #1d4ed8;
+}
+
+/* Dark Theme Override Variables */
+.theme-dark {
+  /* Background colors */
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-tertiary: #0f172a;
+  --bg-elevated: #1e293b;
+  
+  /* Text colors */
+  --text-primary: #e6e6e6;
+  --text-secondary: #b3b3b3;
+  --text-tertiary: #8896ab;
+  --text-inverted: #0f172a;
+  --text-link: var(--primary-400);
+  --text-link-hover: var(--primary-300);
+  
+  /* Border colors */
+  --border-color: #2a3752;
+  --border-color-light: #334155;
+  --border-color-focus: var(--primary-400);
+  
+  /* Shadow values - darker and more subtle in dark mode */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  
+  /* Form control colors */
+  --input-bg: #1e293b;
+  --input-border: #334155;
+  --input-text: #e2e8f0;
+  --input-placeholder: #64748b;
+  
+  /* Component specific colors */
+  --card-bg: #1e293b;
+  --sidebar-bg: #0f172a;
+  --header-bg: #1e293b;
+  --dropdown-bg: #1e293b;
+  --tooltip-bg: #e2e8f0;
+  --tooltip-text: #0f172a;
+  
+  /* Overlay colors */
+  --overlay-bg: rgba(0, 0, 0, 0.7);
+  --modal-bg: #1e293b;
+  
+  /* Status colors slightly adjusted for dark mode */
+  --status-success-bg: #065f46;
+  --status-success-text: #a7f3d0;
+  --status-warning-bg: #92400e;
+  --status-warning-text: #fde68a;
+  --status-error-bg: #991b1b;
+  --status-error-text: #fecaca;
+  --status-info-bg: #1e40af;
+  --status-info-text: #bfdbfe;
+}
+
+/* Apply transitions to themed elements for smooth switching */
+html {
+  transition: background-color var(--theme-transition-duration) var(--theme-transition-timing),
+              color var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+body,
+.sidebar,
+.header,
+.card,
+.dropdown-menu,
+.modal,
+button,
+input,
+select,
+textarea,
+.form-control,
+.nav-link,
+.table {
+  transition: background-color var(--theme-transition-duration) var(--theme-transition-timing),
+              border-color var(--theme-transition-duration) var(--theme-transition-timing),
+              color var(--theme-transition-duration) var(--theme-transition-timing),
+              box-shadow var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+/* Apply basic colors to body */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* These component styles help ensure theme variables are used throughout the app */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.sidebar {
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--border-color);
+}
+
+.header {
+  background-color: var(--header-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.dropdown-menu {
+  background-color: var(--dropdown-bg);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+}
+
+.form-control {
+  background-color: var(--input-bg);
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
+}
+
+.form-control::placeholder {
+  color: var(--input-placeholder);
+}
+
+/* Status colors consistent across themes */
+.badge-success, .alert-success {
+  background-color: var(--status-success-bg);
+  color: var(--status-success-text);
+}
+
+.badge-warning, .alert-warning {
+  background-color: var(--status-warning-bg);
+  color: var(--status-warning-text);
+}
+
+.badge-error, .alert-error, .badge-danger, .alert-danger {
+  background-color: var(--status-error-bg);
+  color: var(--status-error-text);
+}
+
+.badge-info, .alert-info {
+  background-color: var(--status-info-bg);
+  color: var(--status-info-text);
+} 

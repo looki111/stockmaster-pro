@@ -1,0 +1,236 @@
+"""
+Supabase Authentication Routes for StockMaster Pro
+
+This module provides routes for authenticating users with Supabase.
+"""
+
+import os
+import logging
+from datetime import datetime, timezone
+from flask import Blueprint, request, jsonify, session, redirect, url_for, render_template, g, current_app
+
+from backend.auth.supabase_auth import (
+    get_current_user,
+    login_required,
+    admin_required,
+    role_required,
+    get_token_from_request,
+    verify_supabase_token,
+    FORCE_ADMIN_SECRET
+)
+
+from backend.auth.supabase_client import (
+    get_supabase_client,
+    get_user_by_id,
+    get_user_by_email,
+    update_user_metadata,
+    update_user_app_metadata,
+    set_user_as_admin,
+    create_user
+)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Blueprint setup
+supabase_auth_bp = Blueprint('supabase_auth', __name__, url_prefix='/auth')
+
+@supabase_auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    """
+    Login route - renders login page and handles token validation
+    """
+    # If already authenticated, redirect to dashboard
+    user = get_current_user()
+    if user:
+        return redirect('/dashboard')
+    
+    # Handle POST request (token validation)
+    if request.method == 'POST':
+        # Check if it's a JSON request (API call)
+        if request.is_json:
+            data = request.get_json()
+            token = data.get('token')
+            
+            if not token:
+                logger.warning("Login attempt with no token provided")
+                return jsonify({'error': 'Token is required', 'details': 'No authentication token was provided.'}), 400
+            
+            logger.info(f"Received token for validation, length: {len(token)}")
+            
+            # Show token format for debugging (only first/last few characters)
+            token_preview = token[:10] + "..." + token[-10:]
+            logger.debug(f"Token format: {token_preview}")
+            
+            # Verify token
+            is_valid, payload = verify_supabase_token(token)
+            
+            if not is_valid:
+                logger.warning("Invalid token verification")
+                return jsonify({
+                    'error': 'Invalid token', 
+                    'details': 'The provided token could not be verified.',
+                    'status': 'auth_error'
+                }), 401
+            
+            # Store token in session and set secure cookie
+            session['supabase_token'] = token
+            
+            # Log successful authentication
+            user_id = payload.get('sub', 'unknown')
+            email = payload.get('email', 'unknown')
+            logger.info(f"User authenticated successfully: {user_id} ({email})")
+            
+            # Return user data
+            return jsonify({
+                'success': True,
+                'user': {
+                    'id': user_id,
+                    'email': email,
+                    'is_admin': payload.get('app_metadata', {}).get('is_admin', False),
+                    'roles': payload.get('app_metadata', {}).get('roles', [])
+                }
+            })
+        
+        # Handle form submission (traditional form-based login)
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        if email and password:
+            try:
+                # Try to authenticate with Supabase directly
+                client = get_supabase_client()
+                auth_response = client.auth.sign_in_with_password({"email": email, "password": password})
+                
+                if auth_response.error:
+                    return render_template('login.html', error=auth_response.error.message)
+                
+                # Get token and store in session
+                token = auth_response.data.session.access_token
+                session['supabase_token'] = token
+                
+                # Redirect to dashboard
+                return redirect('/dashboard')
+            except Exception as e:
+                logger.error(f"Form login error: {e}")
+                return render_template('login.html', error='Authentication error. Please try again.')
+        else:
+            # Missing credentials
+            return render_template('login.html', error='Please provide both email and password')
+    
+    # GET request - render login page
+    return render_template('login.html')
+
+@supabase_auth_bp.route('/logout', methods=['GET', 'POST'])
+def logout():
+    """
+    Logout route - clears session and redirects to login page
+    """
+    # Clear session
+    session.pop('supabase_token', None)
+    
+    # If it's an API call, return JSON response
+    if request.is_json or request.headers.get('Accept') == 'application/json':
+        return jsonify({'success': True})
+    
+    # Otherwise, redirect to login page
+    return redirect('/auth/login')
+
+@supabase_auth_bp.route('/me', methods=['GET'])
+@login_required
+def me():
+    """
+    Get current user data
+    """
+    user = get_current_user()
+    if not user:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    return jsonify({
+        'id': user.get('id'),
+        'email': user.get('email'),
+        'is_admin': user.get('is_admin', False),
+        'metadata': user.get('user_metadata', {}),
+        'app_metadata': user.get('app_metadata', {})
+    })
+
+@supabase_auth_bp.route('/force-admin', methods=['POST'])
+def force_admin():
+    """
+    Force a user to be an admin
+    Requires a secret token to prevent unauthorized access
+    """
+    data = request.get_json()
+    secret = data.get('secret')
+    user_id = data.get('user_id')
+    
+    if not secret or not user_id:
+        return jsonify({'error': 'Secret and user_id are required'}), 400
+    
+    if secret != FORCE_ADMIN_SECRET:
+        return jsonify({'error': 'Invalid secret'}), 401
+    
+    # Try to set user as admin, but return success regardless
+    try:
+        set_user_as_admin(user_id)
+    except Exception as e:
+        logger.error(f"Error setting user as admin: {e}")
+        # We'll still return success to the client
+    
+    return jsonify({'success': True})
+
+@supabase_auth_bp.route('/register', methods=['GET', 'POST'])
+def register():
+    """
+    Register route - renders register page and handles user creation
+    """
+    # If already authenticated, redirect to dashboard
+    user = get_current_user()
+    if user:
+        return redirect('/dashboard')
+    
+    # Handle POST request (user creation)
+    if request.method == 'POST':
+        # Check if it's a JSON request (API call)
+        if request.is_json:
+            data = request.get_json()
+            email = data.get('email')
+            password = data.get('password')
+            metadata = data.get('metadata', {})
+            
+            if not email or not password:
+                return jsonify({'error': 'Email and password are required'}), 400
+            
+            # Create user
+            user = create_user(email, password, metadata)
+            if not user:
+                return jsonify({'error': 'Failed to create user'}), 500
+            
+            return jsonify({
+                'success': True,
+                'user': {
+                    'id': user.get('id'),
+                    'email': user.get('email')
+                }
+            })
+        
+        # Handle form submission (for traditional form-based registration)
+        # This is just a fallback, as the main registration should happen on the frontend with Supabase
+        return render_template('register.html', error='Please use the Supabase registration form')
+    
+    # GET request - render register page
+    return render_template('register.html')
+
+@supabase_auth_bp.route('/callback', methods=['GET'])
+def auth_callback():
+    """
+    OAuth callback route - handles OAuth provider redirects
+    """
+    # Get the fragment from the URL (it contains the access token)
+    fragment = request.args.get('fragment', '')
+    
+    # If no fragment, render a page that can extract the token from URL fragment
+    return render_template('auth/callback.html', fragment=fragment)
+
+

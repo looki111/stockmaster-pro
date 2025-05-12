@@ -1,0 +1,110 @@
+from flask import Blueprint, render_template, session, request, flash, redirect, url_for
+from flask_login import login_required, current_user
+from database.models import Order, RawMaterial, Branch, Product
+from database.db_setup import db
+from datetime import datetime
+from sqlalchemy import func
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+# Blueprint setup
+dashboard_bp = Blueprint('dashboard', __name__)
+
+@dashboard_bp.route('/dashboard')
+@login_required
+def dashboard():
+    """
+    Dashboard route - shows main dashboard
+    """
+    try:
+        if not current_user.is_authenticated:
+            logging.warning("Unauthenticated user tried to access dashboard")
+            return redirect(url_for('auth.login'))
+
+        logging.info(f"Dashboard accessed by user {current_user.username}")
+        
+        # Get branch
+        branch = current_user.branch
+        if not branch:
+            logging.info(f"User {current_user.username} has no branch, attempting to assign one")
+            branch = Branch.query.first()
+            if branch:
+                current_user.branch_id = branch.id
+                db.session.commit()
+                logging.info(f"Assigned branch {branch.id} to user {current_user.username}")
+            else:
+                logging.error("No branch available")
+                flash('No branch available. Please contact administrator.', 'error')
+                return redirect(url_for('auth.logout'))
+
+        # Get dashboard data
+        try:
+            recent_orders = Order.query.filter_by(branch_id=branch.id).order_by(Order.created_at.desc()).limit(5).all()
+            logging.info(f"Retrieved {len(recent_orders)} recent orders")
+        except Exception as e:
+            logging.error(f"Error getting recent orders: {e}")
+            recent_orders = []
+
+        try:
+            low_stock_items = RawMaterial.query.filter(
+                RawMaterial.quantity <= RawMaterial.alert_threshold,
+                RawMaterial.branch_id == branch.id
+            ).order_by(RawMaterial.quantity.asc()).limit(5).all()
+            logging.info(f"Retrieved {len(low_stock_items)} low stock items")
+        except Exception as e:
+            logging.error(f"Error getting low stock items: {e}")
+            low_stock_items = []
+
+        # Calculate stats
+        stats = {
+            'total_products': 0,
+            'total_orders': 0,
+            'low_stock_items': 0,
+            'total_revenue': 0,
+            'today_sales': 0
+        }
+
+        try:
+            stats['total_products'] = Product.query.filter_by(branch_id=branch.id).count()
+            stats['total_orders'] = Order.query.filter_by(branch_id=branch.id).count()
+            stats['low_stock_items'] = len(low_stock_items)
+            stats['today_sales'] = Order.query.filter(
+                Order.branch_id == branch.id,
+                Order.created_at >= datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            ).with_entities(func.sum(Order.total)).scalar() or 0
+            
+            logging.info("Successfully calculated all dashboard stats")
+        except Exception as e:
+            logging.error(f"Error calculating stats: {e}")
+
+        # Render dashboard
+        return render_template(
+            'dashboard.html',
+            recent_orders=recent_orders,
+            low_stock_items=low_stock_items,
+            stats=stats
+        )
+
+    except Exception as e:
+        logging.error(f"Critical dashboard error: {e}")
+        flash('Error loading dashboard. Please try again.', 'error')
+        return redirect(url_for('auth.login'))
+
+@dashboard_bp.route('/sales')
+@login_required
+def sales():
+    """Sales page"""
+    if not current_user.is_authenticated:
+        return redirect(url_for('auth.login'))
+    return render_template('sales.html')
+
+@dashboard_bp.route('/settings')
+@login_required
+def settings():
+    """Settings page"""
+    if not current_user.is_authenticated:
+        return redirect(url_for('auth.login'))
+    return render_template('settings.html')
+

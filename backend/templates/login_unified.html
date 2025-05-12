@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html class="theme-light" lang="{{ lang|default('en') }}" dir="{{ 'rtl' if lang == 'ar' else 'ltr' }}">
+<head>
+  <meta name="theme-color" content="#ffffff">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StockMaster Pro | {{ 'تسجيل الدخول' if lang == 'ar' else 'Login' }}</title>
+
+  <!-- Supabase configuration -->
+  <meta name="supabase-url" content="{{ config.get('SUPABASE_URL', '') }}">
+  <meta name="supabase-key" content="{{ config.get('SUPABASE_KEY', '') }}">
+
+  <!-- Google Fonts - Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- RTL Support - Arabic Font -->
+  {% if lang == 'ar' %}
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  {% endif %}
+
+  <!-- Remix Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
+  <!-- StockMaster Pro CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-design-system-new.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-components-new.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-utilities-new.css') }}">
+
+  <style>
+    /* Auth-specific styles */
+    .auth-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-4);
+      background-color: var(--body-bg);
+      background-image: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);
+    }
+    
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius-2xl);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(to right, var(--primary-500), var(--primary-700));
+    }
+    
+    .auth-header {
+      padding: var(--spacing-8) var(--spacing-6) var(--spacing-4);
+      text-align: center;
+    }
+    
+    .auth-logo {
+      height: 48px;
+      margin-bottom: var(--spacing-4);
+    }
+    
+    .auth-title {
+      font-size: var(--font-size-2xl);
+      font-weight: var(--font-weight-bold);
+      color: var(--text-primary);
+      margin-bottom: var(--spacing-2);
+    }
+    
+    .auth-subtitle {
+      font-size: var(--font-size-base);
+      color: var(--text-secondary);
+    }
+    
+    .auth-body {
+      padding: var(--spacing-4) var(--spacing-6) var(--spacing-6);
+    }
+    
+    .auth-footer {
+      padding: var(--spacing-4) var(--spacing-6);
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+      background-color: rgba(var(--neutral-50-rgb), 0.5);
+    }
+    
+    .auth-form-group {
+      margin-bottom: var(--spacing-4);
+    }
+    
+    .auth-password-wrapper {
+      position: relative;
+    }
+    
+    .auth-password-toggle {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      right: var(--spacing-3);
+      background: none;
+      border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      padding: var(--spacing-1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color var(--transition-fast) var(--transition-timing);
+    }
+    
+    [dir="rtl"] .auth-password-toggle {
+      right: auto;
+      left: var(--spacing-3);
+    }
+    
+    .auth-password-toggle:hover {
+      color: var(--text-primary);
+    }
+    
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      margin: var(--spacing-6) 0;
+    }
+    
+    .auth-divider::before,
+    .auth-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background-color: var(--border-color);
+    }
+    
+    .auth-divider span {
+      padding: 0 var(--spacing-3);
+      font-size: var(--font-size-xs);
+      font-weight: var(--font-weight-medium);
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+    }
+    
+    .auth-social-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-3);
+    }
+    
+    .auth-social-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-3) var(--spacing-4);
+      border-radius: var(--border-radius-lg);
+      border: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+      color: var(--text-primary);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      cursor: pointer;
+      transition: all var(--transition-fast) var(--transition-timing);
+    }
+    
+    .auth-social-button:hover {
+      background-color: var(--hover-bg);
+      border-color: var(--primary-200);
+    }
+    
+    .auth-social-button svg {
+      margin-right: var(--spacing-3);
+      width: 20px;
+      height: 20px;
+    }
+    
+    [dir="rtl"] .auth-social-button svg {
+      margin-right: 0;
+      margin-left: var(--spacing-3);
+    }
+    
+    .auth-footer-text {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+    }
+    
+    .auth-footer-link {
+      color: var(--primary-600);
+      font-weight: var(--font-weight-medium);
+      text-decoration: none;
+      transition: color var(--transition-fast) var(--transition-timing);
+    }
+    
+    .auth-footer-link:hover {
+      color: var(--primary-700);
+      text-decoration: underline;
+    }
+    
+    /* Animation */
+    .auth-card {
+      animation: fadeInUp 0.5s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+
+  <!-- Load Supabase SDK first, without defer attribute to ensure it loads before other scripts -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  
+  <!-- Theme Manager Script -->
+  <script src="{{ url_for('static', filename='js/theme-manager-new.js') }}"></script>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="StockMaster Pro" class="auth-logo">
+        <h1 class="auth-title">{{ 'مرحباً بك مجدداً' if lang == 'ar' else 'Welcome Back' }}</h1>
+        <p class="auth-subtitle">{{ 'قم بتسجيل الدخول للوصول إلى لوحة التحكم' if lang == 'ar' else 'Sign in to access your dashboard' }}</p>
+      </div>
+
+      <div class="auth-body">
+        {% if error %}
+        <div class="alert alert-danger mb-4">
+          <div class="alert-icon">
+            <i class="ri-error-warning-line"></i>
+          </div>
+          <div class="alert-content">
+            <div class="alert-message">{{ error }}</div>
+          </div>
+          <button type="button" class="alert-close">
+            <i class="ri-close-line"></i>
+          </button>
+        </div>
+        {% endif %}
+
+        <div id="login-error" class="alert alert-danger mb-4" style="display: none;">
+          <div class="alert-icon">
+            <i class="ri-error-warning-line"></i>
+          </div>
+          <div class="alert-content">
+            <div class="alert-message" id="error-message"></div>
+          </div>
+          <button type="button" class="alert-close">
+            <i class="ri-close-line"></i>
+          </button>
+        </div>
+
+        <form id="login-form" class="auth-form">
+          <div class="auth-form-group">
+            <label for="email" class="form-label">{{ 'البريد الإلكتروني' if lang == 'ar' else 'Email' }}</label>
+            <input type="email" id="email" name="email" class="form-input"
+                   placeholder="{{ 'أدخل البريد الإلكتروني' if lang == 'ar' else 'Enter your email' }}" required>
+          </div>
+
+          <div class="auth-form-group">
+            <label for="password" class="form-label">{{ 'كلمة المرور' if lang == 'ar' else 'Password' }}</label>
+            <div class="auth-password-wrapper">
+              <input type="password" id="password" name="password" class="form-input"
+                     placeholder="••••••••" required>
+              <button type="button" class="auth-password-toggle" id="password-toggle">
+                <i class="ri-eye-line"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="form-checkbox">
+              <input type="checkbox" id="remember" name="remember">
+              <label for="remember">{{ 'تذكرني' if lang == 'ar' else 'Remember me' }}</label>
+            </div>
+
+            <a href="{{ url_for('supabase_auth.forgot_password') }}" class="auth-footer-link">
+              {{ 'هل نسيت كلمة المرور؟' if lang == 'ar' else 'Forgot password?' }}
+            </a>
+          </div>
+
+          <button type="submit" id="login-button" class="btn btn-primary w-100">
+            {{ 'تسجيل الدخول' if lang == 'ar' else 'Sign In' }}
+          </button>
+        </form>
+
+        <div class="auth-divider">
+          <span>{{ 'أو' if lang == 'ar' else 'OR' }}</span>
+        </div>
+
+        <div class="auth-social-buttons">
+          <button type="button" id="google-login-button" class="auth-social-button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#4285F4">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5.01 14.92c-1.42 2.52-4.14 4.08-7.01 4.08-4.41 0-8-3.59-8-8s3.59-8 8-8c1.9 0 3.68.67 5.1 1.86l-2.07 2.07c-.94-.79-2.15-1.27-3.44-1.27-3.03 0-5.5 2.47-5.5 5.5s2.47 5.5 5.5 5.5c2.08 0 3.97-1.18 4.9-2.97H12v-2.73h7.84c.12.58.16 1.17.16 1.76 0 1.45-.37 2.84-1.08 4.08z"/>
+            </svg>
+            <span>{{ 'تسجيل الدخول بـ جوجل' if lang == 'ar' else 'Sign in with Google' }}</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="auth-footer">
+        <p class="auth-footer-text">
+          {{ 'ليس لديك حساب؟' if lang == 'ar' else 'Don\'t have an account?' }}
+          <a href="{{ url_for('supabase_auth.register') }}" class="auth-footer-link">
+            {{ 'إنشاء حساب' if lang == 'ar' else 'Sign Up' }}
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase JavaScript in correct order -->
+  <script src="{{ url_for('static', filename='js/supabase-init.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/supabase-auth.js') }}"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Password toggle functionality
+      const passwordToggle = document.getElementById('password-toggle');
+      const passwordInput = document.getElementById('password');
+
+      if (passwordToggle && passwordInput) {
+        passwordToggle.addEventListener('click', function() {
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+
+          const icon = passwordToggle.querySelector('i');
+          if (type === 'password') {
+            icon.classList.remove('ri-eye-off-line');
+            icon.classList.add('ri-eye-line');
+          } else {
+            icon.classList.remove('ri-eye-line');
+            icon.classList.add('ri-eye-off-line');
+          }
+        });
+      }
+
+      // Login form handling
+      const loginForm = document.getElementById('login-form');
+      const errorDisplay = document.getElementById('login-error');
+      const errorMessage = document.getElementById('error-message');
+      const loginButton = document.getElementById('login-button');
+
+      if (loginForm) {
+        loginForm.addEventListener('submit', async function(e) {
+          e.preventDefault();
+
+          // Disable button and show loading state
+          loginButton.disabled = true;
+          loginButton.innerHTML = `<i class="ri-loader-4-line ri-spin me-2"></i> {{ 'جاري تسجيل الدخول...' if lang == 'ar' else 'Signing in...' }}`;
+
+          // Hide previous errors
+          errorDisplay.style.display = 'none';
+
+          const email = document.getElementById('email').value;
+          const password = document.getElementById('password').value;
+
+          try {
+            // Make sure SupabaseAuth is available
+            if (!window.SupabaseAuth) {
+              throw new Error('Authentication module not initialized. Please refresh the page.');
+            }
+
+            // Call Supabase Auth login function
+            const result = await window.SupabaseAuth.loginWithEmail(email, password);
+
+            if (result.success) {
+              // Add a success message before redirecting
+              errorDisplay.classList.remove('alert-danger');
+              errorDisplay.classList.add('alert-success');
+              errorMessage.textContent = 'Login successful! Redirecting...';
+              errorDisplay.style.display = 'flex';
+
+              // Redirect to dashboard after a brief delay
+              setTimeout(() => {
+                window.location.href = result.redirectUrl || '/dashboard';
+              }, 500);
+            } else {
+              // Reset button
+              loginButton.disabled = false;
+              loginButton.innerHTML = "{{ 'تسجيل الدخول' if lang == 'ar' else 'Sign In' }}";
+              
+              // Show error
+              errorMessage.textContent = result.error || 'Authentication failed. Please try again.';
+              errorDisplay.style.display = 'flex';
+            }
+          } catch (error) {
+            // Reset button
+            loginButton.disabled = false;
+            loginButton.innerHTML = "{{ 'تسجيل الدخول' if lang == 'ar' else 'Sign In' }}";
+            
+            // Show error
+            errorMessage.textContent = error.message || 'An unexpected error occurred. Please try again.';
+            errorDisplay.style.display = 'flex';
+          }
+        });
+      }
+
+      // Close alert buttons
+      const alertCloseButtons = document.querySelectorAll('.alert-close');
+      alertCloseButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          const alert = this.closest('.alert');
+          if (alert) {
+            alert.style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

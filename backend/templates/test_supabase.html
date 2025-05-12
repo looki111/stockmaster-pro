@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Test Page</title>
+    
+    <!-- Supabase configuration -->
+    <meta name="supabase-url" content="{{ config.get('SUPABASE_URL', '') }}">
+    <meta name="supabase-key" content="{{ config.get('SUPABASE_KEY', '') }}">
+    
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .card {
+            border: 1px solid #eaeaea;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            margin-top: 30px;
+            color: #444;
+        }
+        pre {
+            background-color: #f7f7f7;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        .success {
+            color: #22c55e;
+            font-weight: bold;
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        #client-status, #url-display, #key-display {
+            margin-bottom: 20px;
+        }
+        .debug-info {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f9ff;
+            border: 1px solid #cce5ff;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Supabase Client Test Page</h1>
+    
+    <div class="card">
+        <h2>Supabase Configuration</h2>
+        <div id="url-display">Checking Supabase URL...</div>
+        <div id="key-display">Checking Supabase Key...</div>
+        <div id="client-status">Checking Supabase client...</div>
+        
+        <div class="debug-info">
+            <h3>JWT Token Analysis</h3>
+            <div id="jwt-analysis">Click "Analyze Token" to see the JWT token structure</div>
+            <button id="analyze-token" style="margin-top: 10px;">Analyze Token</button>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>Test Actions</h2>
+        <button id="test-init">Test Client Initialization</button>
+        <button id="test-auth">Test Auth Session</button>
+        <pre id="test-results">Run a test to see results here...</pre>
+    </div>
+    
+    <!-- Load Supabase SDK -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Test script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlDisplay = document.getElementById('url-display');
+            const keyDisplay = document.getElementById('key-display');
+            const clientStatus = document.getElementById('client-status');
+            const testInitBtn = document.getElementById('test-init');
+            const testAuthBtn = document.getElementById('test-auth');
+            const testResults = document.getElementById('test-results');
+            
+            const analyzeTokenBtn = document.getElementById('analyze-token');
+            const jwtAnalysis = document.getElementById('jwt-analysis');
+            
+            // Check Supabase URL
+            const supabaseUrl = document.querySelector('meta[name="supabase-url"]')?.content;
+            if (supabaseUrl) {
+                urlDisplay.innerHTML = `<span class="success">✓</span> Supabase URL found: ${supabaseUrl}`;
+            } else {
+                urlDisplay.innerHTML = `<span class="error">✗</span> Supabase URL not found in meta tags!`;
+            }
+            
+            // Check Supabase Key (safely display partial key)
+            const supabaseKey = document.querySelector('meta[name="supabase-key"]')?.content;
+            if (supabaseKey) {
+                const safeKey = supabaseKey.length > 20 ? 
+                    `${supabaseKey.substring(0, 10)}...${supabaseKey.substring(supabaseKey.length - 10)}` : 
+                    '[Key too short to display safely]';
+                keyDisplay.innerHTML = `<span class="success">✓</span> Supabase Key found: ${safeKey}`;
+            } else {
+                keyDisplay.innerHTML = `<span class="error">✗</span> Supabase Key not found in meta tags!`;
+            }
+            
+            // Decode JWT helper function
+            function decodeJWT(token) {
+                if (!token) {
+                    return { header: null, payload: null, isValid: false };
+                }
+                
+                try {
+                    const parts = token.split('.');
+                    if (parts.length !== 3) {
+                        return { header: null, payload: null, isValid: false, error: "Token does not have three parts" };
+                    }
+                    
+                    // Decode the header and payload
+                    const header = JSON.parse(atob(parts[0].replace(/-/g, '+').replace(/_/g, '/')));
+                    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+                    
+                    return { 
+                        header: header, 
+                        payload: payload, 
+                        isValid: true,
+                        signature: parts[2].substring(0, 10) + '...'
+                    };
+                } catch (error) {
+                    return { 
+                        header: null, 
+                        payload: null, 
+                        isValid: false, 
+                        error: "Error decoding token: " + error.message 
+                    };
+                }
+            }
+            
+            // Add analyze token functionality
+            analyzeTokenBtn.addEventListener('click', function() {
+                const supabaseKey = document.querySelector('meta[name="supabase-key"]')?.content;
+                
+                if (!supabaseKey) {
+                    jwtAnalysis.innerHTML = '<span class="error">No token available to analyze</span>';
+                    return;
+                }
+                
+                const analysis = decodeJWT(supabaseKey);
+                
+                if (analysis.isValid) {
+                    let html = '<div style="margin-bottom: 10px;"><span class="success">✓</span> Valid JWT format</div>';
+                    
+                    html += '<strong>Header:</strong><pre>' + JSON.stringify(analysis.header, null, 2) + '</pre>';
+                    html += '<strong>Payload:</strong><pre>' + JSON.stringify(analysis.payload, null, 2) + '</pre>';
+                    html += '<strong>Signature:</strong> ' + analysis.signature;
+                    
+                    if (analysis.payload && analysis.payload.exp) {
+                        const expiryDate = new Date(analysis.payload.exp * 1000);
+                        const now = new Date();
+                        
+                        if (expiryDate > now) {
+                            html += '<div style="margin-top: 10px;"><span class="success">✓</span> Token is not expired. Expires: ' + expiryDate.toLocaleString() + '</div>';
+                        } else {
+                            html += '<div style="margin-top: 10px;"><span class="error">✗</span> Token is expired! Expired: ' + expiryDate.toLocaleString() + '</div>';
+                        }
+                    }
+                    
+                    jwtAnalysis.innerHTML = html;
+                } else {
+                    jwtAnalysis.innerHTML = '<span class="error">✗</span> ' + (analysis.error || 'Invalid JWT token format');
+                }
+            });
+            
+            // Test client initialization
+            testInitBtn.addEventListener('click', function() {
+                try {
+                    if (!supabaseUrl || !supabaseKey) {
+                        throw new Error('Supabase credentials not found in meta tags');
+                    }
+                    
+                    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                    clientStatus.innerHTML = `<span class="success">✓</span> Supabase client initialized successfully!`;
+                    
+                    testResults.innerText = JSON.stringify({
+                        success: true,
+                        message: 'Supabase client initialized successfully',
+                        timestamp: new Date().toISOString()
+                    }, null, 2);
+                } catch (error) {
+                    clientStatus.innerHTML = `<span class="error">✗</span> Supabase client initialization failed!`;
+                    
+                    // Add more detailed error information
+                    let errorDetails = error.message || 'Unknown error';
+                    
+                    // Check for common issues
+                    if (error.message && error.message.includes('Invalid URL')) {
+                        errorDetails += '<br>The Supabase URL appears to be invalid. It should be in the format: https://your-project-id.supabase.co';
+                    } else if (error.message && error.message.includes('Invalid key')) {
+                        errorDetails += '<br>The Supabase key appears to be invalid. It should be a valid JWT token.';
+                    } else if (!supabaseUrl) {
+                        errorDetails += '<br>Supabase URL is missing from meta tags.';
+                    } else if (!supabaseKey) {
+                        errorDetails += '<br>Supabase key is missing from meta tags.';
+                    }
+                    
+                    testResults.innerText = JSON.stringify({
+                        success: false,
+                        error: errorDetails,
+                        timestamp: new Date().toISOString()
+                    }, null, 2);
+                }
+            });
+            
+            // Test auth
+            testAuthBtn.addEventListener('click', async function() {
+                try {
+                    if (!supabaseUrl || !supabaseKey) {
+                        throw new Error('Supabase credentials not found in meta tags');
+                    }
+                    
+                    const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                    const { data, error } = await supabase.auth.getSession();
+                    
+                    if (error) {
+                        throw error;
+                    }
+                    
+                    testResults.innerText = JSON.stringify({
+                        success: true,
+                        session: data.session ? 'Active session found' : 'No active session',
+                        timestamp: new Date().toISOString()
+                    }, null, 2);
+                } catch (error) {
+                    testResults.innerText = JSON.stringify({
+                        success: false,
+                        error: error.message,
+                        timestamp: new Date().toISOString()
+                    }, null, 2);
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

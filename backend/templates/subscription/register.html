@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block title %}{% if lang == 'ar' %}تسجيل مقهى جديد | ستوك ماستر برو{% else %}Register New Coffee Shop | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}تسجيل مقهى جديد{% else %}Register New Coffee Shop{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-3xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div class="p-6 bg-blue-600 text-white">
+            <h2 class="text-2xl font-bold">{% if lang == 'ar' %}تسجيل مقهى جديد{% else %}Register Your Coffee Shop{% endif %}</h2>
+            <p class="mt-2 text-blue-100">
+                {% if lang == 'ar' %}
+                أنشئ حسابك وابدأ فترة تجريبية مجانية لمدة 7 أيام
+                {% else %}
+                Create your account and start your 7-day free trial
+                {% endif %}
+            </p>
+        </div>
+        
+        <form method="POST" class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Shop Information -->
+                <div class="space-y-6 md:col-span-2">
+                    <h3 class="text-lg font-semibold border-b border-gray-200 dark:border-gray-700 pb-2">
+                        {% if lang == 'ar' %}معلومات المقهى{% else %}Coffee Shop Information{% endif %}
+                    </h3>
+                    
+                    <div>
+                        <label for="shop_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            {% if lang == 'ar' %}اسم المقهى{% else %}Coffee Shop Name{% endif %} *
+                        </label>
+                        <input type="text" id="shop_name" name="shop_name" required
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700">
+                    </div>
+                    
+                    <div>
+                        <label for="owner_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            {% if lang == 'ar' %}اسم المالك{% else %}Owner Name{% endif %} *
+                        </label>
+                        <input type="text" id="owner_name" name="owner_name" required
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {% if lang == 'ar' %}البريد الإلكتروني{% else %}Email Address{% endif %} *
+                            </label>
+                            <input type="email" id="email" name="email" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700">
+                        </div>
+                        
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {% if lang == 'ar' %}رقم الهاتف{% else %}Phone Number{% endif %}
+                            </label>
+                            <input type="tel" id="phone" name="phone"
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="address" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            {% if lang == 'ar' %}العنوان{% else %}Address{% endif %}
+                        </label>
+                        <textarea id="address" name="address" rows="2"
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700"></textarea>
+                    </div>
+                </div>
+                
+                <!-- Account Information -->
+                <div class="space-y-6 md:col-span-2">
+                    <h3 class="text-lg font-semibold border-b border-gray-200 dark:border-gray-700 pb-2">
+                        {% if lang == 'ar' %}معلومات الحساب{% else %}Account Information{% endif %}
+                    </h3>
+                    
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            {% if lang == 'ar' %}اسم المستخدم{% else %}Username{% endif %} *
+                        </label>
+                        <input type="text" id="username" name="username" required
+                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {% if lang == 'ar' %}كلمة المرور{% else %}Password{% endif %} *
+                            </label>
+                            <input type="password" id="password" name="password" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700">
+                        </div>
+                        
+                        <div>
+                            <label for="confirm_password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                {% if lang == 'ar' %}تأكيد كلمة المرور{% else %}Confirm Password{% endif %} *
+                            </label>
+                            <input type="password" id="confirm_password" name="confirm_password" required
+                                class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Subscription Information -->
+                <div class="space-y-6 md:col-span-2">
+                    <h3 class="text-lg font-semibold border-b border-gray-200 dark:border-gray-700 pb-2">
+                        {% if lang == 'ar' %}معلومات الاشتراك{% else %}Subscription Information{% endif %}
+                    </h3>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                            {% if lang == 'ar' %}اختر خطة{% else %}Select Plan{% endif %} *
+                        </label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {% for plan in plans %}
+                            <div class="relative">
+                                <input type="radio" id="plan_{{ plan.id }}" name="plan_id" value="{{ plan.id }}" 
+                                    class="absolute opacity-0 w-full h-full cursor-pointer" 
+                                    {% if request.args.get('plan_id')|int == plan.id %}checked{% endif %}>
+                                <label for="plan_{{ plan.id }}" 
+                                    class="block p-4 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:border-blue-500 dark:hover:border-blue-500 transition-colors peer-checked:border-blue-500 dark:peer-checked:border-blue-500 peer-checked:ring-2 peer-checked:ring-blue-500">
+                                    <div class="font-medium">{{ plan.name }}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ plan.price_monthly }} {% if lang == 'ar' %}ريال / شهر{% else %}SAR / month{% endif %}</div>
+                                </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                            {% if lang == 'ar' %}دورة الفوترة{% else %}Billing Cycle{% endif %} *
+                        </label>
+                        <div class="flex space-x-4">
+                            <div class="flex items-center">
+                                <input type="radio" id="monthly" name="billing_cycle" value="monthly" checked
+                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600">
+                                <label for="monthly" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                                    {% if lang == 'ar' %}شهري{% else %}Monthly{% endif %}
+                                </label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="radio" id="yearly" name="billing_cycle" value="yearly"
+                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600">
+                                <label for="yearly" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                                    {% if lang == 'ar' %}سنوي (خصم 20%){% else %}Yearly (20% discount){% endif %}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-start">
+                        <div class="flex items-center h-5">
+                            <input id="terms" name="terms" type="checkbox" required
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="terms" class="text-gray-700 dark:text-gray-300">
+                                {% if lang == 'ar' %}
+                                أوافق على <a href="#" class="text-blue-600 hover:underline">شروط الخدمة</a> و <a href="#" class="text-blue-600 hover:underline">سياسة الخصوصية</a>
+                                {% else %}
+                                I agree to the <a href="#" class="text-blue-600 hover:underline">Terms of Service</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>
+                                {% endif %}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <button type="submit" class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition">
+                    {% if lang == 'ar' %}إنشاء الحساب وبدء الفترة التجريبية{% else %}Create Account & Start Free Trial{% endif %}
+                </button>
+                <p class="mt-4 text-sm text-gray-500 dark:text-gray-400 text-center">
+                    {% if lang == 'ar' %}
+                    لن يتم تحصيل أي رسوم خلال فترة التجريبية المجانية لمدة 7 أيام
+                    {% else %}
+                    You won't be charged during the 7-day free trial period
+                    {% endif %}
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

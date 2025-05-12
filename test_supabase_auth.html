@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Authentication Test</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        pre { background-color: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Supabase Authentication Test</h1>
+    
+    <div>
+        <h2>Configuration</h2>
+        <div>
+            <label>Supabase URL:</label>
+            <input type="text" id="supabaseUrl" size="50" placeholder="https://your-project-id.supabase.co" />
+        </div>
+        <div style="margin-top: 10px;">
+            <label>Supabase Anon Key:</label>
+            <input type="text" id="supabaseKey" size="50" placeholder="your-anon-key" />
+        </div>
+        <button id="initializeBtn">Initialize Supabase</button>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <h2>Test Authentication</h2>
+        <div>
+            <label>Email:</label>
+            <input type="email" id="email" placeholder="test@example.com" />
+        </div>
+        <div style="margin-top: 10px;">
+            <label>Password:</label>
+            <input type="password" id="password" placeholder="password" />
+        </div>
+        <button id="signUpBtn">Sign Up</button>
+        <button id="signInBtn">Sign In</button>
+        <button id="getTokenBtn">Get JWT Token</button>
+        <button id="checkTokenBtn">Verify Token</button>
+    </div>
+    
+    <div style="margin-top: 20px;">
+        <h2>Results</h2>
+        <pre id="results">Initialize Supabase client first...</pre>
+    </div>
+    
+    <script>
+        let supabase = null;
+        
+        // Initialize Supabase
+        document.getElementById('initializeBtn').addEventListener('click', () => {
+            const supabaseUrl = document.getElementById('supabaseUrl').value;
+            const supabaseKey = document.getElementById('supabaseKey').value;
+            
+            if (!supabaseUrl || !supabaseKey) {
+                showResults('Please enter Supabase URL and Key', 'error');
+                return;
+            }
+            
+            try {
+                supabase = supabase.createClient(supabaseUrl, supabaseKey);
+                showResults('Supabase client initialized successfully!', 'success');
+            } catch (error) {
+                showResults(`Error initializing Supabase: ${error.message}`, 'error');
+            }
+        });
+        
+        // Sign Up
+        document.getElementById('signUpBtn').addEventListener('click', async () => {
+            if (!supabase) {
+                showResults('Please initialize Supabase client first', 'error');
+                return;
+            }
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email,
+                    password
+                });
+                
+                if (error) throw error;
+                showResults(`Sign up successful: ${JSON.stringify(data, null, 2)}`, 'success');
+            } catch (error) {
+                showResults(`Sign up error: ${error.message}`, 'error');
+            }
+        });
+        
+        // Sign In
+        document.getElementById('signInBtn').addEventListener('click', async () => {
+            if (!supabase) {
+                showResults('Please initialize Supabase client first', 'error');
+                return;
+            }
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+                
+                if (error) throw error;
+                showResults(`Sign in successful: ${JSON.stringify(data, null, 2)}`, 'success');
+            } catch (error) {
+                showResults(`Sign in error: ${error.message}`, 'error');
+            }
+        });
+        
+        // Get JWT Token
+        document.getElementById('getTokenBtn').addEventListener('click', async () => {
+            if (!supabase) {
+                showResults('Please initialize Supabase client first', 'error');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase.auth.getSession();
+                
+                if (error) throw error;
+                if (!data.session) {
+                    showResults('No active session. Please sign in first.', 'error');
+                    return;
+                }
+                
+                const token = data.session.access_token;
+                showResults(`JWT Token: ${token}`, 'success');
+            } catch (error) {
+                showResults(`Get token error: ${error.message}`, 'error');
+            }
+        });
+        
+        // Check Token Validity
+        document.getElementById('checkTokenBtn').addEventListener('click', async () => {
+            if (!supabase) {
+                showResults('Please initialize Supabase client first', 'error');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase.auth.getUser();
+                
+                if (error) throw error;
+                showResults(`Token is valid. User data: ${JSON.stringify(data, null, 2)}`, 'success');
+            } catch (error) {
+                showResults(`Token verification error: ${error.message}`, 'error');
+            }
+        });
+        
+        // Helper to show results
+        function showResults(message, type) {
+            const resultsElem = document.getElementById('results');
+            resultsElem.textContent = message;
+            resultsElem.className = type;
+        }
+    </script>
+</body>
+</html>

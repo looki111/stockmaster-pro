@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html class="theme-light" lang="{{ lang }}" dir="{{ 'rtl' if lang == 'ar' else 'ltr' }}">
+<head>
+  <meta name="theme-color" content="#ffffff">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if lang == 'ar' %}تسجيل الدخول | ستوك ماستر برو{% else %}Login | StockMaster Pro{% endif %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- Bidirectional support -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bidirectional.css') }}">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Light Theme Colors */
+            --primary-color: #4A90E2;
+            --primary-light: #90CAF9;
+            --primary-dark: #1976D2;
+            --accent-color: #FFA726;
+            
+            --bg-color-light: #f8fafc;
+            --card-bg-light: #ffffff;
+            --text-color-light: #334155;
+            --input-bg-light: #f1f5f9;
+            --border-color-light: #e2e8f0;
+            
+            /* Dark Theme Colors */
+            --bg-color-dark: #0f172a;
+            --card-bg-dark: #1e293b;
+            --text-color-dark: #f1f5f9;
+            --input-bg-dark: #334155;
+            --border-color-dark: #475569;
+            
+            /* Common Variables */
+            --font-family: 'Cairo', 'Poppins', sans-serif;
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 1rem;
+            
+            /* Theme Variables */
+            --bg-color: var(--bg-color-light);
+            --card-bg: var(--card-bg-light);
+            --text-color: var(--text-color-light);
+            --input-bg: var(--input-bg-light);
+            --border-color: var(--border-color-light);
+        }
+        
+        /* Dark Theme */
+        .dark {
+            --bg-color: var(--bg-color-dark);
+            --card-bg: var(--card-bg-dark);
+            --text-color: var(--text-color-dark);
+            --input-bg: var(--input-bg-dark);
+            --border-color: var(--border-color-dark);
+        }
+        
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+        }
+        
+        .auth-card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .auth-input {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+        }
+        
+        .auth-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
+            outline: none;
+        }
+        
+        .auth-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
+        }
+        
+        .auth-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .auth-link {
+            color: var(--primary-color);
+            transition: all 0.2s ease;
+        }
+        
+        .auth-link:hover {
+            color: var(--primary-dark);
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        
+        [dir="rtl"] .toast-container {
+            right: auto;
+            left: 20px;
+        }
+        
+        .toast {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            margin-bottom: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        [dir="rtl"] .toast {
+            transform: translateX(-100%);
+        }
+        
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        
+        .toast-success {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .toast-error {
+            background-color: #ef4444;
+            color: white;
+        }
+        
+        .toast-info {
+            background-color: #3b82f6;
+            color: white;
+        }
+        
+        .toast-icon {
+            margin-right: 12px;
+        }
+        
+        [dir="rtl"] .toast-icon {
+            margin-right: 0;
+            margin-left: 12px;
+        }
+        
+        .toast-close {
+            margin-left: 12px;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        [dir="rtl"] .toast-close {
+            margin-left: 0;
+            margin-right: 12px;
+        }
+        
+        .toast-close:hover {
+            opacity: 1;
+        }
+        
+        /* Language Toggle */
+        .lang-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            transition: all 0.2s ease;
+        }
+        
+        .lang-toggle:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+        }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .theme-toggle:hover {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+        }
+    </style>
+</head>
+<body class="{% if theme == 'dark' %}dark{% else %}light{% endif %}">
+    <div class="min-h-screen flex flex-col justify-center items-center p-4 sm:p-6">
+        <!-- Top Bar with Theme Toggle -->
+        <div class="fixed top-4 right-4 flex items-center gap-3">
+            <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+                <i class="ri-moon-line dark:hidden"></i>
+                <i class="ri-sun-line hidden dark:block"></i>
+            </button>
+            <button id="langToggle" class="lang-toggle" onclick="toggleLanguage()">
+                <i class="ri-translate-2"></i>
+                <span>{% if lang == 'ar' %}English{% else %}العربية{% endif %}</span>
+            </button>
+        </div>
+        
+        <!-- Login Card -->
+        <div class="auth-card w-full max-w-md p-8 animate-fade-in">
+            <div class="flex flex-col items-center mb-8">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="StockMaster Pro" class="h-20 mb-4">
+                <h1 class="text-2xl font-bold text-center">
+                    {% if lang == 'ar' %}تسجيل الدخول{% else %}Sign In{% endif %}
+                </h1>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 text-center">
+                    {% if lang == 'ar' %}أدخل بيانات الدخول للوصول إلى لوحة التحكم{% else %}Enter your credentials to access your dashboard{% endif %}
+                </p>
+            </div>
+            
+            <form method="POST" class="space-y-6" id="loginForm" aria-label="Login form" autocomplete="off">
+                <!-- Username Field -->
+                <div class="space-y-2">
+                    <label for="username" class="block text-sm font-medium">
+                        {% if lang == 'ar' %}اسم المستخدم{% else %}Username{% endif %}
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 inset-inline-start-0 flex items-center ps-3 text-gray-400">
+                            <i class="ri-user-line"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username" 
+                            class="auth-input w-full py-3 ps-10 pe-4" 
+                            placeholder="{% if lang == 'ar' %}أدخل اسم المستخدم{% else %}Enter your username{% endif %}" 
+                            required
+                        >
+                    </div>
+                </div>
+                
+                <!-- Password Field -->
+                <div class="space-y-2">
+                    <label for="password" class="block text-sm font-medium">
+                        {% if lang == 'ar' %}كلمة المرور{% else %}Password{% endif %}
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 inset-inline-start-0 flex items-center ps-3 text-gray-400">
+                            <i class="ri-lock-line"></i>
+                        </span>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="auth-input w-full py-3 ps-10 pe-10" 
+                            placeholder="{% if lang == 'ar' %}أدخل كلمة المرور{% else %}Enter your password{% endif %}" 
+                            required
+                        >
+                        <button 
+                            type="button" 
+                            class="absolute inset-y-0 inset-inline-end-0 flex items-center pe-3 text-gray-400 hover:text-gray-600"
+                            onclick="togglePassword(this)"
+                        >
+                            <i class="ri-eye-off-line"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Remember Me -->
+                <div class="flex items-center justify-between">
+                    <label class="flex items-center">
+                        <input type="checkbox" name="remember" class="h-4 w-4 rounded border-gray-300 text-primary-color focus:ring-primary-color">
+                        <span class="ms-2 text-sm">{% if lang == 'ar' %}تذكرني{% else %}Remember me{% endif %}</span>
+                    </label>
+                    
+                    <a href="#" class="text-sm auth-link">
+                        {% if lang == 'ar' %}نسيت كلمة المرور؟{% else %}Forgot password?{% endif %}
+                    </a>
+                </div>
+                
+                <!-- Error Container -->
+                <div id="loginErrorContainer" class="text-red-500 text-sm"></div>
+                
+                <!-- Submit Button -->
+                <button 
+                    type="submit" 
+                    class="auth-btn w-full py-3 font-medium"
+                >
+                    {% if lang == 'ar' %}تسجيل الدخول{% else %}Sign In{% endif %}
+                </button>
+                
+                <!-- Register Link -->
+                <div class="text-center text-sm">
+                    {% if lang == 'ar' %}ليس لديك حساب؟{% else %}Don't have an account?{% endif %}
+                    <a href="{{ url_for('auth.register') }}" class="auth-link font-medium">
+                        {% if lang == 'ar' %}إنشاء حساب{% else %}Create an account{% endif %}
+                    </a>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Footer -->
+        <div class="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+            &copy; {% if lang == 'ar' %}ستوك ماستر برو {{ 2023 }}{% else %}{{ 2023 }} StockMaster Pro{% endif %}
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+    
+    <!-- Scripts -->
+    <script>
+  // Theme system is now handled by theme-manager.js
+  // No additional code needed here as it's automatically initialized
+</script>
+</body>
+</html>

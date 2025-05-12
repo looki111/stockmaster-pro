@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle with Gradient -->
+  <rect width="64" height="64" rx="12" fill="url(#paint0_linear)"/>
+
+  <!-- Coffee Cup -->
+  <path d="M42 22H22C21.4477 22 21 22.4477 21 23V38C21 44.0751 25.9249 49 32 49H32C38.0751 49 43 44.0751 43 38V23C43 22.4477 42.5523 22 42 22Z" fill="white" fill-opacity="0.9"/>
+
+  <!-- Cup Handle -->
+  <path d="M43 32C43 32 48 32 48 37C48 42 43 42 43 42" stroke="white" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- Coffee Steam -->
+  <path d="M27 17C27 17 25 19 27 22" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M32 15C32 15 30 18 32 22" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+  <path d="M37 17C37 17 35 19 37 22" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+
+  <!-- Barcode/Inventory Lines -->
+  <rect x="24" y="27" width="2" height="16" rx="1" fill="#6366F1"/>
+  <rect x="28" y="27" width="1" height="16" rx="0.5" fill="#6366F1"/>
+  <rect x="31" y="27" width="3" height="16" rx="1" fill="#6366F1"/>
+  <rect x="36" y="27" width="1.5" height="16" rx="0.75" fill="#6366F1"/>
+  <rect x="39" y="27" width="2" height="16" rx="1" fill="#6366F1"/>
+
+  <!-- Gradients -->
+  <defs>
+    <linearGradient id="paint0_linear" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F46E5"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+</svg>

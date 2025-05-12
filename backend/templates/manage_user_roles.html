@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">إدارة أدوار المستخدم: {{ user.username }}</h1>
+
+        <form method="POST" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
+            <div class="mb-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">الأدوار المتاحة</h3>
+                
+                <div class="space-y-4">
+                    {% for role in roles %}
+                    <div class="flex items-center">
+                        <input type="checkbox" name="roles" value="{{ role.id }}"
+                            id="role_{{ role.id }}"
+                            {% if role in user.roles %}checked{% endif %}
+                            class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="role_{{ role.id }}"
+                            class="mr-2 block text-sm text-gray-700 dark:text-gray-300">
+                            {{ role.name }}
+                            {% if role.is_system %}
+                            <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                نظامي
+                            </span>
+                            {% endif %}
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ role.description }}</p>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <a href="{{ url_for('dashboard.dashboard') }}"
+                    class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    إلغاء
+                </a>
+                <button type="submit"
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    حفظ التغييرات
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

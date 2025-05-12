@@ -1,0 +1,286 @@
+/* StockMaster Pro - Theme CSS Variables and Styling */
+
+/* Base CSS Variables */
+:root {
+    /* Primary Colors */
+    --primary-color: #4A90E2;
+    --primary-light: #90CAF9;
+    --primary-dark: #1976D2;
+    --accent-color: #FFA726;
+    --accent-light: #FFD95A;
+    --accent-dark: #F57C00;
+    
+    /* Neutral Colors */
+    --bg-light: #F5F7FA;
+    --bg-dark: #2C2C2C;
+    --card-light: #FFFFFF;
+    --card-dark: #363636;
+    --text-light: #333333;
+    --text-dark: #D4D4D4;
+    --border-light: rgba(0, 0, 0, 0.1);
+    --border-dark: rgba(255, 255, 255, 0.1);
+    
+    /* Status Colors */
+    --success: #4CAF50;
+    --success-light: #A5D6A7;
+    --warning: #FFC107;
+    --warning-light: #FFE082;
+    --error: #F44336;
+    --error-light: #EF9A9A;
+    --info: #2196F3;
+    --info-light: #90CAF9;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+    --gradient-accent: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-dark) 100%);
+    --gradient-success: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%);
+    --gradient-warning: linear-gradient(135deg, var(--warning) 0%, var(--warning-light) 100%);
+    --gradient-error: linear-gradient(135deg, var(--error) 0%, var(--error-light) 100%);
+    
+    /* Shadows */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.15);
+    
+    /* Borders */
+    --radius-sm: 0.25rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 1rem;
+    --radius-xl: 1.5rem;
+    --radius-full: 9999px;
+    
+    /* Transitions */
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    --transition-bounce: 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 3rem;
+    
+    /* Layout */
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 80px;
+    --topbar-height: 64px;
+    --content-max-width: 1200px;
+    
+    /* Z-index layers */
+    --z-dropdown: 1000;
+    --z-sticky: 1020;
+    --z-fixed: 1030;
+    --z-modal-backdrop: 1040;
+    --z-modal: 1050;
+    --z-popover: 1060;
+    --z-tooltip: 1070;
+}
+
+/* Light Theme Variables */
+body.light {
+    --bg-color: var(--bg-light);
+    --text-color: var(--text-light);
+    --card-bg: var(--card-light);
+    --border-color: var(--border-light);
+    
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --shadow-color-strong: rgba(0, 0, 0, 0.15);
+    
+    --sidebar-bg: #FFFFFF;
+    --sidebar-text: #333333;
+    --sidebar-active-bg: rgba(0, 0, 0, 0.05);
+    --sidebar-active-text: var(--primary-color);
+    --sidebar-hover-bg: rgba(0, 0, 0, 0.03);
+    --sidebar-icon-bg: rgba(74, 144, 226, 0.1);
+    
+    --topbar-bg: #FFFFFF;
+    --topbar-text: #333333;
+    --topbar-border: rgba(0, 0, 0, 0.05);
+    
+    --input-bg: #FFFFFF;
+    --input-text: #333333;
+    --input-border: rgba(0, 0, 0, 0.1);
+    --input-focus-border: var(--primary-color);
+    
+    --button-primary-bg: var(--primary-color);
+    --button-primary-text: #FFFFFF;
+    --button-secondary-bg: #F0F0F0;
+    --button-secondary-text: #333333;
+    
+    --toast-bg: #FFFFFF;
+    --toast-text: #333333;
+    --toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    
+    --table-header-bg: #F5F7FA;
+    --table-header-text: #333333;
+    --table-row-hover: rgba(0, 0, 0, 0.02);
+    --table-border: rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Theme Variables */
+body.dark {
+    --bg-color: var(--bg-dark);
+    --text-color: var(--text-dark);
+    --card-bg: var(--card-dark);
+    --border-color: var(--border-dark);
+    
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    --shadow-color-strong: rgba(0, 0, 0, 0.4);
+    
+    --sidebar-bg: #232946;
+    --sidebar-text: #D4D4D4;
+    --sidebar-active-bg: rgba(255, 255, 255, 0.05);
+    --sidebar-active-text: var(--accent-color);
+    --sidebar-hover-bg: rgba(255, 255, 255, 0.03);
+    --sidebar-icon-bg: rgba(255, 167, 38, 0.2);
+    
+    --topbar-bg: #232946;
+    --topbar-text: #D4D4D4;
+    --topbar-border: rgba(255, 255, 255, 0.05);
+    
+    --input-bg: #363636;
+    --input-text: #D4D4D4;
+    --input-border: rgba(255, 255, 255, 0.1);
+    --input-focus-border: var(--accent-color);
+    
+    --button-primary-bg: var(--accent-color);
+    --button-primary-text: #232946;
+    --button-secondary-bg: #363636;
+    --button-secondary-text: #D4D4D4;
+    
+    --toast-bg: #363636;
+    --toast-text: #D4D4D4;
+    --toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    
+    --table-header-bg: #232946;
+    --table-header-text: var(--accent-color);
+    --table-row-hover: rgba(255, 255, 255, 0.03);
+    --table-border: rgba(255, 255, 255, 0.05);
+}
+
+/* Base Styling */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Card Styling */
+.glass-card {
+    background-color: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 32px var(--shadow-color);
+    border: 1px solid var(--border-color);
+    transition: all var(--transition-normal);
+}
+
+.glass-card:hover {
+    box-shadow: 0 12px 48px var(--shadow-color-strong);
+}
+
+/* Sidebar Styling */
+.sidebar {
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    width: var(--sidebar-width);
+    transition: all var(--transition-normal);
+    box-shadow: 0 0 20px var(--shadow-color);
+}
+
+.sidebar-link {
+    color: var(--sidebar-text);
+    transition: all var(--transition-normal);
+}
+
+.sidebar-link:hover {
+    background-color: var(--sidebar-hover-bg);
+}
+
+.sidebar-link.active {
+    background-color: var(--sidebar-active-bg);
+    color: var(--sidebar-active-text);
+    border-right: 3px solid var(--accent-color);
+}
+
+/* Topbar Styling */
+.topbar {
+    background-color: var(--topbar-bg);
+    color: var(--topbar-text);
+    border-bottom: 1px solid var(--topbar-border);
+    height: var(--topbar-height);
+}
+
+/* Form Elements */
+input, select, textarea {
+    background-color: var(--input-bg);
+    color: var(--input-text);
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--input-focus-border);
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--button-primary-bg);
+    color: var(--button-primary-text);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.btn-secondary {
+    background-color: var(--button-secondary-bg);
+    color: var(--button-secondary-text);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+/* Tables */
+table th {
+    background-color: var(--table-header-bg);
+    color: var(--table-header-text);
+    border-bottom: 1px solid var(--table-border);
+}
+
+table td {
+    border-bottom: 1px solid var(--table-border);
+}
+
+table tr:hover {
+    background-color: var(--table-row-hover);
+}
+
+/* Animations */
+.animate-fade-in {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* RTL Support */
+body.rtl .sidebar {
+    right: 0;
+    left: auto;
+}
+
+body.rtl .main-content {
+    margin-right: var(--sidebar-width);
+    margin-left: 0;
+}
+
+@media (max-width: 768px) {
+    body.rtl .main-content {
+        margin-right: 0;
+    }
+}

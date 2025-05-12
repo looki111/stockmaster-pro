@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html class="theme-light" lang="ar" dir="rtl">
+<head>
+  <meta name="theme-color" content="#ffffff">
+    <meta charset="UTF-8">
+    <title>شركاء التوريد | كوفي ماستر</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body { background: #f6faf7; }
+        .main-layout { display: flex; min-height: 100vh; }
+        .modern-sidebar {
+            width: 90px;
+            background: #fff;
+            border-radius: 24px;
+            margin: 24px 0 24px 24px;
+            box-shadow: 0 4px 24px #4caf5012;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 0;
+            gap: 18px;
+        }
+        .modern-sidebar .logo { margin-bottom: 32px; }
+        .modern-sidebar a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #4caf50;
+            text-decoration: none;
+            font-size: 1.5em;
+            margin-bottom: 18px;
+            transition: color 0.2s, transform 0.2s;
+        }
+        .modern-sidebar a.active, .modern-sidebar a:hover {
+            color: #ffa726;
+            transform: scale(1.15);
+        }
+        .main-content {
+            flex: 1;
+            margin: 24px 24px 24px 0;
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 4px 24px #4caf5012;
+            padding: 32px 32px 32px 340px;
+            min-width: 0;
+            position: relative;
+        }
+        .topbar-modern {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+        }
+        .user-info-modern {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            color: #232946;
+            font-weight: bold;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 20px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #4caf50;
+        }
+        input:checked + .slider:before {
+            transform: translateX(14px);
+        }
+        .suppliers-table-modern {
+            width: 100%;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 2px 8px #4caf5012;
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+        .suppliers-table-modern th, .suppliers-table-modern td {
+            padding: 14px 10px;
+            text-align: center;
+        }
+        .suppliers-table-modern th {
+            background: #e8f5e9;
+            color: #4caf50;
+            font-weight: bold;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .suppliers-table-modern tr {
+            transition: background 0.2s;
+        }
+        .suppliers-table-modern tr:hover {
+            background: #f6faf7;
+        }
+        .suppliers-table-modern td {
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .avatar-supplier {
+            width: 38px; height: 38px; border-radius: 50%; object-fit: cover; margin-left: 8px; border: 2px solid #4caf50; box-shadow: 0 2px 8px #4caf5022;
+        }
+        .add-supplier-btn {
+            margin-bottom: 20px; background: linear-gradient(90deg, #4caf50 60%, #ffa726 100%); color: #fff; border: none; border-radius: 7px; padding: 10px 24px; font-size: 1.1em; cursor: pointer; transition: background 0.2s; }
+        .add-supplier-btn:hover { background: linear-gradient(90deg, #2979ff 60%, #ffa726 100%); }
+        @media (max-width: 1200px) {
+            .main-content { padding-left: 24px; }
+        }
+        @media (max-width: 900px) {
+            .main-layout { flex-direction: column; }
+            .modern-sidebar { flex-direction: row; width: 100%; margin: 0 0 24px 0; border-radius: 0 0 24px 24px; }
+            .main-content { margin: 0 12px; padding: 18px 12px 18px 12px; }
+        }
+    </style>
+</head>
+<body>
+<div class="main-layout">
+    <nav class="modern-sidebar">
+        <div class="logo"><img src="/static/logo.png" alt="Logo" width="48"></div>
+        <a href="{{ url_for('dashboard.dashboard') }}" title="الرئيسية"><i class="fas fa-gauge-high"></i></a>
+        <a href="{{ url_for('dashboard.dashboard') }}" title="مكتبة الأصناف"><i class="fas fa-cubes"></i></a>
+        <a href="{{ url_for('inventory.raw_materials') }}" title="مخزن المواد"><i class="fas fa-flask-vial"></i></a>
+        <a href="{{ url_for('suppliers') }}" class="active" title="شركاء التوريد"><i class="fas fa-handshake"></i></a>
+        <a href="{{ url_for('sales') }}" title="دفتر الطلبات"><i class="fas fa-receipt"></i></a>
+        <a href="{{ url_for('inventory.reports') }}" title="مركز التحليلات"><i class="fas fa-chart-line"></i></a>
+        <a href="{{ url_for('inventory.recipes') }}" title="الوصفات"><i class="fas fa-bowl-food"></i></a>
+        <a href="{{ url_for('settings') }}" title="الإعدادات"><i class="fas fa-sliders"></i></a>
+        <a href="{{ url_for('auth.logout') }}" title="تسجيل الخروج"><i class="fas fa-sign-out-alt"></i></a>
+    </nav>
+    <div class="main-content">
+        <div class="topbar-modern">
+            <div style="font-size:1.3em; color:#232946; font-weight:bold;">شركاء التوريد</div>
+            <div class="user-info-modern">
+                <span>{{ user.coffee_name if user else '' }}</span>
+                <span>{{ user.username if user else '' }}</span>
+                <a href="{{ url_for('switch_lang') }}" style="color:#4caf50; font-weight:bold;">{{ 'English' if lang == 'ar' else 'العربية' }}</a>
+                <label class="toggle-switch" style="margin-right:18px;">
+                    <input type="checkbox" id="darkModeToggleTopbar">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        <button class="add-supplier-btn">+ إضافة مورد شبابي</button>
+        <table class="suppliers-table-modern">
+            <thead>
+                <tr>
+                    <th>الصورة</th>
+                    <th>اسم المورد</th>
+                    <th>رقم الجوال</th>
+                    <th>البريد الإلكتروني</th>
+                    <th>المدينة</th>
+                    <th>إجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><img src="/static/img/supplier1.png" class="avatar-supplier" alt="شباب القهوة"></td>
+                    <td>شباب القهوة</td>
+                    <td>0551234567</td>
+                    <td>shabab@coffee.sa</td>
+                    <td>الرياض</td>
+                    <td><button style="background:#00b894; color:#fff; border:none; border-radius:6px; padding:6px 16px;">تعديل</button> <button style="background:#d32f2f; color:#fff; border:none; border-radius:6px; padding:6px 16px;">حذف</button></td>
+                </tr>
+                <tr>
+                    <td><img src="/static/img/supplier2.png" class="avatar-supplier" alt="توريد القصيم"></td>
+                    <td>توريد القصيم</td>
+                    <td>0539876543</td>
+                    <td>qassim@suppliers.sa</td>
+                    <td>بريدة</td>
+                    <td><button style="background:#00b894; color:#fff; border:none; border-radius:6px; padding:6px 16px;">تعديل</button> <button style="background:#d32f2f; color:#fff; border:none; border-radius:6px; padding:6px 16px;">حذف</button></td>
+                </tr>
+                <tr>
+                    <td><img src="/static/img/supplier3.png" class="avatar-supplier" alt="مورد نجد"></td>
+                    <td>مورد نجد</td>
+                    <td>0502223344</td>
+                    <td>najd@suppliers.sa</td>
+                    <td>حائل</td>
+                    <td><button style="background:#00b894; color:#fff; border:none; border-radius:6px; padding:6px 16px;">تعديل</button> <button style="background:#d32f2f; color:#fff; border:none; border-radius:6px; padding:6px 16px;">حذف</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+(function(){
+  const darkToggle = document.getElementById('darkModeToggleTopbar');
+  if(darkToggle) {
+    if(localStorage.getItem('darkMode') === 'true') {
+      document.body.classList.add('dark-mode');
+      darkToggle.checked = true;
+    }
+    darkToggle.addEventListener('change', function() {
+      if(this.checked) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('darkMode', 'true');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('darkMode', 'false');
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

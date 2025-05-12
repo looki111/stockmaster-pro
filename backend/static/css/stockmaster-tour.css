@@ -1,0 +1,233 @@
+/**
+ * StockMaster Pro - Guided Tour
+ * A guided tour component for onboarding new users
+ */
+
+/* === TOUR OVERLAY === */
+.tour-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9000;
+  pointer-events: none;
+}
+
+/* === TOUR SPOTLIGHT === */
+.tour-spotlight {
+  position: absolute;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 9001;
+  transition: all 0.3s ease-out;
+}
+
+/* === TOUR TOOLTIP === */
+.tour-tooltip {
+  position: absolute;
+  z-index: 9002;
+  width: 300px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem;
+  pointer-events: auto;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.theme-dark .tour-tooltip {
+  background-color: #1F2937;
+  color: white;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+.tour-tooltip::before {
+  content: '';
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background-color: white;
+  transform: rotate(45deg);
+}
+
+.theme-dark .tour-tooltip::before {
+  background-color: #1F2937;
+}
+
+.tour-tooltip.top::before {
+  bottom: -6px;
+  left: 50%;
+  margin-left: -6px;
+}
+
+.tour-tooltip.bottom::before {
+  top: -6px;
+  left: 50%;
+  margin-left: -6px;
+}
+
+.tour-tooltip.left::before {
+  right: -6px;
+  top: 50%;
+  margin-top: -6px;
+}
+
+.tour-tooltip.right::before {
+  left: -6px;
+  top: 50%;
+  margin-top: -6px;
+}
+
+.tour-tooltip-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.tour-tooltip-step {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--primary-500);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-right: 0.75rem;
+}
+
+.tour-tooltip-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.tour-tooltip-close {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.tour-tooltip-close:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.tour-tooltip-content {
+  margin-bottom: 1.5rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.tour-tooltip-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tour-tooltip-progress {
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+}
+
+.tour-tooltip-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tour-tooltip-button {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tour-tooltip-button-skip {
+  background-color: transparent;
+  border: none;
+  color: var(--text-tertiary);
+}
+
+.tour-tooltip-button-skip:hover {
+  color: var(--text-primary);
+}
+
+.tour-tooltip-button-prev {
+  background-color: var(--hover-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.tour-tooltip-button-prev:hover {
+  background-color: var(--active-bg);
+}
+
+.tour-tooltip-button-next {
+  background-color: var(--primary-500);
+  border: 1px solid var(--primary-600);
+  color: white;
+}
+
+.tour-tooltip-button-next:hover {
+  background-color: var(--primary-600);
+}
+
+.tour-tooltip-button-finish {
+  background-color: var(--success-500);
+  border: 1px solid var(--success-600);
+  color: white;
+}
+
+.tour-tooltip-button-finish:hover {
+  background-color: var(--success-600);
+}
+
+/* === TOUR PULSE === */
+.tour-pulse {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(99, 102, 241, 0.3);
+  opacity: 0;
+  transform: scale(0);
+  animation: pulse 2s infinite;
+  pointer-events: none;
+  z-index: 9003;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+/* === RESPONSIVE ADJUSTMENTS === */
+@media (max-width: 640px) {
+  .tour-tooltip {
+    width: calc(100% - 2rem);
+    max-width: 300px;
+  }
+}

@@ -1,0 +1,363 @@
+/**
+ * StockMaster Pro Notifications System
+ * Modern notification components with animations
+ */
+
+:root {
+  /* Notification Variables */
+  --notification-width: 350px;
+  --notification-border-radius: var(--radius-lg);
+  --notification-padding: var(--space-4);
+  --notification-margin: var(--space-3);
+  --notification-shadow: var(--shadow-lg);
+  --notification-z-index: var(--z-50);
+  
+  /* Toast Variables */
+  --toast-width: 350px;
+  --toast-border-radius: var(--radius-lg);
+  --toast-padding: var(--space-4);
+  --toast-margin: var(--space-3);
+  --toast-shadow: var(--shadow-lg);
+  --toast-z-index: var(--z-50);
+  
+  /* Animation Variables */
+  --notification-animation-duration: 0.3s;
+  --notification-animation-timing: var(--transition-ease);
+}
+
+/* ===== NOTIFICATION CONTAINER ===== */
+
+.notification-container {
+  position: fixed;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: var(--notification-width);
+  max-width: calc(100vw - var(--space-8));
+  z-index: var(--notification-z-index);
+  display: flex;
+  flex-direction: column;
+  gap: var(--notification-margin);
+  pointer-events: none;
+}
+
+[dir="rtl"] .notification-container {
+  right: auto;
+  left: var(--space-4);
+}
+
+/* ===== NOTIFICATION ITEM ===== */
+
+.notification {
+  position: relative;
+  width: 100%;
+  padding: var(--notification-padding);
+  border-radius: var(--notification-border-radius);
+  box-shadow: var(--notification-shadow);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  overflow: hidden;
+  pointer-events: auto;
+  animation: notification-slide-in var(--notification-animation-duration) var(--notification-animation-timing) forwards;
+}
+
+.notification.closing {
+  animation: notification-slide-out var(--notification-animation-duration) var(--notification-animation-timing) forwards;
+}
+
+/* Notification Types */
+.notification-info {
+  background-color: var(--info-50);
+  border-left: 4px solid var(--info-500);
+  color: var(--info-700);
+}
+
+.notification-success {
+  background-color: var(--success-50);
+  border-left: 4px solid var(--success-500);
+  color: var(--success-700);
+}
+
+.notification-warning {
+  background-color: var(--warning-50);
+  border-left: 4px solid var(--warning-500);
+  color: var(--warning-700);
+}
+
+.notification-error {
+  background-color: var(--error-50);
+  border-left: 4px solid var(--error-500);
+  color: var(--error-700);
+}
+
+/* RTL Support */
+[dir="rtl"] .notification-info,
+[dir="rtl"] .notification-success,
+[dir="rtl"] .notification-warning,
+[dir="rtl"] .notification-error {
+  border-left: none;
+  border-right: 4px solid currentColor;
+}
+
+/* Notification Icon */
+.notification-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Notification Content */
+.notification-content {
+  flex-grow: 1;
+}
+
+.notification-title {
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-1);
+}
+
+.notification-message {
+  font-size: var(--text-sm);
+  opacity: 0.9;
+}
+
+/* Notification Close Button */
+.notification-close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+}
+
+.notification-close:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+[dir="rtl"] .notification-close {
+  right: auto;
+  left: var(--space-2);
+}
+
+/* Notification Progress Bar */
+.notification-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background-color: currentColor;
+  opacity: 0.3;
+  width: 100%;
+  transform-origin: left;
+}
+
+[dir="rtl"] .notification-progress {
+  transform-origin: right;
+}
+
+/* ===== TOAST CONTAINER ===== */
+
+.toast-container {
+  position: fixed;
+  bottom: var(--space-4);
+  right: var(--space-4);
+  width: var(--toast-width);
+  max-width: calc(100vw - var(--space-8));
+  z-index: var(--toast-z-index);
+  display: flex;
+  flex-direction: column;
+  gap: var(--toast-margin);
+  pointer-events: none;
+}
+
+[dir="rtl"] .toast-container {
+  right: auto;
+  left: var(--space-4);
+}
+
+/* ===== TOAST ITEM ===== */
+
+.toast {
+  position: relative;
+  width: 100%;
+  padding: var(--toast-padding);
+  border-radius: var(--toast-border-radius);
+  box-shadow: var(--toast-shadow);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  overflow: hidden;
+  pointer-events: auto;
+  animation: toast-slide-in var(--notification-animation-duration) var(--notification-animation-timing) forwards;
+}
+
+.toast.closing {
+  animation: toast-slide-out var(--notification-animation-duration) var(--notification-animation-timing) forwards;
+}
+
+/* Toast Types */
+.toast-info {
+  background-color: var(--info-500);
+  color: white;
+}
+
+.toast-success {
+  background-color: var(--success-500);
+  color: white;
+}
+
+.toast-warning {
+  background-color: var(--warning-500);
+  color: white;
+}
+
+.toast-error {
+  background-color: var(--error-500);
+  color: white;
+}
+
+/* Toast Icon */
+.toast-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Toast Content */
+.toast-content {
+  flex-grow: 1;
+}
+
+/* Toast Progress Bar */
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background-color: rgba(255, 255, 255, 0.3);
+  width: 100%;
+  transform-origin: left;
+}
+
+[dir="rtl"] .toast-progress {
+  transform-origin: right;
+}
+
+/* ===== ANIMATIONS ===== */
+
+@keyframes notification-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes notification-slide-out {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-slide-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes progress-shrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+/* RTL Animation Adjustments */
+[dir="rtl"] .notification {
+  animation-name: notification-slide-in-rtl;
+}
+
+[dir="rtl"] .notification.closing {
+  animation-name: notification-slide-out-rtl;
+}
+
+@keyframes notification-slide-in-rtl {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes notification-slide-out-rtl {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+/* ===== RESPONSIVE ADJUSTMENTS ===== */
+
+@media (max-width: 480px) {
+  :root {
+    --notification-width: 100%;
+    --toast-width: 100%;
+  }
+  
+  .notification-container,
+  .toast-container {
+    right: 0;
+    left: 0;
+    max-width: 100%;
+    padding: 0 var(--space-2);
+  }
+}

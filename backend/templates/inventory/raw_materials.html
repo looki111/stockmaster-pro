@@ -1,0 +1,377 @@
+{% extends base_template|default("base.html") %}
+{% block title %}{% if lang == 'ar' %}المواد الخام | ستوك ماستر برو{% else %}Raw Materials | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}المواد الخام{% else %}Raw Materials{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fadeIn">
+        <!-- Total Items -->
+        <div class="stat-card stat-card-glass stat-card-primary">
+            <div class="stat-card-icon">
+                <i class="ri-stack-line"></i>
+            </div>
+            <div class="stat-card-title">{% if lang == 'ar' %}إجمالي المواد{% else %}Total Items{% endif %}</div>
+            <div class="stat-card-value">{{ raw_materials|length }}</div>
+            <div class="stat-card-change stat-card-change-neutral">
+                <span>{% if lang == 'ar' %}مادة خام{% else %}raw materials{% endif %}</span>
+            </div>
+            <div class="stat-card-decoration">
+                <i class="ri-stack-line"></i>
+            </div>
+        </div>
+
+        <!-- Low Stock Items -->
+        <div class="stat-card stat-card-glass stat-card-warning">
+            <div class="stat-card-icon">
+                <i class="ri-alert-line"></i>
+            </div>
+            <div class="stat-card-title">{% if lang == 'ar' %}مخزون منخفض{% else %}Low Stock{% endif %}</div>
+            <div class="stat-card-value">{{ raw_materials|selectattr('is_low_stock')|list|length }}</div>
+            <div class="stat-card-change stat-card-change-negative">
+                <i class="ri-error-warning-line"></i>
+                <span>{% if lang == 'ar' %}يحتاج إلى اهتمام{% else %}Needs attention{% endif %}</span>
+            </div>
+            <div class="stat-card-decoration">
+                <i class="ri-alert-line"></i>
+            </div>
+        </div>
+
+        <!-- Total Value -->
+        <div class="stat-card stat-card-glass stat-card-success">
+            <div class="stat-card-icon">
+                <i class="ri-money-dollar-circle-line"></i>
+            </div>
+            <div class="stat-card-title">{% if lang == 'ar' %}إجمالي القيمة{% else %}Total Value{% endif %}</div>
+            <div class="stat-card-value">{{ raw_materials|sum(attribute='stock_value')|round(2) }} SAR</div>
+            <div class="stat-card-change stat-card-change-positive">
+                <i class="ri-line-chart-line"></i>
+                <span>{% if lang == 'ar' %}قيمة المخزون{% else %}Inventory value{% endif %}</span>
+            </div>
+            <div class="stat-card-decoration">
+                <i class="ri-money-dollar-circle-line"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-glass mb-6 animate-fadeIn" style="animation-delay: 0.2s;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">{% if lang == 'ar' %}تصفية المواد الخام{% else %}Filter Raw Materials{% endif %}</h3>
+            <div class="card-actions">
+                <button type="button" class="btn btn-sm btn-glass" id="toggle-filters">
+                    <i class="ri-filter-3-line me-1"></i>
+                    {% if lang == 'ar' %}عرض/إخفاء المرشحات{% else %}Toggle Filters{% endif %}
+                </button>
+            </div>
+        </div>
+        <div class="card-body" id="filters-container">
+            <!-- Filters -->
+            <form action="{{ url_for('inventory.raw_materials') }}" method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Search -->
+                <div class="form-group">
+                    <label for="search" class="form-label">{% if lang == 'ar' %}بحث{% else %}Search{% endif %}</label>
+                    <div class="relative">
+                        <input type="text" id="search" name="search" value="{{ search_term }}" placeholder="{% if lang == 'ar' %}بحث...{% else %}Search...{% endif %}" class="form-input pl-10">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="ri-search-line text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category Filter -->
+                <div class="form-group">
+                    <label for="category" class="form-label">{% if lang == 'ar' %}الفئة{% else %}Category{% endif %}</label>
+                    <select id="category" name="category" class="form-select">
+                        <option value="">{% if lang == 'ar' %}جميع الفئات{% else %}All Categories{% endif %}</option>
+                        {% for category in categories %}
+                        <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="form-group">
+                    <label for="status" class="form-label">{% if lang == 'ar' %}الحالة{% else %}Status{% endif %}</label>
+                    <select id="status" name="status" class="form-select">
+                        <option value="">{% if lang == 'ar' %}جميع الحالات{% else %}All Statuses{% endif %}</option>
+                        <option value="in_stock" {% if selected_status == 'in_stock' %}selected{% endif %}>{% if lang == 'ar' %}متوفر{% else %}In Stock{% endif %}</option>
+                        <option value="low_stock" {% if selected_status == 'low_stock' %}selected{% endif %}>{% if lang == 'ar' %}مخزون منخفض{% else %}Low Stock{% endif %}</option>
+                        <option value="out_of_stock" {% if selected_status == 'out_of_stock' %}selected{% endif %}>{% if lang == 'ar' %}نفذ من المخزون{% else %}Out of Stock{% endif %}</option>
+                    </select>
+                </div>
+
+                <!-- Low Stock Checkbox -->
+                <div class="form-group">
+                    <label class="form-label opacity-0">{% if lang == 'ar' %}خيارات{% else %}Options{% endif %}</label>
+                    <div class="flex items-center mt-2">
+                        <input type="checkbox" id="low_stock" name="low_stock" value="1" {% if low_stock %}checked{% endif %} class="form-checkbox">
+                        <label for="low_stock" class="ml-2">{% if lang == 'ar' %}المخزون المنخفض فقط{% else %}Low Stock Only{% endif %}</label>
+                    </div>
+                </div>
+
+                <div class="col-span-full flex flex-wrap gap-3 mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-filter-line me-1"></i>
+                        {% if lang == 'ar' %}تطبيق المرشحات{% else %}Apply Filters{% endif %}
+                    </button>
+
+                    <a href="{{ url_for('inventory.raw_materials') }}" class="btn btn-secondary">
+                        <i class="ri-refresh-line me-1"></i>
+                        {% if lang == 'ar' %}إعادة تعيين{% else %}Reset{% endif %}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-between items-center mb-6 animate-fadeIn" style="animation-delay: 0.3s;">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+            {% if lang == 'ar' %}قائمة المواد الخام{% else %}Raw Materials List{% endif %}
+            <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">({{ raw_materials|length }} {% if lang == 'ar' %}مادة{% else %}items{% endif %})</span>
+        </h2>
+
+        <div class="flex items-center gap-3">
+            <a href="/inventory/raw-materials/add" class="btn btn-primary">
+                <i class="ri-add-line me-1"></i>
+                {% if lang == 'ar' %}إضافة مادة خام{% else %}Add Raw Material{% endif %}
+            </a>
+
+            <div class="dropdown">
+                <button class="btn btn-glass dropdown-toggle">
+                    <i class="ri-more-2-fill me-1"></i>
+                    {% if lang == 'ar' %}المزيد{% else %}More{% endif %}
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a href="#" class="dropdown-item">
+                        <i class="ri-file-excel-line me-2"></i>
+                        {% if lang == 'ar' %}تصدير إلى Excel{% else %}Export to Excel{% endif %}
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="ri-printer-line me-2"></i>
+                        {% if lang == 'ar' %}طباعة{% else %}Print{% endif %}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item">
+                        <i class="ri-settings-line me-2"></i>
+                        {% if lang == 'ar' %}إعدادات المخزون{% else %}Inventory Settings{% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Raw Materials Table -->
+    <div class="card card-glass animate-fadeIn" style="animation-delay: 0.4s;">
+        <div class="card-body p-0">
+            <div class="overflow-x-auto">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}الاسم{% else %}Name{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}الفئة{% else %}Category{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}الكمية{% else %}Quantity{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}حد التنبيه{% else %}Alert Threshold{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}الحالة{% else %}Status{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}القيمة{% else %}Value{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}الإجراءات{% else %}Actions{% endif %}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for material in raw_materials %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="font-medium text-gray-900 dark:text-white">{{ material.name }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                        {{ material.category or 'N/A' }}
+                                    </span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 dark:text-white font-medium">{{ material.quantity }} {{ material.unit }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ material.alert_threshold }} {{ material.unit }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    {% if material.is_low_stock %}
+                                        bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200
+                                    {% elif material.status == 'out_of_stock' %}
+                                        bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200
+                                    {% elif material.is_expiring_soon %}
+                                        bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200
+                                    {% else %}
+                                        bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                                    {% endif %}">
+                                    <i class="
+                                        {% if material.is_low_stock %}
+                                            ri-error-warning-line
+                                        {% elif material.status == 'out_of_stock' %}
+                                            ri-close-circle-line
+                                        {% elif material.is_expiring_soon %}
+                                            ri-time-line
+                                        {% else %}
+                                            ri-check-line
+                                        {% endif %} mr-1"></i>
+                                    {% if material.is_low_stock %}
+                                        {% if lang == 'ar' %}مخزون منخفض{% else %}Low Stock{% endif %}
+                                    {% elif material.status == 'out_of_stock' %}
+                                        {% if lang == 'ar' %}نفذ من المخزون{% else %}Out of Stock{% endif %}
+                                    {% elif material.is_expiring_soon %}
+                                        {% if lang == 'ar' %}ينتهي قريبًا{% else %}Expiring Soon{% endif %}
+                                    {% else %}
+                                        {% if lang == 'ar' %}متوفر{% else %}In Stock{% endif %}
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium
+                                    {% if material.stock_value > 1000 %}
+                                        text-green-600 dark:text-green-400
+                                    {% elif material.stock_value > 500 %}
+                                        text-blue-600 dark:text-blue-400
+                                    {% else %}
+                                        text-gray-900 dark:text-white
+                                    {% endif %}">
+                                    {{ material.stock_value|round(2) }} SAR
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="{{ url_for('inventory.adjust_raw_material', material_id=material.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="ri-scales-3-line me-1"></i>
+                                        {% if lang == 'ar' %}تعديل الكمية{% else %}Adjust{% endif %}
+                                    </a>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-icon btn-glass" data-tooltip="{% if lang == 'ar' %}المزيد من الخيارات{% else %}More Options{% endif %}">
+                                            <i class="ri-more-2-fill"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a href="{{ url_for('inventory.edit_raw_material', material_id=material.id) }}" class="dropdown-item">
+                                                <i class="ri-edit-line me-2"></i>
+                                                {% if lang == 'ar' %}تعديل{% else %}Edit{% endif %}
+                                            </a>
+                                            <a href="#" class="dropdown-item">
+                                                <i class="ri-history-line me-2"></i>
+                                                {% if lang == 'ar' %}سجل التعديلات{% else %}History{% endif %}
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <a href="#" class="dropdown-item text-danger">
+                                                <i class="ri-delete-bin-line me-2"></i>
+                                                {% if lang == 'ar' %}حذف{% else %}Delete{% endif %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center">
+                                <img src="{{ url_for('static', filename='img/no-inventory.svg') }}" alt="No inventory" class="mx-auto mb-4" style="width: 120px; height: 120px; opacity: 0.7;">
+                                <p class="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">
+                                    {% if lang == 'ar' %}لا توجد مواد خام{% else %}No raw materials found{% endif %}
+                                </p>
+                                <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">
+                                    {% if lang == 'ar' %}لم يتم العثور على أي مواد خام تطابق معايير البحث الخاصة بك{% else %}No raw materials matching your search criteria were found{% endif %}
+                                </p>
+                                <a href="/inventory/raw-materials/add" class="btn btn-primary">
+                                    <i class="ri-add-line me-1"></i>
+                                    {% if lang == 'ar' %}إضافة مادة خام{% else %}Add Raw Material{% endif %}
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+                {% if lang == 'ar' %}عرض {{ raw_materials|length }} من {{ raw_materials|length }} مادة{% else %}Showing {{ raw_materials|length }} of {{ raw_materials|length }} items{% endif %}
+            </div>
+            <div class="pagination">
+                <button class="btn btn-sm btn-glass" disabled>
+                    <i class="ri-arrow-left-s-line me-1"></i>
+                    {% if lang == 'ar' %}السابق{% else %}Previous{% endif %}
+                </button>
+                <span class="px-3 py-1">1</span>
+                <button class="btn btn-sm btn-glass" disabled>
+                    {% if lang == 'ar' %}التالي{% else %}Next{% endif %}
+                    <i class="ri-arrow-right-s-line ms-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Filters Toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleFiltersBtn = document.getElementById('toggle-filters');
+            const filtersContainer = document.getElementById('filters-container');
+
+            if (toggleFiltersBtn && filtersContainer) {
+                toggleFiltersBtn.addEventListener('click', function() {
+                    filtersContainer.classList.toggle('hidden');
+
+                    // Change icon based on state
+                    const icon = toggleFiltersBtn.querySelector('i');
+                    if (filtersContainer.classList.contains('hidden')) {
+                        icon.classList.remove('ri-filter-3-line');
+                        icon.classList.add('ri-filter-off-line');
+                    } else {
+                        icon.classList.remove('ri-filter-off-line');
+                        icon.classList.add('ri-filter-3-line');
+                    }
+                });
+            }
+
+            // Initialize dropdowns
+            const dropdownToggles = document.querySelectorAll('.dropdown-toggle, .btn-icon[data-tooltip]');
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    const dropdown = this.nextElementSibling;
+
+                    // Close all other dropdowns
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        if (menu !== dropdown) {
+                            menu.classList.remove('show');
+                        }
+                    });
+
+                    // Toggle current dropdown
+                    dropdown.classList.toggle('show');
+                });
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                }
+            });
+        });
+    </script>
+</div>
+{% endblock %}

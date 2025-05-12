@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Suppliers | StockMaster Pro{% endblock %}
+{% block page_title %}{{ 'الموردين' if lang == 'ar' else 'Suppliers' }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h2>{{ 'الموردين' if lang == 'ar' else 'Suppliers' }}</h2>
+            <a href="{{ url_for('suppliers.add_supplier') }}" class="btn btn-primary">
+                <i class="ri-add-line"></i> {{ 'إضافة مورد' if lang == 'ar' else 'Add Supplier' }}
+            </a>
+        </div>
+        <div class="card-body">
+            {% if suppliers %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>{{ 'الاسم' if lang == 'ar' else 'Name' }}</th>
+                            <th>{{ 'جهة الاتصال' if lang == 'ar' else 'Contact' }}</th>
+                            <th>{{ 'البريد الإلكتروني' if lang == 'ar' else 'Email' }}</th>
+                            <th>{{ 'الهاتف' if lang == 'ar' else 'Phone' }}</th>
+                            <th>{{ 'الإجراءات' if lang == 'ar' else 'Actions' }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for supplier in suppliers %}
+                        <tr>
+                            <td>{{ supplier.name }}</td>
+                            <td>{{ supplier.contact_name }}</td>
+                            <td>{{ supplier.email }}</td>
+                            <td>{{ supplier.phone }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('suppliers.edit_supplier', supplier_id=supplier.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="ri-edit-line"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ supplier.id }}">
+                                        <i class="ri-delete-bin-line"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Delete Modal -->
+                                <div class="modal fade" id="deleteModal{{ supplier.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ supplier.id }}" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteModalLabel{{ supplier.id }}">{{ 'تأكيد الحذف' if lang == 'ar' else 'Confirm Delete' }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                {{ 'هل أنت متأكد من حذف المورد' if lang == 'ar' else 'Are you sure you want to delete supplier' }} "{{ supplier.name }}"?
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'إلغاء' if lang == 'ar' else 'Cancel' }}</button>
+                                                <form action="{{ url_for('suppliers.delete_supplier', supplier_id=supplier.id) }}" method="post">
+                                                    <button type="submit" class="btn btn-danger">{{ 'حذف' if lang == 'ar' else 'Delete' }}</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">
+                {{ 'لا يوجد موردين. أضف موردين لبدء إدارة سلسلة التوريد الخاصة بك.' if lang == 'ar' else 'No suppliers found. Add suppliers to start managing your supply chain.' }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Any supplier-specific JavaScript can go here
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,287 @@
+/* 
+ * StockMaster Pro - RTL Support for Arabic Language
+ * This file provides Right-to-Left (RTL) support for the application
+ */
+
+/* Base RTL adjustments */
+[dir="rtl"] {
+    text-align: right;
+}
+
+/* Form elements */
+[dir="rtl"] .form-label {
+    text-align: right;
+}
+
+[dir="rtl"] .form-input {
+    text-align: right;
+}
+
+/* Password input wrapper */
+[dir="rtl"] .password-input-wrapper {
+    direction: ltr; /* Keep the input LTR for proper password display */
+}
+
+[dir="rtl"] .password-input-wrapper input {
+    text-align: right;
+    direction: rtl;
+}
+
+[dir="rtl"] .password-toggle {
+    right: auto;
+    left: 10px;
+}
+
+/* Checkbox alignment */
+[dir="rtl"] .form-checkbox {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+[dir="rtl"] .form-checkbox input[type="checkbox"] {
+    margin-right: 0;
+    margin-left: var(--spacing-2);
+}
+
+/* Alert messages */
+[dir="rtl"] .alert {
+    padding-right: var(--spacing-10);
+    padding-left: var(--spacing-4);
+}
+
+[dir="rtl"] .alert i {
+    right: var(--spacing-4);
+    left: auto;
+}
+
+/* Language switcher */
+[dir="rtl"] .language-switcher {
+    left: var(--spacing-4);
+    right: auto;
+}
+
+[dir="rtl"] .lang-switch-btn i {
+    margin-right: 0;
+    margin-left: var(--spacing-2);
+}
+
+/* Adjust icon placement in buttons and inputs */
+[dir="rtl"] .btn i {
+    margin-right: 0;
+    margin-left: var(--spacing-2);
+}
+
+[dir="rtl"] .form-input-icon i {
+    right: auto;
+    left: var(--spacing-3);
+}
+
+/* Adjust dropdown menus */
+[dir="rtl"] .dropdown-menu {
+    text-align: right;
+    left: auto;
+    right: 0;
+}
+
+/* Adjust modal dialogs */
+[dir="rtl"] .modal-header .close {
+    margin: -1rem auto -1rem -1rem;
+}
+
+/* Adjust navigation */
+[dir="rtl"] .nav-item {
+    margin-right: 0;
+    margin-left: var(--spacing-4);
+}
+
+[dir="rtl"] .nav-link i {
+    margin-right: 0;
+    margin-left: var(--spacing-2);
+}
+
+/* Adjust tables */
+[dir="rtl"] th, 
+[dir="rtl"] td {
+    text-align: right;
+}
+
+/* Adjust pagination */
+[dir="rtl"] .pagination {
+    flex-direction: row-reverse;
+}
+
+/* Adjust breadcrumbs */
+[dir="rtl"] .breadcrumb-item + .breadcrumb-item::before {
+    margin-right: 0;
+    margin-left: var(--spacing-2);
+}
+
+[dir="rtl"] .breadcrumb-item + .breadcrumb-item {
+    padding-right: var(--spacing-2);
+    padding-left: 0;
+}
+
+/* Adjust card elements */
+[dir="rtl"] .card-header-actions {
+    right: auto;
+    left: var(--spacing-4);
+}
+
+/* Adjust form validation icons */
+[dir="rtl"] .form-control.is-valid,
+[dir="rtl"] .form-control.is-invalid {
+    padding-right: var(--spacing-3);
+    padding-left: calc(1.5em + 0.75rem);
+    background-position: left calc(0.375em + 0.1875rem) center;
+}
+
+/* Adjust tooltips */
+[dir="rtl"] .tooltip {
+    text-align: right;
+}
+
+/* Adjust popovers */
+[dir="rtl"] .popover {
+    text-align: right;
+}
+
+/* Adjust list groups */
+[dir="rtl"] .list-group-item {
+    text-align: right;
+}
+
+/* Adjust input groups */
+[dir="rtl"] .input-group > .form-control:not(:last-child),
+[dir="rtl"] .input-group > .custom-select:not(:last-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+}
+
+[dir="rtl"] .input-group > .form-control:not(:first-child),
+[dir="rtl"] .input-group > .custom-select:not(:first-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: var(--radius-md);
+    border-bottom-left-radius: var(--radius-md);
+}
+
+/* Adjust progress bars */
+[dir="rtl"] .progress-bar {
+    direction: rtl;
+}
+
+/* Adjust alerts */
+[dir="rtl"] .alert-dismissible {
+    padding-right: var(--spacing-4);
+    padding-left: var(--spacing-10);
+}
+
+[dir="rtl"] .alert-dismissible .close {
+    right: auto;
+    left: 0;
+}
+
+/* Font adjustments for Arabic */
+[dir="rtl"] body {
+    font-family: 'IBM Plex Sans Arabic', 'Tajawal', sans-serif;
+}
+
+/* Fix for input placeholder alignment */
+[dir="rtl"] input::placeholder,
+[dir="rtl"] textarea::placeholder {
+    text-align: right;
+}
+
+/* Fix for select elements */
+[dir="rtl"] select {
+    background-position: left 0.75rem center;
+    padding-right: 0.75rem;
+    padding-left: 2rem;
+}
+
+/* Fix for custom checkboxes and radios */
+[dir="rtl"] .custom-control {
+    padding-left: 0;
+    padding-right: 1.5rem;
+}
+
+[dir="rtl"] .custom-control-label::before,
+[dir="rtl"] .custom-control-label::after {
+    left: auto;
+    right: -1.5rem;
+}
+
+/* Fix for button groups */
+[dir="rtl"] .btn-group > .btn:not(:last-child):not(.dropdown-toggle),
+[dir="rtl"] .btn-group > .btn-group:not(:last-child) > .btn {
+    border-top-right-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+[dir="rtl"] .btn-group > .btn:not(:first-child),
+[dir="rtl"] .btn-group > .btn-group:not(:first-child) > .btn {
+    border-top-left-radius: var(--radius-md);
+    border-bottom-left-radius: var(--radius-md);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Fix for dropdown menus */
+[dir="rtl"] .dropdown-menu {
+    right: 0;
+    left: auto;
+    text-align: right;
+}
+
+[dir="rtl"] .dropdown-item {
+    text-align: right;
+}
+
+/* Fix for modal dialogs */
+[dir="rtl"] .modal-header .close {
+    margin: -1rem auto -1rem -1rem;
+}
+
+/* Fix for toast notifications */
+[dir="rtl"] .toast {
+    direction: rtl;
+}
+
+/* Fix for accordion components */
+[dir="rtl"] .accordion > .card > .card-header button {
+    text-align: right;
+}
+
+[dir="rtl"] .accordion > .card > .card-header button::after {
+    margin-left: 0;
+    margin-right: auto;
+}
+
+/* Fix for tabs */
+[dir="rtl"] .nav-tabs {
+    padding-right: 0;
+}
+
+[dir="rtl"] .nav-tabs .nav-item {
+    margin-right: 0;
+    margin-left: 0.5rem;
+}
+
+/* Fix for pagination */
+[dir="rtl"] .page-item:first-child .page-link {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+}
+
+[dir="rtl"] .page-item:last-child .page-link {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: var(--radius-md);
+    border-bottom-left-radius: var(--radius-md);
+}

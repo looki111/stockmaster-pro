@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}{% if lang == 'ar' %}تقارير المخزون | ستوك ماستر برو{% else %}Stock Reports | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}تقارير المخزون{% else %}Stock Reports{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <!-- Title and Description -->
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                {% if lang == 'ar' %}تقارير المخزون اليومية{% else %}Daily Stock Reports{% endif %}
+            </h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-1">
+                {% if lang == 'ar' %}تتبع استهلاك المخزون والمواد المتبقية{% else %}Track inventory consumption and remaining materials{% endif %}
+            </p>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-3">
+            <a href="#" class="btn-primary">
+                <i class="ri-file-chart-line mr-1"></i>
+                {% if lang == 'ar' %}إنشاء تقرير جديد{% else %}Generate New Report{% endif %}
+            </a>
+        </div>
+    </div>
+
+    <!-- Reports Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                <thead class="bg-gray-50 dark:bg-gray-900">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}التاريخ{% else %}Date{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}إجمالي العناصر{% else %}Total Items{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}مخزون منخفض{% else %}Low Stock{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}نفذ من المخزون{% else %}Out of Stock{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}إجمالي القيمة{% else %}Total Value{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}نسبة الهدر{% else %}Waste %{% endif %}
+                        </th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            {% if lang == 'ar' %}الإجراءات{% else %}Actions{% endif %}
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {% for report in reports %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="font-medium text-gray-900 dark:text-white">{{ report.report_date.strftime('%Y-%m-%d') }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white">{{ report.total_items }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                    {{ report.low_stock_items }}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                                    {{ report.out_of_stock_items }}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white">{{ report.total_value|round(2) }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900 dark:text-white">{{ report.waste_percentage|round(1) }}%</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex space-x-2">
+                                <a href="#" class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
+                                    {% if lang == 'ar' %}عرض{% else %}View{% endif %}
+                                </a>
+                                <a href="#" class="text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300">
+                                    {% if lang == 'ar' %}تصدير{% else %}Export{% endif %}
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                            {% if lang == 'ar' %}لا توجد تقارير{% else %}No reports found{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Report Information -->
+    <div class="mt-8 bg-blue-50 dark:bg-blue-900 rounded-lg p-6">
+        <h3 class="text-lg font-semibold mb-4 text-blue-800 dark:text-blue-200">
+            {% if lang == 'ar' %}معلومات عن تقارير المخزون{% else %}About Stock Reports{% endif %}
+        </h3>
+        <div class="space-y-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0 h-6 w-6 text-blue-600 dark:text-blue-300">
+                    <i class="ri-information-line text-xl"></i>
+                </div>
+                <p class="ml-3 text-blue-700 dark:text-blue-300">
+                    {% if lang == 'ar' %}
+                    تقارير المخزون اليومية تتيح لك تتبع استهلاك المواد الخام وحالة المخزون بشكل يومي.
+                    {% else %}
+                    Daily stock reports allow you to track raw material consumption and inventory status on a daily basis.
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="flex items-start">
+                <div class="flex-shrink-0 h-6 w-6 text-blue-600 dark:text-blue-300">
+                    <i class="ri-bar-chart-line text-xl"></i>
+                </div>
+                <p class="ml-3 text-blue-700 dark:text-blue-300">
+                    {% if lang == 'ar' %}
+                    يمكنك مراقبة نسبة الهدر وتحديد المواد التي تحتاج إلى إعادة الطلب.
+                    {% else %}
+                    You can monitor waste percentage and identify materials that need to be reordered.
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="flex items-start">
+                <div class="flex-shrink-0 h-6 w-6 text-blue-600 dark:text-blue-300">
+                    <i class="ri-file-chart-line text-xl"></i>
+                </div>
+                <p class="ml-3 text-blue-700 dark:text-blue-300">
+                    {% if lang == 'ar' %}
+                    يمكنك تصدير التقارير بتنسيق CSV لتحليلها في برامج أخرى مثل Excel.
+                    {% else %}
+                    You can export reports in CSV format for analysis in other programs like Excel.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

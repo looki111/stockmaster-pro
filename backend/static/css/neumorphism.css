@@ -1,0 +1,283 @@
+/**
+ * StockMaster Pro Neumorphism Effects
+ * Soft UI components with subtle shadows and highlights
+ */
+
+:root {
+  /* Neumorphism Variables - Light Theme */
+  --neuro-bg-light: #f0f2f5;
+  --neuro-shadow-light-1: #ffffff;
+  --neuro-shadow-light-2: rgba(174, 174, 192, 0.4);
+  --neuro-distance-light: 8px;
+  --neuro-blur-light: 16px;
+  --neuro-intensity-light: 1;
+  
+  /* Neumorphism Variables - Dark Theme */
+  --neuro-bg-dark: #2c2c2c;
+  --neuro-shadow-dark-1: #232323;
+  --neuro-shadow-dark-2: #353535;
+  --neuro-distance-dark: 8px;
+  --neuro-blur-dark: 16px;
+  --neuro-intensity-dark: 0.8;
+  
+  /* Applied Variables */
+  --neuro-bg: var(--neuro-bg-light);
+  --neuro-shadow-1: var(--neuro-shadow-light-1);
+  --neuro-shadow-2: var(--neuro-shadow-light-2);
+  --neuro-distance: var(--neuro-distance-light);
+  --neuro-blur: var(--neuro-blur-light);
+  --neuro-intensity: var(--neuro-intensity-light);
+}
+
+/* Dark Theme Overrides */
+[data-theme="dark"] {
+  --neuro-bg: var(--neuro-bg-dark);
+  --neuro-shadow-1: var(--neuro-shadow-dark-1);
+  --neuro-shadow-2: var(--neuro-shadow-dark-2);
+  --neuro-distance: var(--neuro-distance-dark);
+  --neuro-blur: var(--neuro-blur-dark);
+  --neuro-intensity: var(--neuro-intensity-dark);
+}
+
+/* Base Neumorphic Effect - Convex */
+.neuro {
+  background: var(--neuro-bg);
+  border-radius: var(--radius-xl);
+  box-shadow: 
+    var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1);
+}
+
+/* Neumorphic Effect - Concave */
+.neuro-concave {
+  background: var(--neuro-bg);
+  border-radius: var(--radius-xl);
+  box-shadow: 
+    inset var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    inset calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1);
+}
+
+/* Neumorphic Effect - Pressed */
+.neuro-pressed {
+  background: var(--neuro-bg);
+  border-radius: var(--radius-xl);
+  box-shadow: 
+    inset var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    inset calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1);
+}
+
+/* Neumorphic Card */
+.neuro-card {
+  background: var(--neuro-bg);
+  border-radius: var(--radius-xl);
+  box-shadow: 
+    var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1);
+  padding: var(--space-6);
+  transition: transform var(--transition-normal) var(--transition-ease),
+              box-shadow var(--transition-normal) var(--transition-ease);
+}
+
+.neuro-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Neumorphic Button */
+.neuro-button {
+  background: var(--neuro-bg);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--space-2) var(--space-4);
+  font-weight: var(--font-medium);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: all var(--transition-fast) var(--transition-ease);
+  box-shadow: 
+    var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1);
+}
+
+.neuro-button:hover {
+  transform: translateY(-2px);
+}
+
+.neuro-button:active {
+  box-shadow: 
+    inset var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    inset calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1);
+  transform: translateY(0);
+}
+
+/* Neumorphic Input */
+.neuro-input {
+  background: var(--neuro-bg);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-4);
+  width: 100%;
+  color: var(--text-color);
+  transition: all var(--transition-fast) var(--transition-ease);
+  box-shadow: 
+    inset var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    inset calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1);
+}
+
+.neuro-input:focus {
+  outline: none;
+  box-shadow: 
+    inset var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    inset calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1),
+    0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+/* Neumorphic Switch */
+.neuro-switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.neuro-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.neuro-switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--neuro-bg);
+  border-radius: 34px;
+  transition: all var(--transition-fast) var(--transition-ease);
+  box-shadow: 
+    inset var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    inset calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1);
+}
+
+.neuro-switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background: var(--neuro-bg);
+  border-radius: 50%;
+  transition: all var(--transition-fast) var(--transition-ease);
+  box-shadow: 
+    var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1);
+}
+
+.neuro-switch input:checked + .neuro-switch-slider:before {
+  transform: translateX(26px);
+  background: var(--primary-500);
+}
+
+/* Neumorphic Checkbox */
+.neuro-checkbox {
+  position: relative;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+}
+
+.neuro-checkbox input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.neuro-checkbox-mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 24px;
+  width: 24px;
+  background: var(--neuro-bg);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast) var(--transition-ease);
+  box-shadow: 
+    inset var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    inset calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1);
+}
+
+.neuro-checkbox input:checked + .neuro-checkbox-mark {
+  background: var(--primary-500);
+  box-shadow: 
+    var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1);
+}
+
+.neuro-checkbox-mark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.neuro-checkbox input:checked + .neuro-checkbox-mark:after {
+  display: block;
+  left: 9px;
+  top: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Neumorphic Radio */
+.neuro-radio {
+  position: relative;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+}
+
+.neuro-radio input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.neuro-radio-mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 24px;
+  width: 24px;
+  background: var(--neuro-bg);
+  border-radius: 50%;
+  transition: all var(--transition-fast) var(--transition-ease);
+  box-shadow: 
+    inset var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    inset calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1);
+}
+
+.neuro-radio input:checked + .neuro-radio-mark {
+  background: var(--neuro-bg);
+}
+
+.neuro-radio-mark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.neuro-radio input:checked + .neuro-radio-mark:after {
+  display: block;
+  top: 7px;
+  left: 7px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary-500);
+  box-shadow: 
+    var(--neuro-distance) var(--neuro-distance) var(--neuro-blur) var(--neuro-shadow-2),
+    calc(var(--neuro-distance) * -1) calc(var(--neuro-distance) * -1) var(--neuro-blur) var(--neuro-shadow-1);
+}

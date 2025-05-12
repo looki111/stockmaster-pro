@@ -1,0 +1,373 @@
+/**
+ * StockMaster Pro Responsive Design
+ * Optimized layouts for different device sizes
+ */
+
+/* Base Mobile First Approach */
+:root {
+  --sidebar-width: 0;
+  --header-height: 60px;
+  --content-padding: var(--space-4);
+}
+
+/* ===== BREAKPOINTS ===== */
+/* 
+  - xs: 0-479px (small phones)
+  - sm: 480-767px (large phones)
+  - md: 768-1023px (tablets)
+  - lg: 1024-1279px (laptops)
+  - xl: 1280-1535px (desktops)
+  - 2xl: 1536px+ (large screens)
+*/
+
+/* ===== LAYOUT ADJUSTMENTS ===== */
+
+/* Base Mobile Layout */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-30);
+  height: var(--header-height);
+}
+
+.app-sidebar {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 300px;
+  z-index: var(--z-20);
+  transform: translateX(-100%);
+  transition: transform var(--transition-normal) var(--transition-ease);
+}
+
+.app-sidebar.open {
+  transform: translateX(0);
+}
+
+.app-content {
+  margin-left: 0;
+  padding: var(--content-padding);
+  transition: margin-left var(--transition-normal) var(--transition-ease);
+}
+
+.app-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: var(--z-10);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-normal) var(--transition-ease),
+              visibility var(--transition-normal) var(--transition-ease);
+}
+
+.app-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ===== COMPONENT ADJUSTMENTS ===== */
+
+/* Cards */
+.card {
+  padding: var(--space-4);
+}
+
+/* Tables */
+.table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: var(--space-4);
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+}
+
+/* Buttons */
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Modals */
+.modal {
+  padding: var(--space-4);
+  width: calc(100% - var(--space-8));
+  max-width: 500px;
+}
+
+/* Navigation */
+.nav-tabs {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  white-space: nowrap;
+}
+
+/* ===== RESPONSIVE BREAKPOINTS ===== */
+
+/* Small Phones (xs) - Default styles above */
+
+/* Large Phones (sm) */
+@media (min-width: 480px) {
+  :root {
+    --content-padding: var(--space-6);
+  }
+  
+  .card {
+    padding: var(--space-6);
+  }
+}
+
+/* Tablets (md) */
+@media (min-width: 768px) {
+  :root {
+    --sidebar-width: 250px;
+    --content-padding: var(--space-8);
+  }
+  
+  .app-container {
+    flex-direction: row;
+  }
+  
+  .app-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    transform: translateX(0);
+  }
+  
+  .app-content {
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+  }
+  
+  .app-overlay {
+    display: none;
+  }
+  
+  /* Two-column layout for forms */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+  }
+  
+  /* Larger modals */
+  .modal {
+    padding: var(--space-6);
+    max-width: 600px;
+  }
+}
+
+/* Laptops (lg) */
+@media (min-width: 1024px) {
+  :root {
+    --sidebar-width: 280px;
+  }
+  
+  /* Three-column layout for dashboard */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-6);
+  }
+  
+  /* Larger modals */
+  .modal {
+    max-width: 800px;
+  }
+}
+
+/* Desktops (xl) */
+@media (min-width: 1280px) {
+  :root {
+    --sidebar-width: 300px;
+  }
+  
+  /* Four-column layout for dashboard */
+  .dashboard-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  /* Larger modals */
+  .modal {
+    max-width: 1000px;
+  }
+}
+
+/* Large Screens (2xl) */
+@media (min-width: 1536px) {
+  :root {
+    --sidebar-width: 320px;
+    --content-padding: var(--space-10);
+  }
+  
+  /* Five-column layout for dashboard */
+  .dashboard-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+/* ===== RTL ADJUSTMENTS ===== */
+
+/* RTL Layout Adjustments */
+[dir="rtl"] .app-sidebar {
+  left: auto;
+  right: 0;
+  transform: translateX(100%);
+}
+
+[dir="rtl"] .app-sidebar.open {
+  transform: translateX(0);
+}
+
+[dir="rtl"] .app-content {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+@media (min-width: 768px) {
+  [dir="rtl"] .app-sidebar {
+    transform: translateX(0);
+  }
+  
+  [dir="rtl"] .app-content {
+    margin-left: 0;
+    margin-right: var(--sidebar-width);
+  }
+}
+
+/* ===== TOUCH OPTIMIZATIONS ===== */
+
+/* Larger touch targets for mobile */
+@media (max-width: 767px) {
+  .btn,
+  .form-input,
+  .form-select,
+  .nav-link {
+    min-height: 44px; /* Apple's recommended minimum touch target size */
+    padding: var(--space-3) var(--space-4);
+  }
+  
+  /* Increase spacing between interactive elements */
+  .btn + .btn,
+  .form-group + .form-group,
+  .nav-item + .nav-item {
+    margin-top: var(--space-3);
+  }
+  
+  /* Floating action button for mobile */
+  .floating-action-btn {
+    position: fixed;
+    bottom: var(--space-4);
+    right: var(--space-4);
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg);
+    z-index: var(--z-30);
+  }
+  
+  [dir="rtl"] .floating-action-btn {
+    right: auto;
+    left: var(--space-4);
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+
+@media print {
+  .app-header,
+  .app-sidebar,
+  .app-footer,
+  .no-print {
+    display: none !important;
+  }
+  
+  .app-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+  
+  /* Ensure tables display properly */
+  .table-container {
+    overflow: visible !important;
+  }
+  
+  /* Force background colors to print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+/* ===== DEVICE-SPECIFIC OPTIMIZATIONS ===== */
+
+/* iOS Safari Specific Fixes */
+@supports (-webkit-touch-callout: none) {
+  /* Fix for iOS Safari 100vh issue */
+  .app-container,
+  .app-sidebar {
+    height: -webkit-fill-available;
+  }
+  
+  /* Fix for iOS Safari sticky positioning */
+  .app-header {
+    position: -webkit-sticky;
+  }
+}
+
+/* Android Chrome Specific Fixes */
+@supports not (-webkit-touch-callout: none) {
+  /* Android-specific adjustments if needed */
+}
+
+/* ===== RESPONSIVE UTILITIES ===== */
+
+/* Hide on specific breakpoints */
+.hide-xs { display: none; }
+@media (min-width: 480px) { .hide-xs { display: initial; } .show-xs-only { display: none; } }
+
+.hide-sm { display: none; }
+@media (min-width: 768px) { .hide-sm { display: initial; } .show-sm-only { display: none; } }
+
+.hide-md { display: none; }
+@media (min-width: 1024px) { .hide-md { display: initial; } .show-md-only { display: none; } }
+
+.hide-lg { display: none; }
+@media (min-width: 1280px) { .hide-lg { display: initial; } .show-lg-only { display: none; } }
+
+.hide-xl { display: none; }
+@media (min-width: 1536px) { .hide-xl { display: initial; } .show-xl-only { display: none; } }
+
+/* Responsive text alignment */
+.text-center-xs { text-align: center; }
+@media (min-width: 480px) { .text-center-sm { text-align: center; } }
+@media (min-width: 768px) { .text-center-md { text-align: center; } }
+@media (min-width: 1024px) { .text-center-lg { text-align: center; } }
+@media (min-width: 1280px) { .text-center-xl { text-align: center; } }

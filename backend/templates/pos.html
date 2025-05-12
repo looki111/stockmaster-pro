@@ -1,0 +1,201 @@
+{% extends base_template|default("base.html") %}
+{% block title %}{% if lang == 'ar' %}نقطة البيع | ستوك ماستر برو{% else %}POS | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}نقطة البيع{% else %}Point of Sale{% endif %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/stockmaster-pos-new.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="pos-container">
+    <!-- POS Header -->
+    <div class="pos-header card-glass">
+        <div class="pos-header-title">
+            {% if lang == 'ar' %}نقطة البيع{% else %}Point of Sale{% endif %}
+        </div>
+        <div class="pos-header-actions">
+            <button id="pos-fullscreen" class="btn-icon btn-glass" title="{% if lang == 'ar' %}ملء الشاشة{% else %}Fullscreen{% endif %}" data-tooltip="{% if lang == 'ar' %}ملء الشاشة{% else %}Toggle Fullscreen{% endif %}">
+                <i class="ri-fullscreen-line"></i>
+            </button>
+            <div class="dropdown">
+                <button class="btn btn-glass dropdown-toggle" id="shift-dropdown">
+                    <i class="ri-time-line me-2"></i>
+                    <span>{% if lang == 'ar' %}الوردية{% else %}Shift{% endif %}</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <div class="dropdown-header">{% if lang == 'ar' %}إدارة الورديات{% else %}Manage Shifts{% endif %}</div>
+                    <a href="#" class="dropdown-item">
+                        <i class="ri-play-circle-line me-2"></i>
+                        {% if lang == 'ar' %}بدء وردية{% else %}Start Shift{% endif %}
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="ri-stop-circle-line me-2"></i>
+                        {% if lang == 'ar' %}إنهاء وردية{% else %}End Shift{% endif %}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item">
+                        <i class="ri-history-line me-2"></i>
+                        {% if lang == 'ar' %}سجل الورديات{% else %}Shift History{% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- POS Main Content -->
+    <div class="pos-content">
+        <!-- Products Panel -->
+        <div class="pos-products-panel">
+            <!-- Search Bar -->
+            <div class="pos-search-container card-glass">
+                <div class="pos-search-input">
+                    <input type="text"
+                           id="pos-search"
+                           class="form-input"
+                           placeholder="{% if lang == 'ar' %}ابحث عن منتجات...{% else %}Search products...{% endif %}">
+                    <i class="ri-search-line"></i>
+                </div>
+                <div class="pos-search-actions">
+                    <button class="btn btn-sm btn-glass" data-tooltip="{% if lang == 'ar' %}مسح البحث{% else %}Clear Search{% endif %}">
+                        <i class="ri-close-line"></i>
+                    </button>
+                    <button class="btn btn-sm btn-glass" data-tooltip="{% if lang == 'ar' %}بحث متقدم{% else %}Advanced Search{% endif %}">
+                        <i class="ri-filter-3-line"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div class="pos-categories card-glass">
+                <div class="pos-category active" data-category="all">
+                    <i class="ri-apps-line me-2"></i>
+                    {% if lang == 'ar' %}الكل{% else %}All{% endif %}
+                </div>
+                <div class="pos-category" data-category="coffee">
+                    <i class="ri-cup-line me-2"></i>
+                    {% if lang == 'ar' %}القهوة{% else %}Coffee{% endif %}
+                </div>
+                <div class="pos-category" data-category="tea">
+                    <i class="ri-cup-line me-2"></i>
+                    {% if lang == 'ar' %}الشاي{% else %}Tea{% endif %}
+                </div>
+                <div class="pos-category" data-category="dessert">
+                    <i class="ri-cake-3-line me-2"></i>
+                    {% if lang == 'ar' %}الحلويات{% else %}Desserts{% endif %}
+                </div>
+                <div class="pos-category" data-category="bakery">
+                    <i class="ri-cake-2-line me-2"></i>
+                    {% if lang == 'ar' %}المخبوزات{% else %}Bakery{% endif %}
+                </div>
+                <div class="pos-category" data-category="food">
+                    <i class="ri-restaurant-line me-2"></i>
+                    {% if lang == 'ar' %}الطعام{% else %}Food{% endif %}
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="pos-products-grid">
+                <!-- Products will be dynamically added here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Cart Panel -->
+        <div class="pos-cart-panel card-glass">
+            <!-- Cart Header -->
+            <div class="pos-cart-header">
+                <h2 class="pos-cart-title">
+                    <i class="ri-shopping-cart-2-line me-2"></i>
+                    {% if lang == 'ar' %}سلة المشتريات{% else %}Shopping Cart{% endif %}
+                </h2>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-icon btn-glass" data-tooltip="{% if lang == 'ar' %}خيارات السلة{% else %}Cart Options{% endif %}">
+                        <i class="ri-more-2-fill"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <a href="#" class="dropdown-item">
+                            <i class="ri-save-line me-2"></i>
+                            {% if lang == 'ar' %}حفظ كطلب معلق{% else %}Save as Pending{% endif %}
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="ri-file-list-3-line me-2"></i>
+                            {% if lang == 'ar' %}الطلبات المعلقة{% else %}Pending Orders{% endif %}
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item text-danger">
+                            <i class="ri-delete-bin-line me-2"></i>
+                            {% if lang == 'ar' %}مسح السلة{% else %}Clear Cart{% endif %}
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cart Items -->
+            <div class="pos-cart-items">
+                <!-- Empty cart state -->
+                <div id="empty-cart" class="text-center py-8">
+                    <img src="{{ url_for('static', filename='img/empty-cart.svg') }}" alt="Empty Cart" class="mb-4" style="width: 120px; height: 120px; opacity: 0.7;">
+                    <p class="text-secondary-content mb-2">{% if lang == 'ar' %}سلة المشتريات فارغة{% else %}Your cart is empty{% endif %}</p>
+                    <p class="text-tertiary-content text-sm">{% if lang == 'ar' %}أضف منتجات لبدء طلب جديد{% else %}Add products to start a new order{% endif %}</p>
+                </div>
+
+                <!-- Cart items will be dynamically added here by JavaScript -->
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="pos-cart-summary card-glass">
+                <div class="pos-cart-row">
+                    <div class="pos-cart-row-label">
+                        {% if lang == 'ar' %}المجموع الفرعي{% else %}Subtotal{% endif %}
+                    </div>
+                    <div class="pos-cart-row-value">0 SAR</div>
+                </div>
+                <div class="pos-cart-row">
+                    <div class="pos-cart-row-label">
+                        {% if lang == 'ar' %}الضريبة (15%){% else %}Tax (15%){% endif %}
+                    </div>
+                    <div class="pos-cart-row-value">0 SAR</div>
+                </div>
+                <div class="pos-cart-row">
+                    <div class="pos-cart-row-label">
+                        {% if lang == 'ar' %}الخصم{% else %}Discount{% endif %}
+                    </div>
+                    <div class="pos-cart-row-value">
+                        <button class="btn btn-sm btn-glass">
+                            <i class="ri-coupon-line me-1"></i>
+                            {% if lang == 'ar' %}إضافة{% else %}Add{% endif %}
+                        </button>
+                    </div>
+                </div>
+                <div class="pos-cart-total">
+                    <div class="pos-cart-total-label">
+                        {% if lang == 'ar' %}الإجمالي{% else %}Total{% endif %}
+                    </div>
+                    <div class="pos-cart-total-value">0 SAR</div>
+                </div>
+            </div>
+
+            <!-- Cart Actions -->
+            <div class="pos-cart-actions">
+                <button id="pos-checkout" class="btn btn-primary btn-lg w-100 mb-2">
+                    <i class="ri-shopping-cart-line me-2"></i>
+                    {% if lang == 'ar' %}الدفع{% else %}Checkout{% endif %}
+                </button>
+                <div class="d-flex gap-2">
+                    <button id="pos-clear-cart" class="btn btn-outline-secondary flex-grow-1">
+                        <i class="ri-delete-bin-line me-1"></i>
+                        {% if lang == 'ar' %}مسح{% else %}Clear{% endif %}
+                    </button>
+                    <button class="btn btn-outline-primary flex-grow-1">
+                        <i class="ri-user-add-line me-1"></i>
+                        {% if lang == 'ar' %}العميل{% else %}Customer{% endif %}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/stockmaster-pos-new.js') }}"></script>
+{% endblock %}

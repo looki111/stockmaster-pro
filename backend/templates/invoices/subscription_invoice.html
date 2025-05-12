@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html class="theme-light">
+<head>
+  <meta name="theme-color" content="#ffffff">
+    <meta charset="utf-8">
+    <title>Invoice #{{ invoice.invoice_number }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            position: relative;
+        }
+        .invoice-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+        .invoice-header .logo {
+            max-width: 200px;
+        }
+        .invoice-title {
+            text-align: right;
+        }
+        .invoice-title h1 {
+            color: #4A90E2;
+            margin: 0;
+            font-size: 28px;
+        }
+        .invoice-title p {
+            margin: 5px 0;
+        }
+        .invoice-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+        }
+        .invoice-details .client-details,
+        .invoice-details .invoice-info {
+            width: 48%;
+        }
+        .invoice-details h3 {
+            color: #4A90E2;
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .invoice-table th {
+            background-color: #4A90E2;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+        .invoice-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .invoice-table .total-row td {
+            border-top: 2px solid #4A90E2;
+            border-bottom: none;
+            font-weight: bold;
+        }
+        .invoice-totals {
+            width: 300px;
+            margin-left: auto;
+        }
+        .invoice-totals table {
+            width: 100%;
+        }
+        .invoice-totals td {
+            padding: 5px;
+        }
+        .invoice-totals .total-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #4A90E2;
+        }
+        .invoice-notes {
+            margin-top: 40px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .invoice-footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+        }
+        .paid-stamp {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 72px;
+            color: rgba(0, 128, 0, 0.3);
+            border: 10px solid rgba(0, 128, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            z-index: 100;
+        }
+        .unpaid-stamp {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 72px;
+            color: rgba(255, 0, 0, 0.3);
+            border: 10px solid rgba(255, 0, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            z-index: 100;
+        }
+        .qr-code {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .qr-code img {
+            max-width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Payment Status Stamp -->
+        {% if invoice.status == 'paid' %}
+        <div class="paid-stamp">PAID</div>
+        {% elif invoice.status == 'unpaid' %}
+        <div class="unpaid-stamp">UNPAID</div>
+        {% endif %}
+        
+        <!-- Invoice Header -->
+        <div class="invoice-header">
+            <div class="company-info">
+                <h2>{{ company.name }}</h2>
+                <p>{{ company.address }}</p>
+                <p>{{ company.phone }}</p>
+                <p>{{ company.email }}</p>
+                <p>{{ company.website }}</p>
+                {% if company.tax_number %}
+                <p>Tax Number: {{ company.tax_number }}</p>
+                {% endif %}
+            </div>
+            <div class="invoice-title">
+                <h1>INVOICE</h1>
+                <p><strong>Invoice #:</strong> {{ invoice.invoice_number }}</p>
+                <p><strong>Date:</strong> {{ invoice_date }}</p>
+                {% if due_date %}
+                <p><strong>Due Date:</strong> {{ due_date }}</p>
+                {% endif %}
+                <p><strong>Status:</strong> {{ payment_status }}</p>
+            </div>
+        </div>
+        
+        <!-- Invoice Details -->
+        <div class="invoice-details">
+            <div class="client-details">
+                <h3>Billed To</h3>
+                <p><strong>{{ shop.name }}</strong></p>
+                <p>{{ shop.owner_name }}</p>
+                <p>{{ shop.address }}</p>
+                <p>{{ shop.email }}</p>
+                <p>{{ shop.phone }}</p>
+            </div>
+            <div class="invoice-info">
+                <h3>Subscription Details</h3>
+                <p><strong>Plan:</strong> {{ plan.name }}</p>
+                <p><strong>Billing Cycle:</strong> {{ subscription.billing_cycle|capitalize }}</p>
+                <p><strong>Period:</strong> {{ subscription.start_date.strftime('%Y-%m-%d') }} to {{ subscription.end_date.strftime('%Y-%m-%d') }}</p>
+            </div>
+        </div>
+        
+        <!-- Invoice Items -->
+        <table class="invoice-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ item.description }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.unit_price }} {{ currency }}</td>
+                    <td>{{ item.total }} {{ currency }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <!-- Invoice Totals -->
+        <div class="invoice-totals">
+            <table>
+                <tr>
+                    <td>Subtotal:</td>
+                    <td>{{ subtotal }} {{ currency }}</td>
+                </tr>
+                <tr>
+                    <td>Tax ({{ (tax / subtotal * 100)|round|int if subtotal > 0 else 0 }}%):</td>
+                    <td>{{ tax }} {{ currency }}</td>
+                </tr>
+                <tr class="total-amount">
+                    <td>Total:</td>
+                    <td>{{ total }} {{ currency }}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- QR Code -->
+        {% if qr_code %}
+        <div class="qr-code">
+            <img src="{{ qr_code }}" alt="Invoice QR Code">
+            <p>Scan to view invoice details</p>
+        </div>
+        {% endif %}
+        
+        <!-- Invoice Notes -->
+        <div class="invoice-notes">
+            <h3>Notes</h3>
+            <p>Thank you for your business! This invoice is for your StockMaster Pro subscription.</p>
+            <p>For any questions or concerns, please contact our support team at support@stockmasterpro.com.</p>
+        </div>
+        
+        <!-- Invoice Footer -->
+        <div class="invoice-footer">
+            <p>This is a computer-generated invoice and does not require a signature.</p>
+            <p>&copy; {{ subscription.end_date.year }} StockMaster Pro. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

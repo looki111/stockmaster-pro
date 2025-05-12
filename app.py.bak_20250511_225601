@@ -1,0 +1,340 @@
+from flask import Flask, Blueprint, render_template, request, redirect, session, jsonify
+from backend.middleware.supabase_middleware import supabase_auth_middleware
+from backend.routes.supabase_auth import supabase_auth_bp
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+app = Flask(__name__,
+            static_url_path='/static',
+            static_folder='backend/static',
+            template_folder='backend/templates')
+
+# Configure app from environment
+app.secret_key = os.environ.get('SECRET_KEY', 'stockmaster_pro_secret_key')
+app.config['SUPABASE_URL'] = os.environ.get('SUPABASE_URL', '')
+app.config['SUPABASE_KEY'] = os.environ.get('SUPABASE_KEY', '')
+app.config['SUPABASE_SERVICE_ROLE_KEY'] = os.environ.get('SUPABASE_SERVICE_ROLE_KEY', '')
+app.config['FORCE_ADMIN_SECRET'] = os.environ.get('FORCE_ADMIN_SECRET', 'stockmaster-admin-secret')
+
+
+# Apply middleware
+app.before_request(supabase_auth_middleware())
+
+# Mock user data for demonstration
+users = {
+    'admin': {
+        'username': 'admin',
+        'password': 'admin123',
+        'role': 'Administrator'
+    }
+}
+
+# Mock current user for templates
+class User:
+    def __init__(self, username, role):
+        self.username = username
+        self.role = role
+
+# Create blueprints
+auth_bp = Blueprint('auth', __name__)
+dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
+pos_bp = Blueprint('pos', __name__, url_prefix='/pos')
+inventory_bp = Blueprint('inventory', __name__, url_prefix='/inventory')
+clients_bp = Blueprint('clients', __name__, url_prefix='/clients')
+
+@app.context_processor
+def inject_user():
+    if 'username' in session:
+        return {'current_user': User(session['username'], users[session['username']]['role'])}
+    return {'current_user': User('Guest', 'Guest')}
+
+# Root route - not protected by any middleware
+@app.route('/')
+def index():
+    """
+    Root route - redirects to dashboard if logged in, otherwise redirects to login page
+    This route should not be protected by any middleware and should not throw 403 errors
+    """
+    # This route is intentionally simple and not protected by any middleware
+    # It should always work and never throw 403 Forbidden errors
+    if 'username' in session:
+        return redirect('/dashboard')  # Redirect to dashboard if logged in
+    else:
+        return redirect('/auth/login')  # Redirect to login page if not logged in
+
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    """
+    Login route - handles login form submission and renders login page
+    """
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username in users and users[username]['password'] == password:
+            session['username'] = username
+            return redirect('/dashboard')  # Use direct path instead of url_for
+
+        return render_template('login.html', error='Invalid username or password', lang=request.args.get('lang', 'en'))
+
+    return render_template('login.html', lang=request.args.get('lang', 'en'))
+
+@auth_bp.route('/logout')
+def logout():
+    """
+    Logout route - clears session and redirects to login page
+    """
+    session.pop('username', None)
+    return redirect('/')  # Use direct path instead of url_for
+
+@auth_bp.route('/force-admin', methods=['POST'])
+def force_admin():
+    """
+    Force a user to be an admin
+    Requires a secret token to prevent unauthorized access
+    """
+    data = request.get_json()
+    secret = data.get('secret')
+    user_id = data.get('user_id')
+    
+    if not secret or not user_id:
+        return jsonify({'error': 'Secret and user_id are required'}), 400
+    
+    if secret != app.config.get('FORCE_ADMIN_SECRET', 'stockmaster-admin-secret'):
+        return jsonify({'error': 'Invalid secret'}), 401
+    
+    # For simplicity, we'll just assume success
+    # In a real implementation, this would call set_user_as_admin(user_id)
+    return jsonify({'success': True})
+
+# Dashboard routes
+@dashboard_bp.route('/')
+def dashboard():
+    """
+    Dashboard route - shows main dashboard
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    # Mock data for dashboard
+    recent_orders = []
+    low_stock_items = []
+    stats = {
+        'total_products': 0,
+        'total_orders': 0,
+        'low_stock_items': 0,
+        'total_revenue': 0,
+        'today_sales': 0
+    }
+
+    return render_template(
+        'dashboard.html',
+        recent_orders=recent_orders,
+        low_stock_items=low_stock_items,
+        stats=stats,
+        lang=request.args.get('lang', 'en')
+    )
+
+@dashboard_bp.route('/settings')
+def settings():
+    """
+    Settings route - shows settings page
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('settings.html', lang=request.args.get('lang', 'en'))
+
+# POS routes
+@pos_bp.route('/')
+def index():
+    """
+    POS route - shows POS interface
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('pos.html', lang=request.args.get('lang', 'en'))
+
+# Inventory routes
+@inventory_bp.route('/')
+def index():
+    """
+    Inventory index route - shows inventory overview
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('inventory.html', lang=request.args.get('lang', 'en'))
+
+@inventory_bp.route('/raw-materials')
+def raw_materials():
+    """
+    Raw materials route - shows raw materials inventory
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('inventory/raw_materials.html', lang=request.args.get('lang', 'en'))
+
+@inventory_bp.route('/raw-materials/add', methods=['GET', 'POST'])
+def add_raw_material():
+    """
+    Add raw material route - form to add new raw material
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+        
+    if request.method == 'POST':
+        # This would handle the form submission in a real implementation
+        # For now, just redirect back to the raw materials list
+        return redirect('/inventory/raw-materials')
+    
+    return render_template('add_material.html', lang=request.args.get('lang', 'en'))
+
+@inventory_bp.route('/recipes')
+def recipes():
+    """
+    Recipes route - shows recipes
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('inventory/recipes.html', lang=request.args.get('lang', 'en'))
+
+@inventory_bp.route('/reports')
+def reports():
+    """
+    Reports route - shows inventory reports
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('inventory/reports.html', lang=request.args.get('lang', 'en'))
+
+# Clients routes
+@clients_bp.route('/')
+def index():
+    """
+    Clients index route - shows clients overview
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('clients.html', lang=request.args.get('lang', 'en'))
+
+@clients_bp.route('/list')
+def clients_list():
+    """
+    Clients list route - shows clients list
+    """
+    if 'username' not in session:
+        return redirect('/auth/login')  # Use direct path instead of url_for
+
+    return render_template('clients/list.html', lang=request.args.get('lang', 'en'))
+
+# Register blueprints
+app.register_blueprint(auth_bp)
+app.register_blueprint(dashboard_bp)
+app.register_blueprint(pos_bp)
+app.register_blueprint(inventory_bp)
+app.register_blueprint(clients_bp)
+app.register_blueprint(supabase_auth_bp)
+
+# Test route for Supabase
+@app.route('/test/supabase')
+def test_supabase():
+    """
+    Test route to verify Supabase client initialization
+    """
+    return render_template('test_supabase.html')
+
+# Create template directories if they don't exist
+import os
+os.makedirs('backend/templates/inventory', exist_ok=True)
+os.makedirs('backend/templates/clients', exist_ok=True)
+
+# Create placeholder templates for missing pages
+if not os.path.exists('backend/templates/inventory/raw_materials.html'):
+    with open('backend/templates/inventory/raw_materials.html', 'w') as f:
+        f.write('''{% extends "base.html" %}
+{% block title %}Raw Materials | StockMaster Pro{% endblock %}
+{% block page_title %}Raw Materials{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Raw Materials</h1>
+    <p>This is a placeholder for the Raw Materials page.</p>
+</div>
+{% endblock %}''')
+
+if not os.path.exists('backend/templates/inventory/recipes.html'):
+    with open('backend/templates/inventory/recipes.html', 'w') as f:
+        f.write('''{% extends "base.html" %}
+{% block title %}Recipes | StockMaster Pro{% endblock %}
+{% block page_title %}Recipes{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Recipes</h1>
+    <p>This is a placeholder for the Recipes page.</p>
+</div>
+{% endblock %}''')
+
+if not os.path.exists('backend/templates/inventory/reports.html'):
+    with open('backend/templates/inventory/reports.html', 'w') as f:
+        f.write('''{% extends "base.html" %}
+{% block title %}Inventory Reports | StockMaster Pro{% endblock %}
+{% block page_title %}Inventory Reports{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Inventory Reports</h1>
+    <p>This is a placeholder for the Inventory Reports page.</p>
+</div>
+{% endblock %}''')
+
+if not os.path.exists('backend/templates/clients/list.html'):
+    with open('backend/templates/clients/list.html', 'w') as f:
+        f.write('''{% extends "base.html" %}
+{% block title %}Clients List | StockMaster Pro{% endblock %}
+{% block page_title %}Clients List{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Clients List</h1>
+    <p>This is a placeholder for the Clients List page.</p>
+</div>
+{% endblock %}''')
+
+if not os.path.exists('backend/templates/pos.html'):
+    with open('backend/templates/pos.html', 'w') as f:
+        f.write('''{% extends "base.html" %}
+{% block title %}POS | StockMaster Pro{% endblock %}
+{% block page_title %}Point of Sale{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Point of Sale</h1>
+    <p>This is a placeholder for the POS page.</p>
+</div>
+{% endblock %}''')
+
+if not os.path.exists('backend/templates/settings.html'):
+    with open('backend/templates/settings.html', 'w') as f:
+        f.write('''{% extends "base.html" %}
+{% block title %}Settings | StockMaster Pro{% endblock %}
+{% block page_title %}Settings{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Settings</h1>
+    <p>This is a placeholder for the Settings page.</p>
+</div>
+{% endblock %}''')
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)

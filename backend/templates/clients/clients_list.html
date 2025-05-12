@@ -1,0 +1,360 @@
+{% extends base_template|default("base.html") %}
+{% block title %}{% if lang == 'ar' %}العملاء | ستوك ماستر برو{% else %}Clients | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}العملاء{% else %}Clients{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 animate-fadeIn">
+        <!-- Total Clients -->
+        <div class="stat-card stat-card-glass stat-card-primary">
+            <div class="stat-card-icon">
+                <i class="ri-user-line"></i>
+            </div>
+            <div class="stat-card-title">{% if lang == 'ar' %}إجمالي العملاء{% else %}Total Clients{% endif %}</div>
+            <div class="stat-card-value">{{ clients|length }}</div>
+            <div class="stat-card-change stat-card-change-neutral">
+                <span>{% if lang == 'ar' %}عميل{% else %}clients{% endif %}</span>
+            </div>
+            <div class="stat-card-decoration">
+                <i class="ri-user-line"></i>
+            </div>
+        </div>
+
+        <!-- Active Clients -->
+        <div class="stat-card stat-card-glass stat-card-success">
+            <div class="stat-card-icon">
+                <i class="ri-user-star-line"></i>
+            </div>
+            <div class="stat-card-title">{% if lang == 'ar' %}العملاء النشطين{% else %}Active Clients{% endif %}</div>
+            <div class="stat-card-value">{{ clients|selectattr('is_active', 'equalto', true)|list|length }}</div>
+            <div class="stat-card-change stat-card-change-positive">
+                <i class="ri-arrow-up-line"></i>
+                <span>{% if lang == 'ar' %}نشط{% else %}active{% endif %}</span>
+            </div>
+            <div class="stat-card-decoration">
+                <i class="ri-user-star-line"></i>
+            </div>
+        </div>
+
+        <!-- Total Sales -->
+        <div class="stat-card stat-card-glass stat-card-info">
+            <div class="stat-card-icon">
+                <i class="ri-money-dollar-circle-line"></i>
+            </div>
+            <div class="stat-card-title">{% if lang == 'ar' %}إجمالي المبيعات{% else %}Total Sales{% endif %}</div>
+            <div class="stat-card-value">{{ total_sales|default(0)|round(2) }} SAR</div>
+            <div class="stat-card-change stat-card-change-positive">
+                <i class="ri-line-chart-line"></i>
+                <span>{% if lang == 'ar' %}من جميع العملاء{% else %}from all clients{% endif %}</span>
+            </div>
+            <div class="stat-card-decoration">
+                <i class="ri-money-dollar-circle-line"></i>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-glass mb-6 animate-fadeIn" style="animation-delay: 0.2s;">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">{% if lang == 'ar' %}تصفية العملاء{% else %}Filter Clients{% endif %}</h3>
+            <div class="card-actions">
+                <button type="button" class="btn btn-sm btn-glass" id="toggle-filters">
+                    <i class="ri-filter-3-line me-1"></i>
+                    {% if lang == 'ar' %}عرض/إخفاء المرشحات{% else %}Toggle Filters{% endif %}
+                </button>
+            </div>
+        </div>
+        <div class="card-body" id="filters-container">
+            <!-- Filters -->
+            <form action="{{ url_for('clients.clients_list') }}" method="get" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <!-- Search -->
+                <div class="form-group">
+                    <label for="search" class="form-label">{% if lang == 'ar' %}بحث{% else %}Search{% endif %}</label>
+                    <div class="relative">
+                        <input type="text" id="search" name="search" value="{{ search_term }}" placeholder="{% if lang == 'ar' %}بحث...{% else %}Search...{% endif %}" class="form-input pl-10">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                            <i class="ri-search-line text-gray-400"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Filter -->
+                <div class="form-group">
+                    <label for="status" class="form-label">{% if lang == 'ar' %}الحالة{% else %}Status{% endif %}</label>
+                    <select id="status" name="status" class="form-select">
+                        <option value="">{% if lang == 'ar' %}جميع الحالات{% else %}All Statuses{% endif %}</option>
+                        <option value="active" {% if selected_status == 'active' %}selected{% endif %}>{% if lang == 'ar' %}نشط{% else %}Active{% endif %}</option>
+                        <option value="inactive" {% if selected_status == 'inactive' %}selected{% endif %}>{% if lang == 'ar' %}غير نشط{% else %}Inactive{% endif %}</option>
+                    </select>
+                </div>
+
+                <!-- Sort By -->
+                <div class="form-group">
+                    <label for="sort" class="form-label">{% if lang == 'ar' %}ترتيب حسب{% else %}Sort By{% endif %}</label>
+                    <select id="sort" name="sort" class="form-select">
+                        <option value="name" {% if sort_by == 'name' %}selected{% endif %}>{% if lang == 'ar' %}الاسم{% else %}Name{% endif %}</option>
+                        <option value="date" {% if sort_by == 'date' %}selected{% endif %}>{% if lang == 'ar' %}تاريخ التسجيل{% else %}Registration Date{% endif %}</option>
+                        <option value="sales" {% if sort_by == 'sales' %}selected{% endif %}>{% if lang == 'ar' %}المبيعات{% else %}Sales{% endif %}</option>
+                    </select>
+                </div>
+                
+                <div class="col-span-full flex flex-wrap gap-3 mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="ri-filter-line me-1"></i>
+                        {% if lang == 'ar' %}تطبيق المرشحات{% else %}Apply Filters{% endif %}
+                    </button>
+
+                    <a href="{{ url_for('clients.clients_list') }}" class="btn btn-secondary">
+                        <i class="ri-refresh-line me-1"></i>
+                        {% if lang == 'ar' %}إعادة تعيين{% else %}Reset{% endif %}
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-between items-center mb-6 animate-fadeIn" style="animation-delay: 0.3s;">
+        <h2 class="text-xl font-semibold text-gray-900 dark:text-white">
+            {% if lang == 'ar' %}قائمة العملاء{% else %}Clients List{% endif %}
+            <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">({{ clients|length }} {% if lang == 'ar' %}عميل{% else %}clients{% endif %})</span>
+        </h2>
+        
+        <div class="flex items-center gap-3">
+            <a href="{{ url_for('clients.add_client') }}" class="btn btn-primary">
+                <i class="ri-user-add-line me-1"></i>
+                {% if lang == 'ar' %}إضافة عميل{% else %}Add Client{% endif %}
+            </a>
+            
+            <div class="dropdown">
+                <button class="btn btn-glass dropdown-toggle">
+                    <i class="ri-more-2-fill me-1"></i>
+                    {% if lang == 'ar' %}المزيد{% else %}More{% endif %}
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a href="#" class="dropdown-item">
+                        <i class="ri-file-excel-line me-2"></i>
+                        {% if lang == 'ar' %}تصدير إلى Excel{% else %}Export to Excel{% endif %}
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="ri-printer-line me-2"></i>
+                        {% if lang == 'ar' %}طباعة{% else %}Print{% endif %}
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item">
+                        <i class="ri-settings-line me-2"></i>
+                        {% if lang == 'ar' %}إعدادات العملاء{% else %}Client Settings{% endif %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clients Table -->
+    <div class="card card-glass animate-fadeIn" style="animation-delay: 0.4s;">
+        <div class="card-body p-0">
+            <div class="overflow-x-auto">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}الاسم{% else %}Name{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}البريد الإلكتروني{% else %}Email{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}الهاتف{% else %}Phone{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}تاريخ التسجيل{% else %}Registration Date{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}الحالة{% else %}Status{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}المبيعات{% else %}Sales{% endif %}
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {% if lang == 'ar' %}الإجراءات{% else %}Actions{% endif %}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for client in clients %}
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-300 font-bold">
+                                        {{ client.name[0]|upper }}
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="font-medium text-gray-900 dark:text-white">{{ client.name }}</div>
+                                        {% if client.company %}
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ client.company }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ client.email }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 dark:text-white">{{ client.phone }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ client.registration_date|default('N/A') }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                    {% if client.is_active %}
+                                        bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200
+                                    {% else %}
+                                        bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200
+                                    {% endif %}">
+                                    <i class="
+                                        {% if client.is_active %}
+                                            ri-check-line
+                                        {% else %}
+                                            ri-close-circle-line
+                                        {% endif %} mr-1"></i>
+                                    {% if client.is_active %}
+                                        {% if lang == 'ar' %}نشط{% else %}Active{% endif %}
+                                    {% else %}
+                                        {% if lang == 'ar' %}غير نشط{% else %}Inactive{% endif %}
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium 
+                                    {% if client.total_sales > 1000 %}
+                                        text-green-600 dark:text-green-400
+                                    {% elif client.total_sales > 500 %}
+                                        text-blue-600 dark:text-blue-400
+                                    {% else %}
+                                        text-gray-900 dark:text-white
+                                    {% endif %}">
+                                    {{ client.total_sales|default(0)|round(2) }} SAR
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <a href="{{ url_for('clients.view_client', client_id=client.id) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="ri-eye-line me-1"></i>
+                                        {% if lang == 'ar' %}عرض{% else %}View{% endif %}
+                                    </a>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-icon btn-glass" data-tooltip="{% if lang == 'ar' %}المزيد من الخيارات{% else %}More Options{% endif %}">
+                                            <i class="ri-more-2-fill"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a href="{{ url_for('clients.edit_client', client_id=client.id) }}" class="dropdown-item">
+                                                <i class="ri-edit-line me-2"></i>
+                                                {% if lang == 'ar' %}تعديل{% else %}Edit{% endif %}
+                                            </a>
+                                            <a href="#" class="dropdown-item">
+                                                <i class="ri-history-line me-2"></i>
+                                                {% if lang == 'ar' %}سجل الطلبات{% else %}Order History{% endif %}
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                            <a href="#" class="dropdown-item text-danger">
+                                                <i class="ri-delete-bin-line me-2"></i>
+                                                {% if lang == 'ar' %}حذف{% else %}Delete{% endif %}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="px-6 py-12 text-center">
+                                <img src="{{ url_for('static', filename='img/no-clients.svg') }}" alt="No clients" class="mx-auto mb-4" style="width: 120px; height: 120px; opacity: 0.7;">
+                                <p class="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">
+                                    {% if lang == 'ar' %}لا يوجد عملاء{% else %}No clients found{% endif %}
+                                </p>
+                                <p class="text-sm text-gray-400 dark:text-gray-500 mb-4">
+                                    {% if lang == 'ar' %}لم يتم العثور على أي عملاء تطابق معايير البحث الخاصة بك{% else %}No clients matching your search criteria were found{% endif %}
+                                </p>
+                                <a href="{{ url_for('clients.add_client') }}" class="btn btn-primary">
+                                    <i class="ri-user-add-line me-1"></i>
+                                    {% if lang == 'ar' %}إضافة عميل{% else %}Add Client{% endif %}
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
+                {% if lang == 'ar' %}عرض {{ clients|length }} من {{ clients|length }} عميل{% else %}Showing {{ clients|length }} of {{ clients|length }} clients{% endif %}
+            </div>
+            <div class="pagination">
+                <button class="btn btn-sm btn-glass" disabled>
+                    <i class="ri-arrow-left-s-line me-1"></i>
+                    {% if lang == 'ar' %}السابق{% else %}Previous{% endif %}
+                </button>
+                <span class="px-3 py-1">1</span>
+                <button class="btn btn-sm btn-glass" disabled>
+                    {% if lang == 'ar' %}التالي{% else %}Next{% endif %}
+                    <i class="ri-arrow-right-s-line ms-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript for Filters Toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleFiltersBtn = document.getElementById('toggle-filters');
+            const filtersContainer = document.getElementById('filters-container');
+            
+            if (toggleFiltersBtn && filtersContainer) {
+                toggleFiltersBtn.addEventListener('click', function() {
+                    filtersContainer.classList.toggle('hidden');
+                    
+                    // Change icon based on state
+                    const icon = toggleFiltersBtn.querySelector('i');
+                    if (filtersContainer.classList.contains('hidden')) {
+                        icon.classList.remove('ri-filter-3-line');
+                        icon.classList.add('ri-filter-off-line');
+                    } else {
+                        icon.classList.remove('ri-filter-off-line');
+                        icon.classList.add('ri-filter-3-line');
+                    }
+                });
+            }
+            
+            // Initialize dropdowns
+            const dropdownToggles = document.querySelectorAll('.dropdown-toggle, .btn-icon[data-tooltip]');
+            dropdownToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(event) {
+                    event.stopPropagation();
+                    const dropdown = this.nextElementSibling;
+                    
+                    // Close all other dropdowns
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        if (menu !== dropdown) {
+                            menu.classList.remove('show');
+                        }
+                    });
+                    
+                    // Toggle current dropdown
+                    dropdown.classList.toggle('show');
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.dropdown')) {
+                    document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                        menu.classList.remove('show');
+                    });
+                }
+            });
+        });
+    </script>
+</div>
+{% endblock %}

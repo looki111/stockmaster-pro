@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}{% if lang == 'ar' %}الوصفات | StockMaster Pro{% else %}Recipes | StockMaster Pro{% endif %}{% endblock %}
+
+{% block header %}{% if lang == 'ar' %}الوصفات{% else %}Recipes{% endif %}{% endblock %}
+
+{% block breadcrumb %}{% if lang == 'ar' %}الوصفات{% else %}Recipes{% endif %}{% endblock %}
+
+{% block content %}
+<div class="glass-card p-6 mb-6">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">{% if lang == 'ar' %}إدارة الوصفات{% else %}Recipe Management{% endif %}</h2>
+        {% if user.role == 'manager' %}
+        <button id="addRecipeBtn" class="px-4 py-2 bg-[var(--primary-color)] text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+            <i class="ri-add-line"></i>
+            <span>{% if lang == 'ar' %}إضافة وصفة{% else %}Add Recipe{% endif %}</span>
+        </button>
+        {% endif %}
+    </div>
+
+    {% if user.role == 'manager' %}
+    <form id="recipeForm" class="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hidden" method="POST">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block mb-2 text-sm font-medium">{% if lang == 'ar' %}المنتج{% else %}Product{% endif %}</label>
+                <select name="product_id" required class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <option value="" disabled selected>-- {% if lang == 'ar' %}اختر{% else %}Select{% endif %} --</option>
+                    {% for product in products %}
+                    <option value="{{ product.id }}">{{ product.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block mb-2 text-sm font-medium">{% if lang == 'ar' %}المادة الخام{% else %}Raw Material{% endif %}</label>
+                {% if raw_materials|length == 0 %}
+                <div class="text-red-500 text-sm mb-2">
+                    {% if lang == 'ar' %}لا توجد مواد خام بعد.{% else %}No raw materials available.{% endif %}
+                    <a href="{{ url_for('inventory.raw_materials') }}" class="text-blue-500 hover:underline">
+                        {% if lang == 'ar' %}أضف مادة خام جديدة{% else %}Add new raw material{% endif %}
+                    </a>
+                </div>
+                <select name="raw_material_id" disabled class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-600 text-gray-400">
+                    <option>-- {% if lang == 'ar' %}لا يوجد{% else %}None available{% endif %} --</option>
+                </select>
+                {% else %}
+                <select name="raw_material_id" required class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <option value="" disabled selected>-- {% if lang == 'ar' %}اختر{% else %}Select{% endif %} --</option>
+                    {% for raw in raw_materials %}
+                    <option value="{{ raw.id }}">{{ raw.name }} ({{ raw.unit }})</option>
+                    {% endfor %}
+                </select>
+                {% endif %}
+            </div>
+
+            <div>
+                <label class="block mb-2 text-sm font-medium">{% if lang == 'ar' %}الكمية{% else %}Amount{% endif %}</label>
+                <input type="number" name="amount" min="1" required {% if raw_materials|length == 0 %}disabled{% endif %}
+                       class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+            </div>
+        </div>
+
+        <div class="mt-4 flex justify-end">
+            <button type="button" id="cancelRecipeBtn" class="px-4 py-2 mr-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                {% if lang == 'ar' %}إلغاء{% else %}Cancel{% endif %}
+            </button>
+            <button type="submit" {% if raw_materials|length == 0 %}disabled{% endif %}
+                    class="px-4 py-2 bg-[var(--primary-color)] text-white rounded-lg hover:bg-blue-700 transition">
+                {% if lang == 'ar' %}إضافة للمكونات{% else %}Add to Recipe{% endif %}
+            </button>
+        </div>
+    </form>
+    {% endif %}
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full">
+            <thead>
+                <tr class="border-b border-gray-200 dark:border-gray-700">
+                    <th class="py-3 px-4 text-left">{% if lang == 'ar' %}المنتج{% else %}Product{% endif %}</th>
+                    <th class="py-3 px-4 text-left">{% if lang == 'ar' %}المادة الخام{% else %}Raw Material{% endif %}</th>
+                    <th class="py-3 px-4 text-left">{% if lang == 'ar' %}الكمية لكل وحدة{% else %}Amount per Unit{% endif %}</th>
+                    {% if user.role == 'manager' %}
+                    <th class="py-3 px-4 text-left">{% if lang == 'ar' %}إجراءات{% else %}Actions{% endif %}</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for recipe in recipes %}
+                <tr class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <td class="py-3 px-4">{{ recipe.product_name }}</td>
+                    <td class="py-3 px-4">{{ recipe.raw_name }}</td>
+                    <td class="py-3 px-4">{{ recipe.amount }} {{ recipe.unit }}</td>
+                    {% if user.role == 'manager' %}
+                    <td class="py-3 px-4">
+                        <div class="flex gap-2">
+                            <button class="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300" title="{% if lang == 'ar' %}حذف{% else %}Delete{% endif %}">
+                                <i class="ri-delete-bin-line"></i>
+                            </button>
+                        </div>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="py-6 text-center text-gray-500">
+                        {% if lang == 'ar' %}لا توجد وصفات بعد{% else %}No recipes found{% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const addRecipeBtn = document.getElementById('addRecipeBtn');
+        const recipeForm = document.getElementById('recipeForm');
+        const cancelRecipeBtn = document.getElementById('cancelRecipeBtn');
+
+        if (addRecipeBtn && recipeForm) {
+            addRecipeBtn.addEventListener('click', function() {
+                recipeForm.classList.remove('hidden');
+                addRecipeBtn.classList.add('hidden');
+            });
+        }
+
+        if (cancelRecipeBtn && recipeForm && addRecipeBtn) {
+            cancelRecipeBtn.addEventListener('click', function() {
+                recipeForm.classList.add('hidden');
+                addRecipeBtn.classList.remove('hidden');
+            });
+        }
+    });
+</script>
+{% endblock %}

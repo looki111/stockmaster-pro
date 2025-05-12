@@ -1,0 +1,436 @@
+{% extends base_template|default("base.html") %}
+
+{% block title %}{% if lang == 'ar' %}الإعدادات | ستوك ماستر برو{% else %}Settings | StockMaster Pro{% endif %}{% endblock %}
+{% block header %}{% if lang == 'ar' %}الإعدادات{% else %}Settings{% endif %}{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <!-- Settings Navigation -->
+    <div class="settings-nav glass-card mb-6">
+        <div class="flex space-x-4">
+            <button class="settings-tab active" data-tab="general">
+                <i class="ri-settings-4-line"></i>
+                {{ 'عام' if lang == 'ar' else 'General' }}
+            </button>
+            <button class="settings-tab" data-tab="operational">
+                <i class="ri-printer-line"></i>
+                {{ 'تشغيلي' if lang == 'ar' else 'Operational' }}
+            </button>
+            <button class="settings-tab" data-tab="integration">
+                <i class="ri-share-line"></i>
+                {{ 'تكامل' if lang == 'ar' else 'Integration' }}
+            </button>
+            <button class="settings-tab" data-tab="ai">
+                <i class="ri-brain-line"></i>
+                {{ 'ذكاء اصطناعي' if lang == 'ar' else 'AI' }}
+            </button>
+        </div>
+    </div>
+
+    <!-- General Settings -->
+    <div class="settings-section active" id="general-settings">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Units & Format -->
+    <div class="glass-card">
+                <h3 class="text-lg font-semibold mb-4">{{ 'الوحدات والتنسيق' if lang == 'ar' else 'Units & Format' }}</h3>
+                <form id="units-form" class="space-y-4">
+                <div class="form-group">
+                        <label>{{ 'وحدة الوزن' if lang == 'ar' else 'Weight Unit' }}</label>
+                        <select name="weight_unit" class="custom-input">
+                            <option value="kg">كيلوجرام (kg)</option>
+                            <option value="g">جرام (g)</option>
+                        </select>
+                </div>
+                <div class="form-group">
+                        <label>{{ 'العملة' if lang == 'ar' else 'Currency' }}</label>
+                        <select name="currency" class="custom-input">
+                            <option value="SAR">ريال سعودي (SAR)</option>
+                            <option value="USD">دولار أمريكي (USD)</option>
+                        </select>
+                </div>
+                <div class="form-group">
+                        <label>{{ 'تنسيق الوقت' if lang == 'ar' else 'Time Format' }}</label>
+                        <select name="time_format" class="custom-input">
+                            <option value="24">24 ساعة</option>
+                            <option value="12">12 ساعة</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Order Types -->
+            <div class="glass-card">
+                <h3 class="text-lg font-semibold mb-4">{{ 'أنواع الطلبات' if lang == 'ar' else 'Order Types' }}</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="dine_in" class="custom-checkbox">
+                        <label for="dine_in">{{ 'تناول في المطعم' if lang == 'ar' else 'Dine In' }}</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="takeaway" class="custom-checkbox">
+                        <label for="takeaway">{{ 'سفري' if lang == 'ar' else 'Takeaway' }}</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" id="delivery" class="custom-checkbox">
+                        <label for="delivery">{{ 'توصيل' if lang == 'ar' else 'Delivery' }}</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Invoice Customization -->
+            <div class="glass-card">
+                <h3 class="text-lg font-semibold mb-4">{{ 'تخصيص الفاتورة' if lang == 'ar' else 'Invoice Customization' }}</h3>
+                <form id="invoice-form" class="space-y-4">
+                    <div class="form-group">
+                        <label>{{ 'نموذج الفاتورة' if lang == 'ar' else 'Invoice Template' }}</label>
+                        <select name="invoice_template" class="custom-input">
+                            <option value="default">{{ 'افتراضي' if lang == 'ar' else 'Default' }}</option>
+                            <option value="modern">{{ 'عصري' if lang == 'ar' else 'Modern' }}</option>
+                            <option value="minimal">{{ 'مبسط' if lang == 'ar' else 'Minimal' }}</option>
+                        </select>
+                </div>
+                <div class="form-group">
+                        <label>{{ 'الحقول المخصصة' if lang == 'ar' else 'Custom Fields' }}</label>
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="show_tax_id" class="custom-checkbox">
+                                <label for="show_tax_id">{{ 'الرقم الضريبي' if lang == 'ar' else 'Tax ID' }}</label>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="show_vat" class="custom-checkbox">
+                                <label for="show_vat">{{ 'ضريبة القيمة المضافة' if lang == 'ar' else 'VAT' }}</label>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="show_qr" class="custom-checkbox">
+                                <label for="show_qr">{{ 'رمز QR' if lang == 'ar' else 'QR Code' }}</label>
+                            </div>
+                        </div>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Operational Settings -->
+    <div class="settings-section hidden" id="operational-settings">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Printer Settings -->
+    <div class="glass-card">
+                <h3 class="text-lg font-semibold mb-4">{{ 'إعدادات الطابعات' if lang == 'ar' else 'Printer Settings' }}</h3>
+                <form id="printer-form" class="space-y-4">
+                <div class="form-group">
+                        <label>{{ 'طابعة الفواتير' if lang == 'ar' else 'POS Printer' }}</label>
+                        <select name="pos_printer" class="custom-input">
+                            <option value="">{{ 'اختر الطابعة' if lang == 'ar' else 'Select Printer' }}</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                        <label>{{ 'طابعة الباركود' if lang == 'ar' else 'Barcode Printer' }}</label>
+                        <select name="barcode_printer" class="custom-input">
+                            <option value="">{{ 'اختر الطابعة' if lang == 'ar' else 'Select Printer' }}</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <!-- POS Hardware -->
+            <div class="glass-card">
+                <h3 class="text-lg font-semibold mb-4">{{ 'أجهزة نقاط البيع' if lang == 'ar' else 'POS Hardware' }}</h3>
+                <form id="hardware-form" class="space-y-4">
+                    <div class="form-group">
+                        <label>{{ 'نوع الجهاز' if lang == 'ar' else 'Device Type' }}</label>
+                        <select name="device_type" class="custom-input">
+                            <option value="">{{ 'اختر الجهاز' if lang == 'ar' else 'Select Device' }}</option>
+                            <option value="ingenico">Ingenico</option>
+                            <option value="verifone">Verifone</option>
+                            <option value="pax">PAX</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                        <label>{{ 'وضع الكاشير السريع' if lang == 'ar' else 'Quick POS Mode' }}</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="quick_pos" class="custom-checkbox">
+                            <label for="quick_pos">{{ 'تفعيل' if lang == 'ar' else 'Enable' }}</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Shift Management -->
+            <div class="glass-card">
+                <h3 class="text-lg font-semibold mb-4">{{ 'إدارة الورديات' if lang == 'ar' else 'Shift Management' }}</h3>
+                <form id="shift-form" class="space-y-4">
+                    <div class="form-group">
+                        <label>{{ 'وقت إغلاق الوردية' if lang == 'ar' else 'Shift Closing Time' }}</label>
+                        <input type="time" name="shift_closing_time" class="custom-input">
+                    </div>
+                    <div class="form-group">
+                        <label>{{ 'تقرير نهاية الوردية' if lang == 'ar' else 'End of Shift Report' }}</label>
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="show_cash" class="custom-checkbox">
+                                <label for="show_cash">{{ 'صافي النقد' if lang == 'ar' else 'Cash Summary' }}</label>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="show_sales" class="custom-checkbox">
+                                <label for="show_sales">{{ 'ملخص المبيعات' if lang == 'ar' else 'Sales Summary' }}</label>
+                            </div>
+                        </div>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Integration Settings -->
+    <div class="settings-section hidden" id="integration-settings">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- WhatsApp Integration -->
+    <div class="glass-card">
+                <h3 class="text-lg font-semibold mb-4">{{ 'تكامل واتساب' if lang == 'ar' else 'WhatsApp Integration' }}</h3>
+                <form id="whatsapp-form" class="space-y-4">
+                <div class="form-group">
+                        <label>{{ 'مفتاح API' if lang == 'ar' else 'API Key' }}</label>
+                        <input type="password" name="whatsapp_api" class="custom-input">
+                </div>
+                <div class="form-group">
+                        <label>{{ 'إعدادات الإشعارات' if lang == 'ar' else 'Notification Settings' }}</label>
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="whatsapp_orders" class="custom-checkbox">
+                                <label for="whatsapp_orders">{{ 'إشعارات الطلبات' if lang == 'ar' else 'Order Notifications' }}</label>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="whatsapp_promotions" class="custom-checkbox">
+                                <label for="whatsapp_promotions">{{ 'إشعارات العروض' if lang == 'ar' else 'Promotion Notifications' }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                </div>
+
+            <!-- SMS Integration -->
+            <div class="glass-card">
+                <h3 class="text-lg font-semibold mb-4">{{ 'تكامل الرسائل النصية' if lang == 'ar' else 'SMS Integration' }}</h3>
+                <form id="sms-form" class="space-y-4">
+                <div class="form-group">
+                        <label>{{ 'مفتاح API' if lang == 'ar' else 'API Key' }}</label>
+                        <input type="password" name="sms_api" class="custom-input">
+                </div>
+                <div class="form-group">
+                        <label>{{ 'إعدادات الإشعارات' if lang == 'ar' else 'Notification Settings' }}</label>
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="sms_orders" class="custom-checkbox">
+                                <label for="sms_orders">{{ 'إشعارات الطلبات' if lang == 'ar' else 'Order Notifications' }}</label>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="sms_promotions" class="custom-checkbox">
+                                <label for="sms_promotions">{{ 'إشعارات العروض' if lang == 'ar' else 'Promotion Notifications' }}</label>
+                            </div>
+                        </div>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Settings -->
+    <div class="settings-section hidden" id="ai-settings">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- AI Analytics -->
+    <div class="glass-card">
+                <h3 class="text-lg font-semibold mb-4">{{ 'التحليلات الذكية' if lang == 'ar' else 'AI Analytics' }}</h3>
+                <form id="ai-form" class="space-y-4">
+                <div class="form-group">
+                        <label>{{ 'تفعيل التحليلات' if lang == 'ar' else 'Enable Analytics' }}</label>
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="ai_analytics" class="custom-checkbox">
+                                <label for="ai_analytics">{{ 'تفعيل' if lang == 'ar' else 'Enable' }}</label>
+                            </div>
+                        </div>
+                </div>
+                <div class="form-group">
+                        <label>{{ 'تنبؤات المبيعات' if lang == 'ar' else 'Sales Predictions' }}</label>
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="sales_prediction" class="custom-checkbox">
+                                <label for="sales_prediction">{{ 'تفعيل' if lang == 'ar' else 'Enable' }}</label>
+                            </div>
+                        </div>
+                </div>
+                <div class="form-group">
+                        <label>{{ 'تنبؤات المخزون' if lang == 'ar' else 'Inventory Predictions' }}</label>
+                        <div class="space-y-2">
+                            <div class="flex items-center space-x-2">
+                                <input type="checkbox" id="inventory_prediction" class="custom-checkbox">
+                                <label for="inventory_prediction">{{ 'تفعيل' if lang == 'ar' else 'Enable' }}</label>
+                            </div>
+                </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <!-- Save Button -->
+    <div class="mt-6 text-center">
+        <button class="btn-gradient" onclick="saveSettings()">
+            {{ 'حفظ الإعدادات' if lang == 'ar' else 'Save Settings' }}
+        </button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Settings Navigation
+document.querySelectorAll('.settings-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        // Remove active class from all tabs and sections
+        document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.settings-section').forEach(s => s.classList.add('hidden'));
+
+        // Add active class to clicked tab and corresponding section
+        tab.classList.add('active');
+        document.getElementById(`${tab.dataset.tab}-settings`).classList.remove('hidden');
+    });
+});
+
+// Save Settings
+function saveSettings() {
+    const settings = {
+        general: {
+            weight_unit: document.querySelector('[name="weight_unit"]').value,
+            currency: document.querySelector('[name="currency"]').value,
+            time_format: document.querySelector('[name="time_format"]').value,
+            order_types: {
+                dine_in: document.getElementById('dine_in').checked,
+                takeaway: document.getElementById('takeaway').checked,
+                delivery: document.getElementById('delivery').checked
+            },
+            invoice: {
+                template: document.querySelector('[name="invoice_template"]').value,
+                fields: {
+                    tax_id: document.getElementById('show_tax_id').checked,
+                    vat: document.getElementById('show_vat').checked,
+                    qr: document.getElementById('show_qr').checked
+                }
+            }
+        },
+        operational: {
+            printers: {
+                pos: document.querySelector('[name="pos_printer"]').value,
+                barcode: document.querySelector('[name="barcode_printer"]').value
+            },
+            hardware: {
+                device_type: document.querySelector('[name="device_type"]').value,
+                quick_pos: document.getElementById('quick_pos').checked
+            },
+            shift: {
+                closing_time: document.querySelector('[name="shift_closing_time"]').value,
+                report: {
+                    cash: document.getElementById('show_cash').checked,
+                    sales: document.getElementById('show_sales').checked
+                }
+            }
+        },
+        integration: {
+            whatsapp: {
+                api_key: document.querySelector('[name="whatsapp_api"]').value,
+                notifications: {
+                    orders: document.getElementById('whatsapp_orders').checked,
+                    promotions: document.getElementById('whatsapp_promotions').checked
+                }
+            },
+            sms: {
+                api_key: document.querySelector('[name="sms_api"]').value,
+                notifications: {
+                    orders: document.getElementById('sms_orders').checked,
+                    promotions: document.getElementById('sms_promotions').checked
+                }
+            }
+        },
+        ai: {
+            analytics: document.getElementById('ai_analytics').checked,
+            sales_prediction: document.getElementById('sales_prediction').checked,
+            inventory_prediction: document.getElementById('inventory_prediction').checked
+        }
+    };
+
+    // Send to server
+    fetch('/api/settings/save', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(settings)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Toast.show('{{ "تم حفظ الإعدادات بنجاح" if lang == "ar" else "Settings saved successfully" }}', 'success');
+        } else {
+            Toast.show(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        Toast.show('{{ "حدث خطأ أثناء حفظ الإعدادات" if lang == "ar" else "Error saving settings" }}', 'error');
+    });
+}
+
+// Load Settings
+function loadSettings() {
+    fetch('/api/settings/get')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const settings = data.settings;
+
+            // General Settings
+            document.querySelector('[name="weight_unit"]').value = settings.general.weight_unit;
+            document.querySelector('[name="currency"]').value = settings.general.currency;
+            document.querySelector('[name="time_format"]').value = settings.general.time_format;
+
+            // Order Types
+            document.getElementById('dine_in').checked = settings.general.order_types.dine_in;
+            document.getElementById('takeaway').checked = settings.general.order_types.takeaway;
+            document.getElementById('delivery').checked = settings.general.order_types.delivery;
+
+            // Invoice Settings
+            document.querySelector('[name="invoice_template"]').value = settings.general.invoice.template;
+            document.getElementById('show_tax_id').checked = settings.general.invoice.fields.tax_id;
+            document.getElementById('show_vat').checked = settings.general.invoice.fields.vat;
+            document.getElementById('show_qr').checked = settings.general.invoice.fields.qr;
+
+            // Operational Settings
+            document.querySelector('[name="pos_printer"]').value = settings.operational.printers.pos;
+            document.querySelector('[name="barcode_printer"]').value = settings.operational.printers.barcode;
+            document.querySelector('[name="device_type"]').value = settings.operational.hardware.device_type;
+            document.getElementById('quick_pos').checked = settings.operational.hardware.quick_pos;
+
+            // Integration Settings
+            document.querySelector('[name="whatsapp_api"]').value = settings.integration.whatsapp.api_key;
+            document.getElementById('whatsapp_orders').checked = settings.integration.whatsapp.notifications.orders;
+            document.getElementById('whatsapp_promotions').checked = settings.integration.whatsapp.notifications.promotions;
+
+            document.querySelector('[name="sms_api"]').value = settings.integration.sms.api_key;
+            document.getElementById('sms_orders').checked = settings.integration.sms.notifications.orders;
+            document.getElementById('sms_promotions').checked = settings.integration.sms.notifications.promotions;
+
+            // AI Settings
+            document.getElementById('ai_analytics').checked = settings.ai.analytics;
+            document.getElementById('sales_prediction').checked = settings.ai.sales_prediction;
+            document.getElementById('inventory_prediction').checked = settings.ai.inventory_prediction;
+        }
+    })
+    .catch(error => {
+        Toast.show('{{ "حدث خطأ أثناء تحميل الإعدادات" if lang == "ar" else "Error loading settings" }}', 'error');
+    });
+}
+
+// Load settings on page load
+document.addEventListener('DOMContentLoaded', loadSettings);
+</script>
+{% endblock %}
